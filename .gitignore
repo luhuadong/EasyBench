@@ -1,0 +1,5 @@
+gyt_box
+*.user*
+*.o
+moc_*
+qrc_*

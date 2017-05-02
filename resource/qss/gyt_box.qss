@@ -1,0 +1,147 @@
+QLabel#displayLabel
+{
+    border: 2px solid gray;
+    border-radius: 6px;
+    background-color: rgba(95, 95, 95, 50%);
+    color: blue;
+    font: normal 18px;
+}
+
+QWidget#menuWidget
+{
+    background-color: #202020;
+}
+
+QToolButton#menuBtn
+{
+    padding: 0px;
+    border: 2px solid Black;
+    background-color: transparent;
+    color: White;
+    font: bold 16px;
+}
+
+QToolButton#menuBtn:checked
+{
+    padding: 0px;
+    border: 2px inset Gray;
+    background-color: White;
+    color: Black;
+}
+
+QPushButton#operationBtn
+{
+    padding: 0px;
+    color: White;
+    font: bold 16px;
+    border: 2px outset #707070;
+    background-color: #404040;
+}
+
+QPushButton#operationBtn:pressed
+{
+    padding: 0px;
+    border: 2px inset #303030;
+    background-color: #505050;
+}
+
+QPushButton#operationBtn:disabled
+{
+    color: Gray;
+}
+
+QPushButton#functionBtn
+{
+    padding: 0px;
+    border: 8px outset #202020;
+    border-radius: 32px;
+    background-color: #808080;
+    color: Black;
+    font: bold 18px;
+}
+
+QPushButton#functionBtn:pressed
+{
+    padding: 0px;
+    border: 8px inset #101010;
+    background-color: #404040;
+    color: White;
+}
+
+QPushButton#functionBtn:focus
+{
+    padding: -4px;
+}
+
+QPushButton#functionBtn:disabled
+{
+    border-color: #404040;
+    background-color: #909090;
+    color: #606060;
+}
+
+QPushButton#noneOutlineBtn
+{
+    padding: 0px;
+    border-style: solid;
+}
+
+QPushButton#noneOutlineBtn:pressed
+{
+    padding: 0px;
+    border-style: solid;
+}
+
+QPushButton#noneOutlineBtn:focus
+{
+    padding: -4px;
+}
+
+QProgressBar
+{
+    border: none;
+    text-align: center;
+    background: rgb(210, 225, 240);
+    color: White;
+    font: bold 14px;
+}
+
+QProgressBar
+{
+    background: rgb(0, 160, 230);
+}
+
+QTableView {
+    font-size: 16px;
+    font-weight: normal;
+    background-color: rgba(99, 99, 99, 50%);
+    selection-background-color: rgba(99, 99, 99, 100%);
+    selection-color: White;
+}
+
+QLineEdit#inputLineEdit
+{
+    color: brown;
+    border: 2px solid gray;
+    border-radius: 10px;
+    padding: 0 18px;
+    background: #FFFFA0;
+    selection-background-color: darkgray;
+    font: 18px;
+}
+
+QLineEdit:read-only
+{
+    background: lightblue;
+}
+
+QComboBox
+{
+    color: brown;
+    border: 2px solid gray;
+    border-radius: 10px;
+    padding: 0 18px;
+    background: #FFFFA0;
+    selection-background-color: darkgray;
+    font: 18px;
+}
