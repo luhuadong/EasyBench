@@ -54,7 +54,10 @@ private:
 
     QLabel *backlightLabel;
     QProgressBar *backlightBar;
+    QString backlightName;
     int backlightValue;
+    int maxBacklightValue;
+    int minBacklightValue;
 
     /*
      * visible resolution : xres yres
