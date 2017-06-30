@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=GYT Box
+Comment=system test & monitor
+Exec=/home/root/tools/gyt_box
+Terminal=true
+Type=Application
+Icon=gyt_box
+X-MB-SingleInstance=false
+StartupNotify=true
+Categories=System;Settings;
