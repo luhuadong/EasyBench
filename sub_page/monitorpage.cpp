@@ -22,14 +22,14 @@ extern "C"
 #include <sys/vfs.h>
 }
 
-unsigned char calcCheckSum(unsigned char *data, unsigned int len)
-{
-    unsigned char sum = 0x00;
-    while(len--) {
-        sum += data[len];
-    }
-    return sum;
-}
+//unsigned char calcCheckSum(unsigned char *data, unsigned int len)
+//{
+//    unsigned char sum = 0x00;
+//    while(len--) {
+//        sum += data[len];
+//    }
+//    return sum;
+//}
 
 MonitorPage::MonitorPage(QWidget *parent) :
     PageWidget(parent)

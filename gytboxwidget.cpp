@@ -8,9 +8,13 @@
 GytBoxWidget::GytBoxWidget(QWidget *parent)
     : QWidget(parent)
 {
+//    QString cfgFileName = QString(QApplication::applicationDirPath() +"/gyt_box.conf");
+//    QSettings configRead(cfgFileName, QSettings::IniFormat);
+//    backlightName = configRead.value("/LCD/Backlight_name").toString();
+
     setWindowTitle(tr("GYT Box"));
     //setFixedSize(1024, 768);
-    setFixedSize(1024, 720);
+    setFixedSize(LCD_WIDTH, LCD_HEIGHT - TITLE_HEIGHT);
     //setWindowFlags(Qt::FramelessWindowHint);
 
     //---------- 标题栏 -----------

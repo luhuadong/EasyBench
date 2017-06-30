@@ -1,4 +1,5 @@
 #include "gytboxwidget.h"
+#include "gyt_common.h"
 #include <QApplication>
 #include <QFile>
 #include <QMessageBox>
@@ -7,6 +8,7 @@ extern "C"
 {
 #include <stdlib.h>
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +28,9 @@ int main(int argc, char *argv[])
     qssFile.open(QFile::ReadOnly);
     a.setStyleSheet(qssFile.readAll());
     qssFile.close();
+
+    calcCheckSum("1234567890", 10);
+    detectDevices();
 
     GytBoxWidget w;
     w.show();

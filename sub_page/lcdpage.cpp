@@ -31,22 +31,23 @@ LcdPage::LcdPage(QWidget *parent) :
     connect(operationBar->secondButton(), SIGNAL(clicked()), this, SLOT(lcdBacklightDown()));
     connect(operationBar->thirdButton(), SIGNAL(clicked()), this, SLOT(lcdBacklightUp()));
 
-    QString cfgFileName = QString(QApplication::applicationDirPath() +"/gyt_box.conf");
-    QSettings configRead(cfgFileName, QSettings::IniFormat);
-    backlightName = configRead.value("/LCD/Backlight_name").toString();
-
+    backlightName = QString(BACKLIGHT_NAME);
     QByteArray byteArray;
-//#if defined(SYS_ADVANTECH)
-//    QFile backlightFile(QString("/sys/class/backlight/backlight.28/brightness"));
-//#elif defined(SYS_KONTRON)
     QFile backlightFile(QString("/sys/class/backlight/%1/brightness").arg(backlightName));
-//#endif
     backlightFile.open(QFile::ReadOnly);
     byteArray = backlightFile.readAll();
     //backlightValue = backlightFile.readAll().toInt();
+    backlightValue = QString(byteArray).toInt();
     backlightFile.close();
 
-    backlightValue = QString(byteArray).toInt();
+    MinBacklightValue = 2;
+    MaxBacklightValue = 100;
+    backlightFile.setFileName(QString("/sys/class/backlight/%1/max_brightness").arg(backlightName));
+    backlightFile.open(QFile::ReadOnly);
+    byteArray = backlightFile.readAll();
+    MaxBacklightValue = QString(byteArray).toInt();
+    backlightFile.close();
+
     backlightLabel = new QLabel(tr("Backlight Level : ") + QString::number(backlightValue), this);
     backlightLabel->setGeometry(100, 550, 150, 50);
 
@@ -156,12 +157,7 @@ void LcdPage::lcdBacklightUp()
         backlightValue++;
         backlightLabel->setText(tr("Backlight Level : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
-//#if defined(SYS_ADVANTECH)
-//        sprintf(cmd, "echo %d > /sys/class/backlight/backlight.28/brightness", backlightValue);
-//#elif defined(SYS_KONTRON)
-//        sprintf(cmd, "echo %d > /sys/class/backlight/backlight.23/brightness", backlightValue);
-//#endif
-        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, backlightName.toLatin1().data());
+        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, BACKLIGHT_NAME);
         system(cmd);
     }
 }
@@ -174,12 +170,7 @@ void LcdPage::lcdBacklightDown()
         backlightValue--;
         backlightLabel->setText(tr("Backlight Level : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
-//#if defined(SYS_ADVANTECH)
-//        sprintf(cmd, "echo %d > /sys/class/backlight/backlight.28/brightness", backlightValue);
-//#elif defined(SYS_KONTRON)
-//        sprintf(cmd, "echo %d > /sys/class/backlight/backlight.23/brightness", backlightValue);
-//#endif
-        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, backlightName.toLatin1().data());
+        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, BACKLIGHT_NAME);
         system(cmd);
     }
 }

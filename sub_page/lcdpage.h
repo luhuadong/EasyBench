@@ -22,13 +22,6 @@ extern "C"
 #include <sys/ioctl.h>
 }
 
-#if defined(SYS_ADVANTECH)
-#define MaxBacklightValue 32
-#define MinBacklightValue 2
-#elif defined(SYS_KONTRON)
-#define MaxBacklightValue 100
-#define MinBacklightValue 2
-#endif
 
 class LcdPage : public PageWidget
 {
@@ -58,6 +51,8 @@ private:
     int backlightValue;
     int maxBacklightValue;
     int minBacklightValue;
+    int MaxBacklightValue;
+    int MinBacklightValue;
 
     /*
      * visible resolution : xres yres

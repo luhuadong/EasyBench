@@ -4,7 +4,19 @@
 //#define CAPACITIVE_SCREEN
 
 //#define SYS_ADVANTECH
-#define SYS_KONTRON
+//#define SYS_KONTRON
+
+#define TITLE_HEIGHT 40
+
+#ifdef GY_GLOBAL
+#define GY_GLOBAL_EXT
+#else
+#define GY_GLOBAL_EXT extern
+#endif
+
+GY_GLOBAL_EXT char BACKLIGHT_NAME[32];
+GY_GLOBAL_EXT unsigned int LCD_WIDTH;
+GY_GLOBAL_EXT unsigned int LCD_HEIGHT;
 
 #pragma pack(push)
 #pragma pack(1)
@@ -66,6 +78,18 @@ typedef struct readVersionCMD {
 
 #pragma pack(pop)
 
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 unsigned char calcCheckSum(unsigned char *data, unsigned int len);
+
+void detectDevices(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif // GYT_COMMON_H
