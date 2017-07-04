@@ -73,6 +73,8 @@ void detectDevices(void)
 
     memset(BACKLIGHT_NAME, 0, sizeof(BACKLIGHT_NAME));
     strcpy(BACKLIGHT_NAME, getBacklightNodeName());
+
+    TOUCH_TYPE = TOUCH_CAPACITIVE;
 }
 
 unsigned char calcCheckSum(unsigned char *data, unsigned int len)

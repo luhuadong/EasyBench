@@ -34,11 +34,11 @@ TouchPage::TouchPage(QWidget *parent) :
     connect(linzBtn, SIGNAL(clicked()), this, SLOT(linzBtnClicked()));
     connect(drawBtn, SIGNAL(clicked()), this, SLOT(drawBtnClicked()));
 
-#ifdef CAPACITIVE_SCREEN
-    calBtn->setEnabled(false);
-    linz9Btn->setEnabled(false);
-    linzBtn->setEnabled(false);
-#endif
+    if(TOUCH_CAPACITIVE == TOUCH_TYPE) {
+        calBtn->setEnabled(false);
+        linz9Btn->setEnabled(false);
+        linzBtn->setEnabled(false);
+    }
 
 //    QGridLayout *mainLayout = new QGridLayout;
 //    mainLayout->addWidget(calBtn, 0, 0, 1, 1, Qt::AlignCenter);

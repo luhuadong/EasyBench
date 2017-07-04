@@ -1,7 +1,7 @@
 #ifndef GYT_COMMON_H
 #define GYT_COMMON_H
 
-//#define CAPACITIVE_SCREEN
+
 
 //#define SYS_ADVANTECH
 //#define SYS_KONTRON
@@ -13,6 +13,14 @@
 #else
 #define GY_GLOBAL_EXT extern
 #endif
+
+typedef enum TouchType{
+    TOUCH_CAPACITIVE = 0,
+    TOUCH_RESISTIVE,
+    TOUCH_OTHER
+}TouchType;
+
+GY_GLOBAL_EXT TouchType TOUCH_TYPE;
 
 GY_GLOBAL_EXT char BACKLIGHT_NAME[32];
 GY_GLOBAL_EXT unsigned int LCD_WIDTH;
