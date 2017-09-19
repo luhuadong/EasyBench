@@ -305,8 +305,10 @@ void MonitorPage::on_updateTimer_timeout()
     diskFreeLabel->setText(QString("Free  : %1 MB").arg(diskFree));
     diskBar->setValue(diskUsed);
 
+    armTempLabel->setText(QString("ARM temp  : %1 C").arg(armTemp, 0, 'f', 2));
+
     if(sockToBasdPcbIsOk) {
-        armTempLabel->setText(QString("ARM temp  : %1 C").arg(armTemp, 0, 'f', 2));
+
         adspTempLabel->setText(QString("ADSP temp : %1 C").arg(adspTemp, 0, 'f', 2));
         pcbTempLabel->setText(QString("PCB temp  : %1 C").arg(pcbTemp, 0, 'f', 2));
         fanSpeedLabel->setText(QString("Fan speed : %1 rpm").arg(fanSpeed, 0, 'f', 0));
