@@ -1,4 +1,5 @@
 #include "versionpage.h"
+#include "gyt_common.h"
 #include <QTextCodec>
 #include <QStringList>
 #include <QFile>
@@ -52,7 +53,9 @@ VersionPage::VersionPage(QWidget *parent) :
 void VersionPage::getVersionData()
 {
     QString kernelStr;
+    QString yoctoStr;
     QFile tmpFile;
+
     tmpFile.setFileName("/proc/version");
     if(!tmpFile.open(QIODevice::ReadOnly)) {
         kernelStr = tr("3.10.17");
@@ -62,14 +65,23 @@ void VersionPage::getVersionData()
     }
     tmpFile.close();
 
+    tmpFile.setFileName("/etc/issue.net");
+    if(!tmpFile.open(QIODevice::ReadOnly)) {
+        yoctoStr = tr("Yocto 1.8");
+    }
+    else {
+        yoctoStr = tmpFile.readLine();
+    }
+    tmpFile.close();
+
     QStringList itemNameList;
-    itemNameList << tr("Machine model") << tr("Serial number") << tr("GYT OS version")
+    itemNameList << tr("Machine type") << tr("Serial number") << tr("GYT OS version")
                  << tr("Yocto version") << tr("Linux kernel") << tr("Firmware version")
                  << tr("Software version") << tr("Hardware version") << tr("Developer") << tr(" ");
 
     QStringList itemValueList;
-    itemValueList << tr("GY64") << tr("xxxx-xxxx-xxxx-xxxx") << tr("1.0.001")
-                  << tr("1.5.3") << kernelStr << tr("fs 1.0.0-B2016112801")
+    itemValueList << QString(gMachineTypeStr) << tr("xxxx-xxxx-xxxx-xxxx") << tr("1.0.001")
+                  << yoctoStr << kernelStr << tr("fs 1.0.0-B2016112801")
                   << tr("seat_imx 2.0.0.10554") << tr("Freescale i.MX6 Quad, ARMv7 Processor rev 10")
                   << tr("Guangzhou Guangyou communications equipment Co., Ltd.")
                   << tr(" ");

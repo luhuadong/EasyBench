@@ -80,6 +80,36 @@ QPushButton#functionBtn:disabled
     color: #606060;
 }
 
+QPushButton#functionBtn_small
+{
+    padding: 0px;
+    border: 2px outset #202020;
+    border-radius: 8px;
+    background-color: #808080;
+    color: Black;
+    font: bold 16px;
+}
+
+QPushButton#functionBtn_small:pressed
+{
+    padding: 0px;
+    border: 2px inset #101010;
+    background-color: #404040;
+    color: White;
+}
+
+QPushButton#functionBtn_small:focus
+{
+    padding: -1px;
+}
+
+QPushButton#functionBtn_small:disabled
+{
+    border-color: #404040;
+    background-color: #909090;
+    color: #606060;
+}
+
 QPushButton#noneOutlineBtn
 {
     padding: 0px;
@@ -127,7 +157,7 @@ QLineEdit#inputLineEdit
     padding: 0 18px;
     background: #FFFFA0;
     selection-background-color: darkgray;
-    font: 18px;
+    font: bold 24px;
 }
 
 QLineEdit:read-only
@@ -141,7 +171,30 @@ QComboBox
     border: 2px solid gray;
     border-radius: 10px;
     padding: 0 18px;
-    background: #FFFFA0;
-    selection-background-color: darkgray;
+    background-color: rgba(255, 255, 224, 50%);
     font: 18px;
+}
+
+QComboBox::drop-down
+{
+    background-color: lightgray;
+    border-radius: 8px;
+    min-width: 20px;
+
+}
+
+QComboBox QAbstractItemView
+{
+    border: 2px;
+    padding: 0 20px;
+    color: brown;
+    background-color: white;
+    selection-color: green;
+    selection-background-color: darkgray;
+}
+
+QComboBox QAbstractItemView::item
+{
+    height: 40px;
+    min-height: 100px;
 }

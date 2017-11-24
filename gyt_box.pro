@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,7 +31,9 @@ SOURCES += main.cpp\
     module/lcd/grayscalewidget.cpp \
     module/monitor/basepcbthread.cpp \
     module/monitor/cpustatthread.cpp \
-    custom_widget/inputlineedit.cpp
+    custom_widget/inputlineedit.cpp \
+    sub_page/networkpage.cpp \
+    sub_page/serialportpage.cpp
 
 HEADERS  += gytboxwidget.h \
     gyt_common.h \
@@ -49,7 +52,9 @@ HEADERS  += gytboxwidget.h \
     module/lcd/grayscalewidget.h \
     module/monitor/basepcbthread.h \
     module/monitor/cpustatthread.h \
-    custom_widget/inputlineedit.h
+    custom_widget/inputlineedit.h \
+    sub_page/networkpage.h \
+    sub_page/serialportpage.h
 
 RESOURCES += \
     resource/images.qrc \

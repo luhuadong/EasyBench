@@ -86,9 +86,11 @@ void CpuStatThread::run()
         b = cpuTotal[1][1] - cpuTotal[1][0];    // total_2 - total_1
         a = a<0 ? -a : a;
         b = b<0 ? -b : b;
+        /*
         printf("a=%d, b=%d\n", a, b);
         printf("cpuTotal[0][1] = %d, cpuTotal[0][0] = %d\n", cpuTotal[0][1], cpuTotal[0][0]);
         printf("cpuTotal[1][1] = %d, cpuTotal[1][0] = %d\n", cpuTotal[1][1], cpuTotal[1][0]);
+        */
         if(0 == b) {
             cpuTotalDuty = 0;
         }

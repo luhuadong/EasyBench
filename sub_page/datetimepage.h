@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include <QComboBox>
 
+
 class DatetimePage : public PageWidget
 {
     Q_OBJECT
@@ -18,6 +19,7 @@ public:
 public slots:
 
 private:
+
     QGroupBox *networkGroupBox;
     InputLineEdit *ipLineEdit;
     InputLineEdit *maskLineEdit;

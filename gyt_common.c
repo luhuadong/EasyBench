@@ -75,6 +75,7 @@ void detectDevices(void)
     strcpy(BACKLIGHT_NAME, getBacklightNodeName());
 
     TOUCH_TYPE = TOUCH_RESISTIVE;
+    strcpy(gSerialPortStr, "/dev/ttymxc1");
 }
 
 unsigned char calcCheckSum(unsigned char *data, unsigned int len)

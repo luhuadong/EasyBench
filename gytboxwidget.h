@@ -16,6 +16,8 @@
 #include "sub_page/versionpage.h"
 #include "sub_page/realtimepage.h"
 #include "sub_page/aboutpage.h"
+#include "sub_page/networkpage.h"
+#include "sub_page/serialportpage.h"
 
 
 class GytBoxWidget : public QWidget
@@ -30,10 +32,12 @@ public:
         PAGE_LCD = 0,
         PAGE_TOUCH,
         PAGE_CAMERA,
-        PAGE_DATETIME,
+        //PAGE_DATETIME,
+        PAGE_NETWORK,
+        PAGE_SERIALPORT,
         PAGE_MONITOR,
         PAGE_VERSION,
-        PAGE_REALTIME,
+        //PAGE_REALTIME,
         PAGE_ABOUT,
     }pageTypes;
 
@@ -66,10 +70,12 @@ private:
     LcdPage *lcdPage;
     TouchPage *touchPage;
     CameraPage *cameraPage;
-    DatetimePage *datetimePage;
+    //DatetimePage *datetimePage;
+    NetworkPage *networkPage;
+    SerialPortPage *serialPortPage;
     MonitorPage *monitorPage;
     VersionPage *versionPage;
-    RealtimePage *realtimePage;
+    //RealtimePage *realtimePage;
     AboutPage *aboutPage;
 
 

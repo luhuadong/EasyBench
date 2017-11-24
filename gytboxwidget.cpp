@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QString>
 
+
+
 GytBoxWidget::GytBoxWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -15,12 +17,15 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     QSettings configRead(cfgFileName, QSettings::IniFormat);
     int type = configRead.value("/LCD/Type").toInt();
     if(0 == type) {
-        TOUCH_TYPE = TOUCH_CAPACITIVE;
-    }else if(1 == type) {
         TOUCH_TYPE = TOUCH_RESISTIVE;
+    }else if(1 == type) {
+        TOUCH_TYPE = TOUCH_CAPACITIVE;
     }else {
         TOUCH_TYPE = TOUCH_OTHER;
     }
+
+    strcpy(gMachineTypeStr, configRead.value("VERSION/Machine_type").toString().toLatin1().data());
+    strcpy(gSerialPortStr, configRead.value("DEVICE/Serial_port").toString().toLatin1().data());
 
     setWindowTitle(tr("GYT Box"));
     //setFixedSize(1024, 768);
@@ -49,8 +54,8 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     QSize size(124, 90);
 
     QStringList menuList;
-    menuList << tr("LCD") << tr("Touch") << tr("Camera") << tr("Setting")
-             << tr("Monitor") << tr("Version") << tr("RealTime") << tr("About");
+    menuList << tr("LCD") << tr("Touch") << tr("Camera") << tr("Network")
+             << tr("Serial Port") << tr("Monitor") << tr("Version") << tr("About");
 
     for(int i=0; i<8; i++)
     {
@@ -81,26 +86,30 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     lcdPage = new LcdPage(this);
     touchPage = new TouchPage(this);
     cameraPage = new CameraPage(this);
-    datetimePage = new DatetimePage(this);
+    //datetimePage = new DatetimePage(this);
+    networkPage = new NetworkPage(this);
+    serialPortPage = new SerialPortPage(this);
     monitorPage = new MonitorPage(this);
     versionPage = new VersionPage(this);
-    realtimePage = new RealtimePage(this);
+    //realtimePage = new RealtimePage(this);
     aboutPage = new AboutPage(this);
 
     centerPages->addWidget(lcdPage);
     centerPages->addWidget(touchPage);
     centerPages->addWidget(cameraPage);
-    centerPages->addWidget(datetimePage);
+    //centerPages->addWidget(datetimePage);
+    centerPages->addWidget(networkPage);
+    centerPages->addWidget(serialPortPage);
     centerPages->addWidget(monitorPage);
     centerPages->addWidget(versionPage);
-    centerPages->addWidget(realtimePage);
+    //centerPages->addWidget(realtimePage);
     centerPages->addWidget(aboutPage);
 
-    centerPages->setCurrentWidget(aboutPage);
+    centerPages->setCurrentWidget(lcdPage);
 
     // 系统配置
-    prevPage = PAGE_ABOUT;
-    currPage = PAGE_ABOUT;
+    prevPage = PAGE_LCD;
+    currPage = PAGE_LCD;
 
     connect(menuBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(menuBtnGroupToggled(int)));
 
