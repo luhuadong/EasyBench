@@ -236,10 +236,10 @@ void AboutPage::restoreDefaultSettings()
         channel3Box->setCurrentIndex(SpeakType);
         channel4Box->setCurrentIndex(RadioType);
 
-        channel1Check->setEnabled(true);
-        channel2Check->setEnabled(true);
-        channel3Check->setEnabled(true);
-        channel4Check->setEnabled(true);
+        channel1Check->setChecked(true);
+        channel2Check->setChecked(true);
+        channel3Check->setChecked(true);
+        channel4Check->setChecked(true);
 
         applyNewConfiguration();
     }
@@ -248,22 +248,55 @@ void AboutPage::restoreDefaultSettings()
 
 void AboutPage::applyNewConfiguration()
 {
-    QFile file(QString("test.xml"));
-    if(!file.open(QFile::WriteOnly | QFile::Text)) {
-        return false;
-    }
-    xmlWriter.setDevice(&file);
-    xmlWriter.setAutoFormatting(true);
-    // <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    xmlWriter.writeStartDocument(tr("1.0"), true);
-    xmlWriter.writeStartElement("channel");
-    xmlWriter.writeEndElement();
-    xmlWriter.writeEndDocument();
-    file.close();
-
     QMessageBox msgBox;
-    msgBox.setText(tr("Apply channel configuration finished."));
     msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
+#if 0
+    QFile file(QString("test.xml"));
+#else
+    QFile file(chnlCfgFileName);
+#endif
+    if(!file.open(QFile::WriteOnly | QFile::Text)) {
+        msgBox.setText(tr("Error: Can not open file.\nApply channel configuration failed."));
+    }
+    else {
+        xmlWriter.setDevice(&file);
+        xmlWriter.setAutoFormatting(true);
+        // <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        xmlWriter.writeStartDocument(tr("1.0"), true);
+        xmlWriter.writeStartElement("channel");
+
+        xmlWriter.writeStartElement("channel0");
+        xmlWriter.writeAttribute("type", channel1Box->currentText().toLower());
+        xmlWriter.writeAttribute("enable", channel1Check->isChecked()?"1":"0");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("channel1");
+        xmlWriter.writeAttribute("type", channel2Box->currentText().toLower());
+        xmlWriter.writeAttribute("enable", channel2Check->isChecked()?"1":"0");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("channel2");
+        xmlWriter.writeAttribute("type", channel3Box->currentText().toLower());
+        xmlWriter.writeAttribute("enable", channel3Check->isChecked()?"1":"0");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("channel3");
+        xmlWriter.writeAttribute("type", channel4Box->currentText().toLower());
+        xmlWriter.writeAttribute("enable", channel4Check->isChecked()?"1":"0");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+        xmlWriter.writeEndDocument();
+        file.close();
+    }
+
+    if(file.error()) {
+        msgBox.setText(tr("Error: Can not write file.\nApply channel configuration failed."));
+    }
+    else {
+        msgBox.setText(tr("Apply channel configuration finished."));
+    }
+
     msgBox.exec();
 
 }
