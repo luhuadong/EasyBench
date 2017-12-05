@@ -55,7 +55,7 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
 
     QStringList menuList;
     menuList << tr("LCD") << tr("Touch") << tr("Camera") << tr("Network")
-             << tr("Serial Port") << tr("Monitor") << tr("Version") << tr("About");
+             << tr("Serial Port") << tr("Settings") << tr("Monitor") << tr("Version");
 
     for(int i=0; i<8; i++)
     {
@@ -89,10 +89,11 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     //datetimePage = new DatetimePage(this);
     networkPage = new NetworkPage(this);
     serialPortPage = new SerialPortPage(this);
+    aboutPage = new AboutPage(this);  // Settings Page
     monitorPage = new MonitorPage(this);
     versionPage = new VersionPage(this);
     //realtimePage = new RealtimePage(this);
-    aboutPage = new AboutPage(this);
+
 
     centerPages->addWidget(lcdPage);
     centerPages->addWidget(touchPage);
@@ -100,10 +101,11 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     //centerPages->addWidget(datetimePage);
     centerPages->addWidget(networkPage);
     centerPages->addWidget(serialPortPage);
+    centerPages->addWidget(aboutPage);  // Settings Page
     centerPages->addWidget(monitorPage);
     centerPages->addWidget(versionPage);
     //centerPages->addWidget(realtimePage);
-    centerPages->addWidget(aboutPage);
+
 
     centerPages->setCurrentWidget(lcdPage);
 

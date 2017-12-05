@@ -179,7 +179,7 @@ QComboBox::drop-down
 {
     background-color: lightgray;
     border-radius: 8px;
-    min-width: 20px;
+    min-width: 32px;
 
 }
 
@@ -197,4 +197,28 @@ QComboBox QAbstractItemView::item
 {
     height: 40px;
     min-height: 100px;
+}
+
+QCheckBox
+{
+    background-color: transparent;
+}
+
+QCheckBox::indicator
+{
+    width:  18px;
+    height: 18px;
+    padding: 0px;
+    border-radius: 4px;
+    border: 2px inset gray;
+    background-color: #E0E0E0;
+}
+
+QCheckBox::indicator:checked
+{
+    width:  18px;
+    height: 18px;
+    border: 2px outset gray;
+    background-color: brown;
+    color: Red;
 }

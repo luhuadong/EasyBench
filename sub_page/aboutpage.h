@@ -4,6 +4,17 @@
 #include "custom_widget/pagewidget.h"
 
 #include <QString>
+#include <QLabel>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QGroupBox>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QXmlStreamAttributes>
+#include <QXmlStreamAttribute>
+#include <QPushButton>
 
 class AboutPage : public PageWidget
 {
@@ -13,14 +24,48 @@ public:
 
 public slots:
 
+private slots:
+    void restoreDefaultSettings();
+    void applyNewConfiguration();
+
 private:
-    //QTextEdit *textEdit;    // 显示天气
+    bool readChnlCfgFile(const QString &filename);
+    void readChannelElement();
 
-    QString city;//用于获取地方的字符串
-    QString weather;//用于获取天气的字符串
+    QStringList channelStrList;
+    QString chnlCfgFileName;
 
-    QLabel *tempLabel;
-    QLabel *humiLabel;
+    QXmlStreamReader xmlReader;
+    QXmlStreamWriter xmlWriter;
+
+    typedef enum ChannelType
+    {
+        LeftPhoneType  = 0,
+        RightPhoneType = 1,
+        SpeakType      = 2,
+        RadioType      = 3,
+        ChannelCount   = 4
+
+    } ChannelType;
+
+    QGroupBox *chnlCfgGroup;
+    QLabel *channel1Label;
+    QLabel *channel2Label;
+    QLabel *channel3Label;
+    QLabel *channel4Label;
+    QList<QComboBox *> channelBoxList;
+    QComboBox *channel1Box;
+    QComboBox *channel2Box;
+    QComboBox *channel3Box;
+    QComboBox *channel4Box;
+    QList<QCheckBox *> channelCheckList;
+    QCheckBox *channel1Check;
+    QCheckBox *channel2Check;
+    QCheckBox *channel3Check;
+    QCheckBox *channel4Check;
+    QPushButton *resetBtn;
+    QPushButton *applyBtn;
+
 
 };
 

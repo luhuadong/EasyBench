@@ -16,6 +16,10 @@ public:
 
 public slots:
 
+private slots:
+    void shutdownSystem();
+    void rebootSystem();
+
 private:
     QTableView *tabView;
     QStandardItemModel *tabModel;

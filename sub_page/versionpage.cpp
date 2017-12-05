@@ -45,6 +45,18 @@ VersionPage::VersionPage(QWidget *parent) :
     tabView->horizontalHeader()->setStretchLastSection(true);    // 设置最后一列充满表宽度
 
     //-----------------------------
+
+
+
+    operationBar->firstButton()->setText(tr("Shutdown"));
+    operationBar->secondButton()->setText(tr("Reboot"));
+    operationBar->thirdButton()->setEnabled(false);
+    operationBar->fourthButton()->setEnabled(false);
+
+    connect(operationBar->firstButton(), SIGNAL(clicked()), this, SLOT(shutdownSystem()));
+    connect(operationBar->secondButton(), SIGNAL(clicked()), this, SLOT(rebootSystem()));
+
+
     getVersionData();
 
 
@@ -101,4 +113,14 @@ void VersionPage::getVersionData()
             //tabModel->setItem(row, column, item);
         }
     }
+}
+
+void VersionPage::shutdownSystem()
+{
+    system("shutdown -h now");
+}
+
+void VersionPage::rebootSystem()
+{
+    system("reboot");
 }

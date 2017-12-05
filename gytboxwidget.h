@@ -35,10 +35,11 @@ public:
         //PAGE_DATETIME,
         PAGE_NETWORK,
         PAGE_SERIALPORT,
+        PAGE_ABOUT,  // Settings Page
         PAGE_MONITOR,
         PAGE_VERSION,
         //PAGE_REALTIME,
-        PAGE_ABOUT,
+
     }pageTypes;
 
 private slots:
