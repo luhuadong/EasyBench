@@ -6,6 +6,9 @@
 //#define SYS_ADVANTECH
 //#define SYS_KONTRON
 
+// Please always enable !
+#define LANGUAGE_CHINESE 1
+
 #define TITLE_HEIGHT 40
 
 #ifdef GY_GLOBAL

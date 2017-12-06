@@ -107,6 +107,15 @@ NetworkPage::NetworkPage(QWidget *parent) :
     connect(dumpBtn, SIGNAL(clicked()), this, SLOT(dumpBtnOnClicked()));
     connect(writeBtn, SIGNAL(clicked()), this, SLOT(writeBtnOnClicked()));
 
+#if LANGUAGE_CHINESE
+    macAddrLabel->setText(tr("物理地址 : "));
+    editBtn->setText(tr("编辑"));
+    checkBtn->setText(tr("检查"));
+    dumpBtn->setText(tr("读取"));
+    writeBtn->setText(tr("写入"));
+
+#endif
+
     if(!hasI210OnBoard()) {
         i210Group->setEnabled(false);
     } else {

@@ -3,6 +3,9 @@
 #include <QTextCodec>
 #include <QStringList>
 #include <QFile>
+#include <QFont>
+#include <QFontDatabase>
+#include <QDebug>
 
 VersionPage::VersionPage(QWidget *parent) :
     PageWidget(parent)
@@ -47,9 +50,13 @@ VersionPage::VersionPage(QWidget *parent) :
     //-----------------------------
 
 
-
+#if LANGUAGE_CHINESE
+    operationBar->firstButton()->setText(tr("关机"));
+    operationBar->secondButton()->setText(tr("重启"));
+#else
     operationBar->firstButton()->setText(tr("Shutdown"));
     operationBar->secondButton()->setText(tr("Reboot"));
+#endif
     operationBar->thirdButton()->setEnabled(false);
     operationBar->fourthButton()->setEnabled(false);
 

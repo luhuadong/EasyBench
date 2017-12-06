@@ -2,6 +2,7 @@
 #define NETWORKPAGE_H
 
 #include "custom_widget/pagewidget.h"
+#include "gyt_common.h"
 
 #include <QNetworkInterface>
 #include <QList>

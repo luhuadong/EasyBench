@@ -2,6 +2,7 @@
 #define ABOUTPAGE_H
 
 #include "custom_widget/pagewidget.h"
+#include "gyt_common.h"
 
 #include <QString>
 #include <QLabel>
@@ -32,7 +33,8 @@ private:
     bool readChnlCfgFile(const QString &filename);
     void readChannelElement();
 
-    QStringList channelStrList;
+    QStringList channelStrList_zh;
+    QStringList channelStrList_en;
     QString chnlCfgFileName;
 
     QXmlStreamReader xmlReader;

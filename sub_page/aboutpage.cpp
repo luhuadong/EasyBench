@@ -11,7 +11,9 @@ AboutPage::AboutPage(QWidget *parent) :
 {
     setTitleLabelText(tr("Seat Settings"));
 
-    channelStrList << tr("LeftPhone") << tr("RightPhone") << tr("Speak") << tr("Radio");
+    channelStrList_en << tr("LeftPhone") << tr("RightPhone") << tr("Speak") << tr("Radio");
+    channelStrList_zh << tr("左电话") << tr("右电话") << tr("通播") << tr("电台");
+
     chnlCfgFileName = QString("/home/root/seat_imx/conf/chnlCfg.xml");
 
     chnlCfgGroup = new QGroupBox(tr("Channel Configuration"), this);
@@ -28,31 +30,31 @@ AboutPage::AboutPage(QWidget *parent) :
 
 
     channel1Box = new QComboBox(chnlCfgGroup);
-    channel1Box->addItem(channelStrList.at(0), LeftPhoneType);
-    channel1Box->addItem(channelStrList.at(1), RightPhoneType);
-    channel1Box->addItem(channelStrList.at(2), SpeakType);
-    channel1Box->addItem(channelStrList.at(3), RadioType);
+    channel1Box->addItem(channelStrList_zh.at(0), LeftPhoneType);
+    channel1Box->addItem(channelStrList_zh.at(1), RightPhoneType);
+    channel1Box->addItem(channelStrList_zh.at(2), SpeakType);
+    channel1Box->addItem(channelStrList_zh.at(3), RadioType);
     channel1Box->setMinimumHeight(32);
 
     channel2Box = new QComboBox(chnlCfgGroup);
-    channel2Box->addItem(channelStrList.at(0), LeftPhoneType);
-    channel2Box->addItem(channelStrList.at(1), RightPhoneType);
-    channel2Box->addItem(channelStrList.at(2), SpeakType);
-    channel2Box->addItem(channelStrList.at(3), RadioType);
+    channel2Box->addItem(channelStrList_zh.at(0), LeftPhoneType);
+    channel2Box->addItem(channelStrList_zh.at(1), RightPhoneType);
+    channel2Box->addItem(channelStrList_zh.at(2), SpeakType);
+    channel2Box->addItem(channelStrList_zh.at(3), RadioType);
     channel2Box->setMinimumHeight(32);
 
     channel3Box = new QComboBox(chnlCfgGroup);
-    channel3Box->addItem(channelStrList.at(0), LeftPhoneType);
-    channel3Box->addItem(channelStrList.at(1), RightPhoneType);
-    channel3Box->addItem(channelStrList.at(2), SpeakType);
-    channel3Box->addItem(channelStrList.at(3), RadioType);
+    channel3Box->addItem(channelStrList_zh.at(0), LeftPhoneType);
+    channel3Box->addItem(channelStrList_zh.at(1), RightPhoneType);
+    channel3Box->addItem(channelStrList_zh.at(2), SpeakType);
+    channel3Box->addItem(channelStrList_zh.at(3), RadioType);
     channel3Box->setMinimumHeight(32);
 
     channel4Box = new QComboBox(chnlCfgGroup);
-    channel4Box->addItem(channelStrList.at(0), LeftPhoneType);
-    channel4Box->addItem(channelStrList.at(1), RightPhoneType);
-    channel4Box->addItem(channelStrList.at(2), SpeakType);
-    channel4Box->addItem(channelStrList.at(3), RadioType);
+    channel4Box->addItem(channelStrList_zh.at(0), LeftPhoneType);
+    channel4Box->addItem(channelStrList_zh.at(1), RightPhoneType);
+    channel4Box->addItem(channelStrList_zh.at(2), SpeakType);
+    channel4Box->addItem(channelStrList_zh.at(3), RadioType);
     channel4Box->setMinimumHeight(32);
 
     channelBoxList.append(channel1Box);
@@ -110,6 +112,16 @@ AboutPage::AboutPage(QWidget *parent) :
 
     connect(resetBtn, SIGNAL(clicked()), this, SLOT(restoreDefaultSettings()));
     connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyNewConfiguration()));
+
+#if LANGUAGE_CHINESE
+    chnlCfgGroup->setTitle(tr("席位通道配置"));
+    channel1Label->setText(tr("通道1 : "));
+    channel2Label->setText(tr("通道2 : "));
+    channel3Label->setText(tr("通道3 : "));
+    channel4Label->setText(tr("通道4 : "));
+    resetBtn->setText(tr("恢复缺省配置"));
+    applyBtn->setText(tr("应用"));
+#endif
 
     readChnlCfgFile(chnlCfgFileName);
 }
@@ -196,7 +208,7 @@ void AboutPage::readChannelElement()
 
                 if(attr.name() == "type") {
                     for(int j=0; j<ChannelCount; j++) {
-                        if(attr.value() == channelStrList.at(j).toLower()) {
+                        if(attr.value() == channelStrList_en.at(j).toLower()) {
                             channelBoxList.at(curChannel)->setCurrentIndex(j);
                             break;
                         }
@@ -250,11 +262,9 @@ void AboutPage::applyNewConfiguration()
 {
     QMessageBox msgBox;
     msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
-#if 0
-    QFile file(QString("test.xml"));
-#else
+
     QFile file(chnlCfgFileName);
-#endif
+
     if(!file.open(QFile::WriteOnly | QFile::Text)) {
         msgBox.setText(tr("Error: Can not open file.\nApply channel configuration failed."));
     }
@@ -266,22 +276,26 @@ void AboutPage::applyNewConfiguration()
         xmlWriter.writeStartElement("channel");
 
         xmlWriter.writeStartElement("channel0");
-        xmlWriter.writeAttribute("type", channel1Box->currentText().toLower());
+        //xmlWriter.writeAttribute("type", channel1Box->currentText().toLower());
+        xmlWriter.writeAttribute("type", channelStrList_en.at(channel1Box->currentIndex()).toLower());
         xmlWriter.writeAttribute("enable", channel1Check->isChecked()?"1":"0");
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement("channel1");
-        xmlWriter.writeAttribute("type", channel2Box->currentText().toLower());
+        //xmlWriter.writeAttribute("type", channel2Box->currentText().toLower());
+        xmlWriter.writeAttribute("type", channelStrList_en.at(channel2Box->currentIndex()).toLower());
         xmlWriter.writeAttribute("enable", channel2Check->isChecked()?"1":"0");
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement("channel2");
-        xmlWriter.writeAttribute("type", channel3Box->currentText().toLower());
+        //xmlWriter.writeAttribute("type", channel3Box->currentText().toLower());
+        xmlWriter.writeAttribute("type", channelStrList_en.at(channel3Box->currentIndex()).toLower());
         xmlWriter.writeAttribute("enable", channel3Check->isChecked()?"1":"0");
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement("channel3");
-        xmlWriter.writeAttribute("type", channel4Box->currentText().toLower());
+        //xmlWriter.writeAttribute("type", channel4Box->currentText().toLower());
+        xmlWriter.writeAttribute("type", channelStrList_en.at(channel4Box->currentIndex()).toLower());
         xmlWriter.writeAttribute("enable", channel4Check->isChecked()?"1":"0");
         xmlWriter.writeEndElement();
 

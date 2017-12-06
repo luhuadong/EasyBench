@@ -32,6 +32,11 @@ CameraPage::CameraPage(QWidget *parent) :
         operationBar->thirdButton()->setEnabled(false);
         operationBar->secondButton()->setEnabled(false);
     }
+
+#if LANGUAGE_CHINESE
+    operationBar->secondButton()->setText(tr("打开"));
+    operationBar->thirdButton()->setText(tr("关闭"));
+#endif
 }
 
 void CameraPage::openCamera()

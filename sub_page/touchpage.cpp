@@ -52,6 +52,13 @@ TouchPage::TouchPage(QWidget *parent) :
     operationBar->secondButton()->setEnabled(false);
     operationBar->thirdButton()->setEnabled(false);
     operationBar->fourthButton()->setEnabled(false);
+
+#if LANGUAGE_CHINESE
+    calBtn->setText(tr("4点校准"));
+    linz9Btn->setText(tr("9点校准"));
+    linzBtn->setText(tr("25点校准"));
+    drawBtn->setText(tr("轨迹测试"));
+#endif
 }
 
 void TouchPage::calBtnClicked()

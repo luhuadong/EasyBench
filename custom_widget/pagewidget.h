@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLabel>
 #include "operationbar.h"
+#include "gyt_common.h"
 
 class PageWidget : public QWidget
 {

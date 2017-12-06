@@ -61,7 +61,7 @@ LcdPage::LcdPage(QWidget *parent) :
     lcdInfoBox->setTitle(tr("LCD Info"));
     lcdInfoBox->setGeometry(100, 120, 700, 140);
     lcdInfoLabel = new QLabel(lcdInfoBox);
-    lcdInfoLabel->setText(tr("15 inch TFT LCD, made in China."));
+    lcdInfoLabel->setText(tr("12 inch TFT LCD, made in China."));
     resolutionLabel = new QLabel(lcdInfoBox);
     bppLabel = new QLabel(lcdInfoBox);
 
@@ -82,6 +82,14 @@ LcdPage::LcdPage(QWidget *parent) :
         //pixclockLabel->setText(QString("Pixclock : ") + QString::number(vinfo.pixclock));
         //sizeLabel->setText(QString("Size : ") + QString::number(vinfo.height) + QString(" x ") + QString::number(vinfo.width));
     }
+
+#if LANGUAGE_CHINESE
+    operationBar->secondButton()->setText(tr("亮度减"));
+    operationBar->thirdButton()->setText(tr("亮度加"));
+    pixelCheckBtn->setText(tr("像素测试"));
+    grayscaleTestBtn->setText(tr("灰度测试"));
+#endif
+
 }
 
 int LcdPage::getScreenInfo()

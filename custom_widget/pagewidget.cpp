@@ -26,6 +26,10 @@ PageWidget::PageWidget(QWidget *parent) : QWidget(parent)
     operationBar->setGeometry(0, 720-operationBar->height(), operationBar->width(), operationBar->height());
     operationBar->fifthButton()->setText(tr("Return"));
 
+#if LANGUAGE_CHINESE
+    operationBar->fifthButton()->setText(tr("返回"));
+#endif
+
 }
 
 void PageWidget::setBackgroundPicture(const QString &path)

@@ -3,6 +3,7 @@
 
 #include "custom_widget/pagewidget.h"
 #include "module/camera/processimage.h"
+#include "gyt_common.h"
 
 #include <QString>
 #include <QWidget>
