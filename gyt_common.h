@@ -27,6 +27,7 @@ GY_GLOBAL_EXT TouchType TOUCH_TYPE;
 
 GY_GLOBAL_EXT char gMachineTypeStr[80];
 GY_GLOBAL_EXT char gSerialPortStr[32];
+GY_GLOBAL_EXT char gVideoInputStr[32];
 
 GY_GLOBAL_EXT char BACKLIGHT_NAME[32];
 GY_GLOBAL_EXT unsigned int LCD_WIDTH;

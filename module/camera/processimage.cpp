@@ -1,4 +1,5 @@
 #include "processimage.h"
+#include "gyt_common.h"
 #include <QMessageBox>
 #include <QTimer>
 #include <QHBoxLayout>
@@ -18,7 +19,7 @@ ProcessImage::ProcessImage(QWidget *parent) :
     frame = new QImage(pp, 640, 480, QImage::Format_RGB888);
    // frame = new QPixmap(640,320);
     label = new QLabel(this);
-    vd = new VideoDevice(tr("/dev/video0"));
+    vd = new VideoDevice(QString(gVideoInputStr));
     timer = new QTimer(this);
 
     connect(vd, SIGNAL(display_error(QString)), this, SLOT(display_error(QString)));

@@ -76,6 +76,7 @@ void detectDevices(void)
 
     TOUCH_TYPE = TOUCH_RESISTIVE;
     strcpy(gSerialPortStr, "/dev/ttymxc1");
+    strcpy(gVideoInputStr, "/dev/video0");
 }
 
 unsigned char calcCheckSum(unsigned char *data, unsigned int len)

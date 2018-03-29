@@ -26,6 +26,7 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
 
     strcpy(gMachineTypeStr, configRead.value("VERSION/Machine_type").toString().toLatin1().data());
     strcpy(gSerialPortStr, configRead.value("DEVICE/Serial_port").toString().toLatin1().data());
+    strcpy(gVideoInputStr, configRead.value("DEVICE/Video_input").toString().toLatin1().data());
 
     setWindowTitle(tr("GYT Box"));
     //setFixedSize(1024, 768);
