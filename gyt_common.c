@@ -72,7 +72,11 @@ void detectDevices(void)
 
 
     memset(BACKLIGHT_NAME, 0, sizeof(BACKLIGHT_NAME));
+#if 1
     strcpy(BACKLIGHT_NAME, getBacklightNodeName());
+#else
+    strcpy(BACKLIGHT_NAME, "backlight.22");
+#endif
 
     TOUCH_TYPE = TOUCH_RESISTIVE;
     strcpy(gSerialPortStr, "/dev/ttymxc1");

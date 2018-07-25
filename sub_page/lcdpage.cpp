@@ -40,7 +40,7 @@ LcdPage::LcdPage(QWidget *parent) :
     backlightValue = QString(byteArray).toInt();
     backlightFile.close();
 
-    MinBacklightValue = 2;
+    MinBacklightValue = 0;
     MaxBacklightValue = 100;
     backlightFile.setFileName(QString("/sys/class/backlight/%1/max_brightness").arg(backlightName));
     backlightFile.open(QFile::ReadOnly);
