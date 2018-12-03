@@ -6,6 +6,10 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 AboutPage::AboutPage(QWidget *parent) :
     PageWidget(parent)
 {
@@ -124,6 +128,82 @@ AboutPage::AboutPage(QWidget *parent) :
 #endif
 
     readChnlCfgFile(chnlCfgFileName);
+
+
+
+    /* RTC Group */
+
+    rtcGroup = new QGroupBox(tr("RTC"), this);
+    rtcGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+
+    rtcName = new QLabel(tr("Device : None"), rtcGroup);
+    rtcName->setFont(QFont("Courier", 10, QFont::Normal));
+    rtcDateTime = new QLabel(tr("RTC : None"), rtcGroup);
+    rtcDateTime->setFont(QFont("Courier", 10, QFont::Normal));
+    sysDateTime = new QLabel(tr("Sys : None"), rtcGroup);
+    sysDateTime->setFont(QFont("Courier", 10, QFont::Normal));
+
+    QVBoxLayout *rtcLayout = new QVBoxLayout;
+    rtcLayout->setMargin(10);
+    rtcLayout->setSpacing(10);
+    rtcLayout->addWidget(rtcName);
+    rtcLayout->addWidget(rtcDateTime);
+    rtcLayout->addWidget(sysDateTime);
+    rtcGroup->setLayout(rtcLayout);
+
+    rtcGroup->setGeometry(40+380+40, 96+30, 400, 200);
+
+    char buf[32];
+    memset(buf, 0, sizeof(buf));
+
+    FILE *fstream = NULL;
+
+    if(NULL == (fstream = popen("cat /sys/class/rtc/rtc0/name", "r"))) {
+
+        rtcName->setText("Device : None");
+    }else {
+        fgets(buf, sizeof(buf), fstream);
+        rtcName->setText(QString("Device : %1").arg(QString(buf)));
+    }
+    pclose(fstream);
+
+
+
+    /* SATA Group */
+
+    sdiskGroup = new QGroupBox(tr("SATA Test"), this);
+    sdiskGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+    sdiskGroup->setGeometry(40+380+40, 96+30+200+30, 400, 270);
+
+    sdiskArea = new QTextEdit(sdiskGroup);
+    sdiskArea->setReadOnly(true);
+
+    readTestBtn = new QPushButton(tr("Read"), sdiskGroup);
+    writeTestBtn = new QPushButton(tr("Write"), sdiskGroup);
+    readTestBtn->setObjectName("functionBtn_small");
+    readTestBtn->setFixedSize(120, 30);
+    writeTestBtn->setObjectName("functionBtn_small");
+    writeTestBtn->setFixedSize(120, 30);
+
+    QHBoxLayout *sdiskBtnLayout = new QHBoxLayout;
+    sdiskBtnLayout->setSpacing(10);
+    sdiskBtnLayout->addWidget(readTestBtn);
+    sdiskBtnLayout->addWidget(writeTestBtn);
+
+    QVBoxLayout *sdiskLayout = new QVBoxLayout;
+    sdiskLayout->setMargin(10);
+    sdiskLayout->setSpacing(10);
+    sdiskLayout->addWidget(sdiskArea);
+    sdiskLayout->addLayout(sdiskBtnLayout);
+    sdiskGroup->setLayout(sdiskLayout);
+
+    connect(readTestBtn, SIGNAL(clicked()), this, SLOT(readTestBtnOnClicked()));
+    connect(writeTestBtn, SIGNAL(clicked()), this, SLOT(writeTestBtnOnClicked()));
+
+
+    updateTimer = new QTimer(this);
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_timeout()));
+    updateTimer->start(1000);
 }
 
 bool AboutPage::readChnlCfgFile(const QString &filename)
@@ -313,4 +393,115 @@ void AboutPage::applyNewConfiguration()
 
     msgBox.exec();
 
+}
+
+void AboutPage::on_updateTimer_timeout()
+{
+    char buf[128];
+    memset(buf, 0, sizeof(buf));
+
+    FILE *fstream = NULL;
+
+    if(NULL == (fstream = popen("hwclock -u", "r"))) {
+
+        rtcDateTime->setText("RTC : None");
+    }else {
+        fgets(buf, sizeof(buf), fstream);
+        rtcDateTime->setText(QString("RTC : %1").arg(QString(buf)));
+    }
+
+    memset(buf, 0, sizeof(buf));
+
+    if(NULL == (fstream = popen("date", "r"))) {
+
+        sysDateTime->setText("Sys : None");
+    }else {
+        fgets(buf, sizeof(buf), fstream);
+        sysDateTime->setText(QString("Sys : %1").arg(QString(buf)));
+    }
+
+    pclose(fstream);
+}
+
+void AboutPage::readTestBtnOnClicked()
+{
+    //sdiskArea->setText("SATA disk read testing...");
+    sdiskArea->append(QString("SATA disk read testing..."));
+    qDebug("SATA disk read testing...");
+
+    char cmd[128];
+    char buf[256];
+
+    memset(cmd, 0, sizeof(cmd));
+    memset(buf, 0, sizeof(buf));
+
+    sprintf(cmd, "dd if=/dev/sda of=/dev/null bs=1M count=100");
+
+
+    FILE *fstream = NULL;
+    if(NULL == (fstream = popen(cmd, "r")))
+    {
+        sprintf(buf, "Execute command failed: %s", strerror(errno));
+        sdiskArea->setText(QString(buf));
+        return ;
+    }
+
+    fread(buf, sizeof(buf), 1, fstream);
+    qDebug(buf);
+
+    //sdiskArea->clear();
+    /*
+    while(NULL != fgets(buf, sizeof(buf), fstream))
+    {
+        qDebug("====== content ======");
+        qDebug(buf);
+        int len = strlen(buf);
+        if(buf[len-1] == '\n' || buf[len-1] == '\r')
+        {
+            buf[len-1] = '\0';
+        }
+        sdiskArea->append(QString(buf));
+    }
+    */
+    pclose(fstream);
+    sdiskArea->moveCursor(QTextCursor::Start);
+}
+
+void AboutPage::writeTestBtnOnClicked()
+{
+    //sdiskArea->setText("SATA disk write testing...");
+    sdiskArea->append(QString("SATA disk write testing..."));
+    qDebug("SATA disk write testing...");
+
+    char cmd[128];
+    char buf[256];
+
+    memset(cmd, 0, sizeof(cmd));
+    memset(buf, 0, sizeof(buf));
+
+    sprintf(cmd, "dd if=/dev/zero of=/dev/sda bs=1M count=100");
+
+
+    FILE *fstream = NULL;
+    if(NULL == (fstream = popen(cmd, "r")))
+    {
+        sprintf(buf, "Execute command failed: %s", strerror(errno));
+        sdiskArea->setText(QString(buf));
+        return ;
+    }
+
+    //sdiskArea->clear();
+    while(NULL != fgets(buf, sizeof(buf), fstream))
+    {
+        qDebug("====== content ======");
+        qDebug(buf);
+        int len = strlen(buf);
+        if(buf[len-1] == '\n' || buf[len-1] == '\r')
+        {
+            buf[len-1] = '\0';
+        }
+        sdiskArea->append(QString(buf));
+    }
+    pclose(fstream);
+    sdiskArea->moveCursor(QTextCursor::Start);
 }

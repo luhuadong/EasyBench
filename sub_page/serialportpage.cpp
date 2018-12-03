@@ -65,7 +65,14 @@ SerialPortPage::SerialPortPage(QWidget *parent) :
     serialPortLabel = new QLabel(tr("Current port : "), serialPortGroup);
     serialPortLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
     serialPortBox = new QComboBox(serialPortGroup);
-    serialPortBox->addItem(QString(gSerialPortStr));
+    //serialPortBox->addItem(QString(gSerialPortStr));
+    serialPortBox->addItem(tr("/dev/ttymxc0"));
+    serialPortBox->addItem(tr("/dev/ttymxc1"));
+    serialPortBox->addItem(tr("/dev/ttymxc2"));
+    serialPortBox->addItem(tr("/dev/ttymxc3"));
+    serialPortBox->addItem(tr("/dev/ttymxc4"));
+    serialPortBox->setCurrentIndex(1);
+    strcpy(gSerialPortStr, serialPortBox->currentText().toLatin1().data());
     openBtn = new QPushButton(tr("Open"), serialPortGroup);
     openBtn->setObjectName("functionBtn_small");
     openBtn->setFixedSize(80, 30);
@@ -260,6 +267,11 @@ void SerialPortPage::openSerialPort()
         applyBtn->setEnabled(true);
         openBtn->setText(tr("Open"));
     }
+}
+
+void SerialPortPage::changeSerialPort(const QString &text)
+{
+    strcpy(gSerialPortStr, text.toLatin1().data());
 }
 
 void SerialPortPage::applyParameters()

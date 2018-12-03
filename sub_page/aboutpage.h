@@ -16,6 +16,8 @@
 #include <QXmlStreamAttributes>
 #include <QXmlStreamAttribute>
 #include <QPushButton>
+#include <QTimer>
+#include <QTextEdit>
 
 class AboutPage : public PageWidget
 {
@@ -28,6 +30,10 @@ public slots:
 private slots:
     void restoreDefaultSettings();
     void applyNewConfiguration();
+
+    void on_updateTimer_timeout(void);
+    void readTestBtnOnClicked(void);
+    void writeTestBtnOnClicked(void);
 
 private:
     bool readChnlCfgFile(const QString &filename);
@@ -68,6 +74,17 @@ private:
     QPushButton *resetBtn;
     QPushButton *applyBtn;
 
+    QTimer *updateTimer;
+
+    QGroupBox *rtcGroup;
+    QLabel *rtcName;
+    QLabel *rtcDateTime;
+    QLabel *sysDateTime;
+
+    QGroupBox *sdiskGroup; // SATA interface disk
+    QTextEdit *sdiskArea;
+    QPushButton *readTestBtn;
+    QPushButton *writeTestBtn;
 
 };
 

@@ -46,6 +46,7 @@ private slots:
     void clearSendArea();
     void clearRecvArea();
     void sendSerialData();
+    void changeSerialPort(const QString &text);
 
 private:
     typedef enum BaudRate
