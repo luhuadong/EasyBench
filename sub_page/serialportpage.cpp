@@ -191,6 +191,7 @@ SerialPortPage::SerialPortPage(QWidget *parent) :
     connect(sendClearBtn, SIGNAL(clicked()), this, SLOT(clearSendArea()));
     connect(recvClearBtn, SIGNAL(clicked()), this, SLOT(clearRecvArea()));
     connect(testBtn, SIGNAL(clicked()), this, SLOT(sendSerialData()));
+    connect(serialPortBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeSerialPort(QString)));
 
     thread = new SerialRecvThread(this);
     connect(thread, SIGNAL(msgReceived(QString)), this, SLOT(showRecvData(QString)));
@@ -271,7 +272,9 @@ void SerialPortPage::openSerialPort()
 
 void SerialPortPage::changeSerialPort(const QString &text)
 {
+    qDebug() << tr("changeSerialPort: ") << text;
     strcpy(gSerialPortStr, text.toLatin1().data());
+    qDebug() << tr("change Serial Port ") << QString(gSerialPortStr);
 }
 
 void SerialPortPage::applyParameters()
@@ -300,7 +303,8 @@ void SerialPortPage::sendSerialData()
 {
     char cmd[128];
     QString sendStr = sendArea->toPlainText();
-    sprintf(cmd, "echo \"%s\" > %s", sendStr.toLatin1().data(), gSerialPortStr);
+    // echo string should be add option '-e'
+    sprintf(cmd, "echo -e \"%s\" > %s", sendStr.toLatin1().data(), gSerialPortStr);
     system(cmd);
 
 }
