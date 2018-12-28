@@ -55,7 +55,8 @@ void SerialRecvThread::run()
 SerialPortPage::SerialPortPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("Serial Port Test"));
+    //setTitleLabelText(tr("Serial Port Test"));
+    setTitleLabelText(tr("系统功能测试"));
 
     /* Select Serial Port Box */
 

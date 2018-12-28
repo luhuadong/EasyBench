@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
         return 0;
     }
     else {
-        system("touch /home/root/.lock_gyt_box");
+        //system("touch /home/root/.lock_gyt_box");
     }
 
     QApplication a(argc, argv);
@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
 
 #if LANGUAGE_CHINESE
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    //QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+    //QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
     int index = QFontDatabase::addApplicationFont("/home/root/seat_imx/LiHeiPro.ttf");
     if(index != -1) {
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    calcCheckSum("1234567890", 10);
+    //calcCheckSum("1234567890", 10);
     detectDevices();
 
     GytBoxWidget w;

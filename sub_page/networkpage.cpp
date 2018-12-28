@@ -19,7 +19,8 @@
 NetworkPage::NetworkPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("Network Setting"));
+    //setTitleLabelText(tr("Network Setting"));
+    setTitleLabelText(tr("网卡及网络设置"));
 
     ifList = QNetworkInterface::allInterfaces();
 
@@ -160,7 +161,11 @@ QString NetworkPage::getMacAddrFromEditLine()
     for(int i=0; i<MACAddrList.count(); i++)
     {
         //qDebug() << tr("MAC[%1]").arg(i) << macAddrList.at(i);
-        MACAddrList.at(i) = MACAddrList.at(i).sprintf("%02x", MACAddrList.at(i).toInt(0, 16)).toUpper();
+        //MACAddrList.at(i) = MACAddrList.at(i).sprintf("%02x", MACAddrList.at(i).toInt(0, 16)).toUpper();
+
+        QString tmpStr;
+        MACAddrList.replace(i, tmpStr.sprintf("%02x", MACAddrList.at(i).toInt(0, 16)).toUpper());
+
         //qDebug() << tr("MAC[%1]").arg(i) << MACAddrList.at(i);
 
         if(MACAddrList.at(i).isEmpty()) {
@@ -291,14 +296,14 @@ bool NetworkPage::generateI210File()
     i210File.setFileName(QString(I210NIC_FILE));
     if(!i210File.exists()) {
         showArea->setText(tr("Error: File %1 not existed.\nPlease check the file.").arg(QString(I210NIC_FILE)));
-        return ;
+        return false;
     }
 
     /* Update MAC address to the file */
 
     if(!i210File.open(QIODevice::ReadOnly)) {
         showArea->setText(tr("Error: Open file %1 failed.").arg(QString(I210NIC_FILE)));
-        return ;
+        return false;
     }
 
     //QFile tmpFile;
@@ -316,9 +321,14 @@ bool NetworkPage::generateI210File()
         tmpStr = i210File.readLine();
         if(flag == 0) {
             QStringList tmpList = tmpStr.split(" ");
+            /*
             tmpList.at(0) = MACAddrList.at(1) + MACAddrList.at(0);
             tmpList.at(1) = MACAddrList.at(3) + MACAddrList.at(2);
             tmpList.at(2) = MACAddrList.at(5) + MACAddrList.at(4);
+            */
+            tmpList.replace(0, MACAddrList.at(1) + MACAddrList.at(0));
+            tmpList.replace(1, MACAddrList.at(3) + MACAddrList.at(2));
+            tmpList.replace(2, MACAddrList.at(5) + MACAddrList.at(4));
             tmpStr = tmpList.join(" ");
         }
         flag++;

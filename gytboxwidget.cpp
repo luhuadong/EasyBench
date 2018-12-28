@@ -56,8 +56,12 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     QSize size(124, 90);
 
     QStringList menuList;
+    /*
     menuList << tr("LCD") << tr("Touch") << tr("Camera") << tr("Network")
-             << tr("Serial Port") << tr("Settings") << tr("Monitor") << tr("Version");
+             << tr("Serial Port") << tr("Settings") << tr("Monitor") << tr("Version"); */
+
+    menuList << tr("显示") << tr("触摸") << tr("相机") << tr("网络")
+             << tr("串口") << tr("设置") << tr("监测") << tr("版本");
 
     for(int i=0; i<8; i++)
     {

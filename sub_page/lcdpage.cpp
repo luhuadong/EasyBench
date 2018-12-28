@@ -10,7 +10,8 @@
 LcdPage::LcdPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("LCD Screen Test"));
+    //setTitleLabelText(tr("LCD Screen Test"));
+    setTitleLabelText(tr("液晶显示屏测试"));
 
     pixelCheckBtn = new QPushButton(tr("Pixel Check"), this);
     pixelCheckBtn->setObjectName("functionBtn");
@@ -40,7 +41,7 @@ LcdPage::LcdPage(QWidget *parent) :
     backlightValue = QString(byteArray).toInt();
     backlightFile.close();
 
-    MinBacklightValue = 0;
+    MinBacklightValue = 1;
     MaxBacklightValue = 100;
     backlightFile.setFileName(QString("/sys/class/backlight/%1/max_brightness").arg(backlightName));
     backlightFile.open(QFile::ReadOnly);

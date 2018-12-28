@@ -4,7 +4,8 @@
 CameraPage::CameraPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("Camera Capture Test"));
+    //setTitleLabelText(tr("Camera Capture Test"));
+    setTitleLabelText(tr("摄像头捕获测试"));
 
     processImage = new ProcessImage(this);
     processImage->setGeometry(130, 96+36, 640, 480);

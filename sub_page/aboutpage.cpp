@@ -13,7 +13,8 @@
 AboutPage::AboutPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("Seat Settings"));
+    //setTitleLabelText(tr("Seat Settings"));
+    setTitleLabelText(tr("席位功能设置"));
 
     channelStrList_en << tr("LeftPhone") << tr("RightPhone") << tr("Speak") << tr("Radio");
     channelStrList_zh << tr("左电话") << tr("右电话") << tr("通播") << tr("电台");
@@ -402,6 +403,7 @@ void AboutPage::on_updateTimer_timeout()
 
     FILE *fstream = NULL;
 
+    /*
     if(NULL == (fstream = popen("hwclock -u", "r"))) {
 
         rtcDateTime->setText("RTC : None");
@@ -411,6 +413,7 @@ void AboutPage::on_updateTimer_timeout()
     }
 
     memset(buf, 0, sizeof(buf));
+    */
 
     if(NULL == (fstream = popen("date", "r"))) {
 

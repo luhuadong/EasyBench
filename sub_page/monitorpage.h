@@ -104,7 +104,7 @@ private:
     int fanMode;
 
     void createSocketWithBasePcb(void);
-    void sendBasePcbCmd(BASEPCB_CMD which, const QString arg=0);
+    void sendBasePcbCmd(BASEPCB_CMD which, const QString & arg);
 };
 
 #endif // MONITORPAGE_H

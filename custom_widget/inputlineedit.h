@@ -7,7 +7,7 @@ class InputLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit InputLineEdit(QObject *parent = 0);
+    explicit InputLineEdit(QWidget *parent = 0);
 
 signals:
 

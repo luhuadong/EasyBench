@@ -72,7 +72,7 @@ void detectDevices(void)
 
 
     memset(BACKLIGHT_NAME, 0, sizeof(BACKLIGHT_NAME));
-#if 1
+#if 0
     strcpy(BACKLIGHT_NAME, getBacklightNodeName());
 #else
     strcpy(BACKLIGHT_NAME, "backlight.22");

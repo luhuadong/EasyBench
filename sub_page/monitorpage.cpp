@@ -34,7 +34,8 @@ extern "C"
 MonitorPage::MonitorPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("System Monitor"));
+    //setTitleLabelText(tr("System Monitor"));
+    setTitleLabelText(tr("系统性能监测"));
 
     totalCpuNum = sysconf(_SC_NPROCESSORS_CONF);
     availCpuNum = sysconf(_SC_NPROCESSORS_ONLN);
@@ -160,8 +161,8 @@ MonitorPage::MonitorPage(QWidget *parent) :
         BasePcbThread *pcbThread = new BasePcbThread(sockfd, this);
         pcbThread->start();
 
-        sendBasePcbCmd(CMD_GET_VERSION);
-        sendBasePcbCmd(CMD_CONTROL);
+        sendBasePcbCmd(CMD_GET_VERSION, QString(""));
+        sendBasePcbCmd(CMD_CONTROL, QString(""));
     }
 
 
@@ -208,7 +209,7 @@ void MonitorPage::createSocketWithBasePcb()
     //printf("server connected\n");
 }
 
-void MonitorPage::sendBasePcbCmd(BASEPCB_CMD which, const QString arg = 0)
+void MonitorPage::sendBasePcbCmd(BASEPCB_CMD which, const QString & arg)
 {
     if(!sockToBasdPcbIsOk) return;
 
@@ -289,7 +290,7 @@ void MonitorPage::sendBasePcbCmd(BASEPCB_CMD which, const QString arg = 0)
 
 void MonitorPage::on_updateTimer_timeout()
 {
-    sendBasePcbCmd(CMD_GET_STATUS);
+    sendBasePcbCmd(CMD_GET_STATUS, QString(""));
     updateSysParam();
 
     cpuTotalDutyLabel->setText(tr("cpu total duty : %1 %").arg(cpuTotalDuty, 0, 'f', 1));
@@ -377,13 +378,13 @@ void MonitorPage::fanModeBtnClicked(void)
 
     if(fanMode == 0) {
         fanMode = 1;
-        //sendBasePcbCmd(CMD_CONTROL);
+        //sendBasePcbCmd(CMD_CONTROL, QString(""));
         operationBar->secondButton()->setText(tr("Debug"));
         operationBar->thirdButton()->setEnabled(true);
     }
     else if(fanMode == 1) {
         fanMode = 0;
-        sendBasePcbCmd(CMD_CONTROL);
+        sendBasePcbCmd(CMD_CONTROL, QString(""));
         operationBar->secondButton()->setText(tr("Standard"));
         operationBar->thirdButton()->setEnabled(false);
     }

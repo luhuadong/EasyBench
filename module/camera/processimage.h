@@ -37,7 +37,7 @@ private:
     int rs;
     uchar *pp;
     uchar * p;
-    unsigned int len;
+    size_t len;
     int convert_yuv_to_rgb_pixel(int y, int u, int v);
     int convert_yuv_to_rgb_buffer(unsigned char *yuv, unsigned char *rgb, unsigned int width, unsigned int height);
     VideoDevice *vd;

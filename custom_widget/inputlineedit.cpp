@@ -1,7 +1,7 @@
 #include "inputlineedit.h"
 #include <QString>
 
-InputLineEdit::InputLineEdit(QObject *parent) :
+InputLineEdit::InputLineEdit(QWidget *parent) :
     QLineEdit(parent)
 {
     setObjectName("inputLineEdit");

@@ -7,7 +7,8 @@
 TouchPage::TouchPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("Touchscreen Calibration & Test"));
+    //setTitleLabelText(tr("Touchscreen Calibration & Test"));
+    setTitleLabelText(tr("触摸校准及测试"));
 
     calBtn = new QPushButton(tr("4 points calibration"), this);
     calBtn->setObjectName("functionBtn");

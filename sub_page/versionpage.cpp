@@ -10,7 +10,8 @@
 VersionPage::VersionPage(QWidget *parent) :
     PageWidget(parent)
 {
-    setTitleLabelText(tr("Version Information"));
+    //setTitleLabelText(tr("Version Information"));
+    setTitleLabelText(tr("设备版本信息"));
 
     //-------------- table ----------------
     tabView = new QTableView(this);
