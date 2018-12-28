@@ -1,4 +1,4 @@
-#include "aboutpage.h"
+#include "seatpage.h"
 #include <QTextCodec>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -10,7 +10,7 @@
 #include <string.h>
 #include <errno.h>
 
-AboutPage::AboutPage(QWidget *parent) :
+SeatPage::SeatPage(QWidget *parent) :
     PageWidget(parent)
 {
     //setTitleLabelText(tr("Seat Settings"));
@@ -207,7 +207,7 @@ AboutPage::AboutPage(QWidget *parent) :
     updateTimer->start(1000);
 }
 
-bool AboutPage::readChnlCfgFile(const QString &filename)
+bool SeatPage::readChnlCfgFile(const QString &filename)
 {
     QFile file(filename);
     if(!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -243,7 +243,7 @@ bool AboutPage::readChnlCfgFile(const QString &filename)
 
 }
 
-void AboutPage::readChannelElement()
+void SeatPage::readChannelElement()
 {
     int curChannel = 0;
     qDebug() << tr("--readChannelElement--");
@@ -312,7 +312,7 @@ void AboutPage::readChannelElement()
     }
 }
 
-void AboutPage::restoreDefaultSettings()
+void SeatPage::restoreDefaultSettings()
 {
     QMessageBox msgBox;
     QPushButton *noBtn = msgBox.addButton(tr("NO"), QMessageBox::ActionRole);
@@ -339,7 +339,7 @@ void AboutPage::restoreDefaultSettings()
 
 }
 
-void AboutPage::applyNewConfiguration()
+void SeatPage::applyNewConfiguration()
 {
     QMessageBox msgBox;
     msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
@@ -396,7 +396,7 @@ void AboutPage::applyNewConfiguration()
 
 }
 
-void AboutPage::on_updateTimer_timeout()
+void SeatPage::on_updateTimer_timeout()
 {
     char buf[128];
     memset(buf, 0, sizeof(buf));
@@ -426,7 +426,7 @@ void AboutPage::on_updateTimer_timeout()
     pclose(fstream);
 }
 
-void AboutPage::readTestBtnOnClicked()
+void SeatPage::readTestBtnOnClicked()
 {
     //sdiskArea->setText("SATA disk read testing...");
     sdiskArea->append(QString("SATA disk read testing..."));
@@ -470,7 +470,7 @@ void AboutPage::readTestBtnOnClicked()
     sdiskArea->moveCursor(QTextCursor::Start);
 }
 
-void AboutPage::writeTestBtnOnClicked()
+void SeatPage::writeTestBtnOnClicked()
 {
     //sdiskArea->setText("SATA disk write testing...");
     sdiskArea->append(QString("SATA disk write testing..."));

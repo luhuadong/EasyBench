@@ -1,4 +1,4 @@
-#include "serialportpage.h"
+#include "systempage.h"
 #include "gyt_common.h"
 
 #include <unistd.h>
@@ -41,8 +41,8 @@ void SerialRecvThread::run()
             int len = strlen(buf);
             buf[len-1] = '\0';
             qDebug() << tr(gSerialPortStr) << tr(" : %1 ").arg(len) << tr(buf);
-            //((SerialPortPage *)parent())->showRecvData(buf);
-            //qobject_cast<SerialPortPage *>(this->parent())->showRecvData(buf);
+            //((SystemPage *)parent())->showRecvData(buf);
+            //qobject_cast<SystemPage *>(this->parent())->showRecvData(buf);
             QString msg(buf);
             emit msgReceived(msg);
         }
@@ -52,7 +52,7 @@ void SerialRecvThread::run()
 
 }
 
-SerialPortPage::SerialPortPage(QWidget *parent) :
+SystemPage::SystemPage(QWidget *parent) :
     PageWidget(parent)
 {
     //setTitleLabelText(tr("Serial Port Test"));
@@ -214,7 +214,7 @@ SerialPortPage::SerialPortPage(QWidget *parent) :
 
 }
 
-void SerialPortPage::showRecvData(const QString msg)
+void SystemPage::showRecvData(const QString msg)
 {
 
     //QString text(msg);
@@ -222,7 +222,7 @@ void SerialPortPage::showRecvData(const QString msg)
     qDebug() << tr("showRecvData : ") << msg;
 }
 
-void SerialPortPage::openSerialPort()
+void SystemPage::openSerialPort()
 {
     qDebug() << tr("openBtn clicked");
 
@@ -271,14 +271,14 @@ void SerialPortPage::openSerialPort()
     }
 }
 
-void SerialPortPage::changeSerialPort(const QString &text)
+void SystemPage::changeSerialPort(const QString &text)
 {
     qDebug() << tr("changeSerialPort: ") << text;
     strcpy(gSerialPortStr, text.toLatin1().data());
     qDebug() << tr("change Serial Port ") << QString(gSerialPortStr);
 }
 
-void SerialPortPage::applyParameters()
+void SystemPage::applyParameters()
 {
     char cmd[128];
     sprintf(cmd, "stty -F %s speed 9600 cs8 -parenb -cstopb -echo", gSerialPortStr);
@@ -289,18 +289,18 @@ void SerialPortPage::applyParameters()
     msgBox.exec();
 }
 
-void SerialPortPage::clearSendArea()
+void SystemPage::clearSendArea()
 {
     sendArea->clear();
     sendArea->setFocus();
 }
 
-void SerialPortPage::clearRecvArea()
+void SystemPage::clearRecvArea()
 {
     recvArea->clear();
 }
 
-void SerialPortPage::sendSerialData()
+void SystemPage::sendSerialData()
 {
     char cmd[128];
     QString sendStr = sendArea->toPlainText();

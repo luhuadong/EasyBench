@@ -61,7 +61,7 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
              << tr("Serial Port") << tr("Settings") << tr("Monitor") << tr("Version"); */
 
     menuList << tr("显示") << tr("触摸") << tr("相机") << tr("网络")
-             << tr("串口") << tr("设置") << tr("监测") << tr("版本");
+             << tr("系统") << tr("席位") << tr("监测") << tr("版本");
 
     for(int i=0; i<8; i++)
     {
@@ -94,8 +94,8 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     cameraPage = new CameraPage(this);
     //datetimePage = new DatetimePage(this);
     networkPage = new NetworkPage(this);
-    serialPortPage = new SerialPortPage(this);
-    aboutPage = new AboutPage(this);  // Settings Page
+    systemPage = new SystemPage(this);
+    seatPage = new SeatPage(this);  // Settings Page
     monitorPage = new MonitorPage(this);
     versionPage = new VersionPage(this);
     //realtimePage = new RealtimePage(this);
@@ -106,8 +106,8 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     centerPages->addWidget(cameraPage);
     //centerPages->addWidget(datetimePage);
     centerPages->addWidget(networkPage);
-    centerPages->addWidget(serialPortPage);
-    centerPages->addWidget(aboutPage);  // Settings Page
+    centerPages->addWidget(systemPage);
+    centerPages->addWidget(seatPage);  // Settings Page
     centerPages->addWidget(monitorPage);
     centerPages->addWidget(versionPage);
     //centerPages->addWidget(realtimePage);

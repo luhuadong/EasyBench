@@ -1,5 +1,5 @@
-#ifndef SERIALPORTPAGE_H
-#define SERIALPORTPAGE_H
+#ifndef SYSTEMPAGE_H
+#define SYSTEMPAGE_H
 
 #include "custom_widget/pagewidget.h"
 #include "gyt_common.h"
@@ -30,11 +30,11 @@ protected:
     void run();
 };
 
-class SerialPortPage : public PageWidget
+class SystemPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit SerialPortPage(QWidget *parent = 0);
+    explicit SystemPage(QWidget *parent = 0);
 
 
 signals:
@@ -165,4 +165,4 @@ private:
 
 };
 
-#endif // SERIALPORTPAGE_H
+#endif // SYSTEMPAGE_H

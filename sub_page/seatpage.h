@@ -1,5 +1,5 @@
-#ifndef ABOUTPAGE_H
-#define ABOUTPAGE_H
+#ifndef SEATPAGE_H
+#define SEATPAGE_H
 
 #include "custom_widget/pagewidget.h"
 #include "gyt_common.h"
@@ -19,11 +19,11 @@
 #include <QTimer>
 #include <QTextEdit>
 
-class AboutPage : public PageWidget
+class SeatPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit AboutPage(QWidget *parent = 0);
+    explicit SeatPage(QWidget *parent = 0);
 
 public slots:
 
@@ -88,4 +88,4 @@ private:
 
 };
 
-#endif // ABOUTPAGE_H
+#endif // SEATPAGE_H

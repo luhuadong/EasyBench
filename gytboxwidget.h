@@ -15,9 +15,9 @@
 #include "sub_page/monitorpage.h"
 #include "sub_page/versionpage.h"
 #include "sub_page/realtimepage.h"
-#include "sub_page/aboutpage.h"
+#include "sub_page/seatpage.h"
 #include "sub_page/networkpage.h"
-#include "sub_page/serialportpage.h"
+#include "sub_page/systempage.h"
 
 
 class GytBoxWidget : public QWidget
@@ -57,28 +57,20 @@ private:
     QWidget *menuWidget;
     QButtonGroup *menuBtnGroup;
 
-    /* **********************************************************************
-     * 1: LCD                             2: TouchScreen    3: Camera               4: Date-Time & Time-Zone
-     * 5: Resources Monitor   6: Version Info     7: RealTime Test     8: About Author
-     ************************************************************************/
-
     //---------- 侧边栏 -----------
     //QWidget *sideBar;
 
     //---------- 子界面 -----------
     QStackedWidget *centerPages;
 
-    LcdPage *lcdPage;
-    TouchPage *touchPage;
-    CameraPage *cameraPage;
-    //DatetimePage *datetimePage;
+    LcdPage     *lcdPage;
+    TouchPage   *touchPage;
+    CameraPage  *cameraPage;
     NetworkPage *networkPage;
-    SerialPortPage *serialPortPage;
+    SystemPage  *systemPage;
+    SeatPage    *seatPage;
     MonitorPage *monitorPage;
     VersionPage *versionPage;
-    //RealtimePage *realtimePage;
-    AboutPage *aboutPage;
-
 
     pageTypes prevPage;
     pageTypes currPage;

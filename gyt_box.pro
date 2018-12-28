@@ -19,7 +19,6 @@ SOURCES += main.cpp\
     custom_widget/operationbar.cpp \
     custom_widget/pagewidget.cpp \
     sub_page/lcdpage.cpp \
-    sub_page/aboutpage.cpp \
     sub_page/camerapage.cpp \
     sub_page/datetimepage.cpp \
     sub_page/monitorpage.cpp \
@@ -33,14 +32,14 @@ SOURCES += main.cpp\
     module/monitor/cpustatthread.cpp \
     custom_widget/inputlineedit.cpp \
     sub_page/networkpage.cpp \
-    sub_page/serialportpage.cpp
+    sub_page/systempage.cpp \
+    sub_page/seatpage.cpp
 
 HEADERS  += gytboxwidget.h \
     gyt_common.h \
     custom_widget/operationbar.h \
     custom_widget/pagewidget.h \
     sub_page/lcdpage.h \
-    sub_page/aboutpage.h \
     sub_page/camerapage.h \
     sub_page/datetimepage.h \
     sub_page/monitorpage.h \
@@ -54,7 +53,8 @@ HEADERS  += gytboxwidget.h \
     module/monitor/cpustatthread.h \
     custom_widget/inputlineedit.h \
     sub_page/networkpage.h \
-    sub_page/serialportpage.h
+    sub_page/systempage.h \
+    sub_page/seatpage.h
 
 RESOURCES += \
     resource/images.qrc \
