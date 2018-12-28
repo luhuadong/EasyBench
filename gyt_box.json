@@ -1,0 +1,39 @@
+{
+	"Platform": {
+		"Vendor": "广州广有通信设备有限公司",
+		"Model": "Advantech ROM-5420-B1",
+		"CPU": "Freescale i.MX6Q (ARMv7 处理器)",
+		"BaseBoard": "C019 v1.3",
+		"Product": "GY71L",
+		"SerialNum": "SN-4A767374-466F72-596F75"
+	},
+	"Linux": {
+		"UBoot": "2015.04-g624b022-dirty",
+		"GCC": "arm-poky-linux-gnueabi-gcc 4.9.2",
+		"Binutils": "2.24",
+		"Kernel": "3.14.52-1.1.0_ga",
+		"Issue": "Freescale i.MX Release Distro 3.14.52-1.1.0",
+		"Qt": "5.5.1",
+		"Rootfs": "GYLinux_YH5420B1_SV_1.0.1",
+		"Date": "2018-12-21"
+	},
+	"Devices": {
+		"SerialPort": [
+			"/dev/ttymxc0",
+			"/dev/ttymxc1",
+			"/dev/ttymxc2",
+			"/dev/ttymxc3",
+			"/dev/ttymxc4"
+		],
+		"VideoInput": "/dev/video0",
+		"TouchScreen": {
+			"Type": 0,
+			"Comment": "0:Resistive, 1:Capacitive"
+		},
+		"Backlight": {
+			"Path": "/sys/class/backlight/backlight.27",
+			"Range": [1, 32]
+		}
+	},
+	"Connect2Mcu": false,
+}
