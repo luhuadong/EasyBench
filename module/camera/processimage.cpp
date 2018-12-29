@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QHBoxLayout>
+#include <QDebug>
 
 extern "C"
 {
@@ -91,9 +92,9 @@ int ProcessImage::convert_yuv_to_rgb_buffer(unsigned char *yuv, unsigned char *r
     int y0, u, y1, v;
     for(in = 0; in < width * height * 2; in += 4) {
         pixel_16 = yuv[in + 3] << 24 |
-                   yuv[in + 2] << 16 |
-                   yuv[in + 1] <<  8 |
-                   yuv[in + 0];
+                                  yuv[in + 2] << 16 |
+                                                 yuv[in + 1] <<  8 |
+                                                                 yuv[in + 0];
         y0 = (pixel_16 & 0x000000ff);
         u  = (pixel_16 & 0x0000ff00) >>  8;
         y1 = (pixel_16 & 0x00ff0000) >> 16;
@@ -140,12 +141,16 @@ int ProcessImage::convert_yuv_to_rgb_pixel(int y, int u, int v)
 int ProcessImage::openCamera()
 {
     rs = vd->open_device();
+    qDebug() << "Open Camera Device!";
+
     if(-1 == rs) {
         cameraStatus = CAMERA_NONE;
         return -1;
     }
     else {
         rs = vd->init_device();
+        qDebug() << "Init Camera Device!";
+
         if(-1 == rs) {
             vd->close_device();
             cameraStatus = CAMERA_ERROR;
@@ -153,18 +158,20 @@ int ProcessImage::openCamera()
         }
         else {
             rs = vd->start_capturing();
+            qDebug() << "Capturing from Camera!";
+
             if(-1==rs) {
                 vd->uninit_device();
                 vd->close_device();
                 cameraStatus = CAMERA_ERROR;
                 return -1;
             }
-            else {
-                connect(timer,SIGNAL(timeout()),this,SLOT(update()));
-                timer->start(30);
-                cameraStatus = CAMERA_OPENED;
-                return 0;
-            }
+
+            connect(timer,SIGNAL(timeout()),this,SLOT(update()));
+            timer->start(30);
+            cameraStatus = CAMERA_OPENED;
+            qDebug() << "Camera all is right!";
+            return 0;
         }
     }
 }
@@ -178,6 +185,7 @@ int ProcessImage::closeCamera()
         vd->uninit_device();
         vd->close_device();
         cameraStatus = CAMERA_CLOSED;
+        qDebug() << "Close Camera Device!";
         return 0;
     }
     return -1;
