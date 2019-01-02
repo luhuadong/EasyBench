@@ -72,6 +72,31 @@ VersionPage::VersionPage(QWidget *parent) :
 
 void VersionPage::getVersionData()
 {
+    gyVersionFile = QString("/etc/gy-version");
+    QSettings gyVersionRead(gyVersionFile, QSettings::IniFormat);
+    QString v_productName = gyVersionRead.value("/PLATFORM/Product", QString("GY33ASEAT")).toString();
+    QString v_serialNumber = gyVersionRead.value("/PLATFORM/SN", QString("4401-2518-9763-AC08")).toString();
+    QString v_gyos = gyVersionRead.value("/Linux/GYOS", QString("GYLinux_GW_SV_1.0.1")).toString();
+    QString v_yocto = gyVersionRead.value("/Linux/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
+    QString v_kernel = gyVersionRead.value("/Linux/Kernel", QString("3.14.52")).toString();
+    QString v_uboot = gyVersionRead.value("/Linux/UBoot", QString("2015.04-g624b022")).toString();
+    QString v_gcc = gyVersionRead.value("/Linux/GCC", QString("arm-poky-linux-gnueabi-gcc")).toString();
+    QString v_model = gyVersionRead.value("/PLATFORM/Model", QString("Advantech ROM-5420-B1")).toString();
+    QString v_baseBoard = gyVersionRead.value("/PLATFORM/BaseBoard", QString("C019 v1.3")).toString();
+    QString v_developer = gyVersionRead.value("/PLATFORM/Developer", QString("广州广有通信设备有限公司")).toString();
+
+
+    QStringList itemNameList;
+    itemNameList << tr("设备型号") << tr("序列号") << tr("系统版本")
+                 << tr("Yocto版本") << tr("内核版本") << tr("Uboot版本")
+                 << tr("GCC版本") << tr("核心模块") << tr("硬件版本") << tr("开发者");
+
+    QStringList itemValueList;
+    itemValueList << v_productName << v_serialNumber << v_gyos
+                  << v_yocto << v_kernel << v_uboot
+                  << v_gcc << v_model << v_baseBoard << v_developer;
+
+#if 0
     QString kernelStr;
     QString yoctoStr;
     QFile tmpFile;
@@ -94,19 +119,21 @@ void VersionPage::getVersionData()
     }
     tmpFile.close();
 
+
     QStringList itemNameList;
-    itemNameList << tr("Machine type") << tr("Serial number") << tr("GYT OS version")
-                 << tr("Yocto version") << tr("Linux kernel") << tr("Firmware version")
-                 << tr("Software version") << tr("Hardware version") << tr("Developer") << tr(" ");
+    itemNameList << tr("设备型号") << tr("序列号") << tr("系统版本")
+                 << tr("Yocto版本") << tr("内核版本") << tr("固件版本")
+                 << tr("软件版本") << tr("硬件版本") << tr("开发者") << tr(" ");
 
     QStringList itemValueList;
-    itemValueList << QString(gMachineTypeStr) << tr("xxxx-xxxx-xxxx-xxxx") << tr("1.0.001")
+    itemValueList << QString(gMachineTypeStr) << tr("4401-2518-9763-AC08") << tr("GYLinux_GW_SV_1.0.1")
                   << yoctoStr << kernelStr << tr("fs 1.0.0-B2016112801")
                   << tr("seat_imx 2.0.0.10554") << tr("Freescale i.MX6 Quad, ARMv7 Processor rev 10")
                   << tr("Guangzhou Guangyou communications equipment Co., Ltd.")
                   << tr(" ");
+#endif
 
-    for (int row = 0; row < 10; ++row) {
+    for (int row = 0; row < itemNameList.count(); ++row) {
         for (int column = 0; column < 2; ++column) {
             if(column == 0) {
                 QStandardItem *item = new QStandardItem(itemNameList.at(row));

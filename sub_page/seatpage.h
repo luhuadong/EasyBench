@@ -16,8 +16,11 @@
 #include <QXmlStreamAttributes>
 #include <QXmlStreamAttribute>
 #include <QPushButton>
-#include <QTimer>
 #include <QTextEdit>
+#include <QButtonGroup>
+#include <QRadioButton>
+#include <QLineEdit>
+#include <QSettings>
 
 class SeatPage : public PageWidget
 {
@@ -31,11 +34,10 @@ private slots:
     void restoreDefaultSettings();
     void applyNewConfiguration();
 
-    void on_updateTimer_timeout(void);
-    void readTestBtnOnClicked(void);
-    void writeTestBtnOnClicked(void);
+    void applyModeConfiguration();
 
 private:
+    /* chnlCfg.xml */
     bool readChnlCfgFile(const QString &filename);
     void readChannelElement();
 
@@ -74,17 +76,17 @@ private:
     QPushButton *resetBtn;
     QPushButton *applyBtn;
 
-    QTimer *updateTimer;
+    /* config.ini */
+    QGroupBox *configGroup;
 
-    QGroupBox *rtcGroup;
-    QLabel *rtcName;
-    QLabel *rtcDateTime;
-    QLabel *sysDateTime;
+    QButtonGroup *spBtnGroup;
+    QCheckBox *towerModeBox;
+    QLineEdit *longitudeLine;
+    QLineEdit *latitudeLine;
+    QPushButton *configApplyBtn;
 
-    QGroupBox *sdiskGroup; // SATA interface disk
-    QTextEdit *sdiskArea;
-    QPushButton *readTestBtn;
-    QPushButton *writeTestBtn;
+    QString cfgFileName;
+
 
 };
 

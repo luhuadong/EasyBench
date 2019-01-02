@@ -46,7 +46,7 @@ MonitorPage::MonitorPage(QWidget *parent) :
     mainWidget->setGeometry(0, 96, this->width(), this->height()-96-72);
 
     // -----------------------------------
-    cpuGroupBox = new QGroupBox(tr("  CPU Info  "), mainWidget);
+    cpuGroupBox = new QGroupBox(tr("处理器"), mainWidget);
     cpuNameLabel = new QLabel(tr("ARMv7 Processor rev 10 (v7l)"), cpuGroupBox);
     cpuVendorLabel = new QLabel(tr("Freescale i.MX6 Quad/DualLite (Device Tree)"), cpuGroupBox);
     cpuCoreLabel = new QLabel(QString("CPU core : %1 (total), %2 (available)").arg(totalCpuNum).arg(availCpuNum), cpuGroupBox);
@@ -65,7 +65,7 @@ MonitorPage::MonitorPage(QWidget *parent) :
     cpuGroupBox->setLayout(cpuGroupLayout);
 
     // -----------------------------------
-    tempGroupBox = new QGroupBox(tr("  Temperature  "), mainWidget);
+    tempGroupBox = new QGroupBox(tr("温度"), mainWidget);
 
     armTempLabel = new QLabel(QString("ARM temp  : %1 C").arg(armTemp, 0, 'f', 2), tempGroupBox);
     adspTempLabel = new QLabel(QString("ADSP temp : %1 C").arg(adspTemp, 0, 'f', 2), tempGroupBox);
@@ -85,7 +85,7 @@ MonitorPage::MonitorPage(QWidget *parent) :
     tempGroupBox->setLayout(tempGroupLayout);
 
     // -----------------------------------
-    memGroupBox = new QGroupBox(tr("  Memory  "), mainWidget);
+    memGroupBox = new QGroupBox(tr("内存"), mainWidget);
 
     memTotalLabel = new QLabel(QString("Total : %1 MB").arg(memTotal), memGroupBox);
     memUsedLabel = new QLabel(QString("Used  : %1 MB").arg(memUsed), memGroupBox);
@@ -106,7 +106,7 @@ MonitorPage::MonitorPage(QWidget *parent) :
     memGroupBox->setLayout(memGroupLayout);
 
     // -----------------------------------
-    diskGroupBox = new QGroupBox(tr("  Hard Disk  "), mainWidget);
+    diskGroupBox = new QGroupBox(tr("硬盘"), mainWidget);
 
     diskTotalLabel = new QLabel(QString("Total : %1 MB").arg(diskTotal), diskGroupBox);
     diskUsedLabel = new QLabel(QString("Used  : %1 MB").arg(diskUsed), diskGroupBox);

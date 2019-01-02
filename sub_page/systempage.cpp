@@ -5,6 +5,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 #include <QDebug>
 #include <QGridLayout>
@@ -49,7 +52,6 @@ void SerialRecvThread::run()
         else
             continue;
     }
-
 }
 
 SystemPage::SystemPage(QWidget *parent) :
@@ -59,11 +61,92 @@ SystemPage::SystemPage(QWidget *parent) :
     setTitleLabelText(tr("系统功能测试"));
 
     /* Select Serial Port Box */
+    this->initSerialPortArea();
 
-    serialPortGroup = new QGroupBox(tr("Select Serial Port"), this);
+
+    /* RTC Group */
+
+    rtcGroup = new QGroupBox(tr("实时时钟"), this);
+    rtcGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+
+    rtcName = new QLabel(tr("设备型号 : None"), rtcGroup);
+    rtcName->setFont(QFont("Courier", 10, QFont::Normal));
+    rtcDateTime = new QLabel(tr("RTC时间 : None"), rtcGroup);
+    rtcDateTime->setFont(QFont("Courier", 10, QFont::Normal));
+    sysDateTime = new QLabel(tr("系统时间 : None"), rtcGroup);
+    sysDateTime->setFont(QFont("Courier", 10, QFont::Normal));
+
+    QVBoxLayout *rtcLayout = new QVBoxLayout;
+    rtcLayout->setMargin(10);
+    rtcLayout->setSpacing(10);
+    rtcLayout->addWidget(rtcName);
+    rtcLayout->addWidget(rtcDateTime);
+    rtcLayout->addWidget(sysDateTime);
+    rtcGroup->setLayout(rtcLayout);
+
+    rtcGroup->setGeometry(40+380+40, 96+30, 400, 200);
+
+    char buf[32];
+    memset(buf, 0, sizeof(buf));
+
+    FILE *fstream = NULL;
+
+    if(NULL == (fstream = popen("cat /sys/class/rtc/rtc0/name", "r"))) {
+
+        rtcName->setText("设备型号 : None");
+    }else {
+        fgets(buf, sizeof(buf), fstream);
+        rtcName->setText(QString("设备型号 : %1").arg(QString(buf)));
+    }
+    pclose(fstream);
+
+
+
+    /* SATA Group */
+
+    sdiskGroup = new QGroupBox(tr("SATA读写测试"), this);
+    sdiskGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+    sdiskGroup->setGeometry(40+380+40, 96+30+200+30, 400, 270);
+
+    sdiskArea = new QTextEdit(sdiskGroup);
+    sdiskArea->setReadOnly(true);
+
+    readTestBtn = new QPushButton(tr("读取"), sdiskGroup);
+    writeTestBtn = new QPushButton(tr("写入"), sdiskGroup);
+    readTestBtn->setObjectName("functionBtn_small");
+    readTestBtn->setFixedSize(120, 30);
+    writeTestBtn->setObjectName("functionBtn_small");
+    writeTestBtn->setFixedSize(120, 30);
+
+    QHBoxLayout *sdiskBtnLayout = new QHBoxLayout;
+    sdiskBtnLayout->setSpacing(10);
+    sdiskBtnLayout->addWidget(readTestBtn);
+    sdiskBtnLayout->addWidget(writeTestBtn);
+
+    QVBoxLayout *sdiskLayout = new QVBoxLayout;
+    sdiskLayout->setMargin(10);
+    sdiskLayout->setSpacing(10);
+    sdiskLayout->addWidget(sdiskArea);
+    sdiskLayout->addLayout(sdiskBtnLayout);
+    sdiskGroup->setLayout(sdiskLayout);
+
+    connect(readTestBtn, SIGNAL(clicked()), this, SLOT(readTestBtnOnClicked()));
+    connect(writeTestBtn, SIGNAL(clicked()), this, SLOT(writeTestBtnOnClicked()));
+
+
+    updateTimer = new QTimer(this);
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_timeout()));
+    updateTimer->start(1000);
+
+
+}
+
+void SystemPage::initSerialPortArea()
+{
+    serialPortGroup = new QGroupBox(tr("串口设置"), this);
     serialPortGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
 
-    serialPortLabel = new QLabel(tr("Current port : "), serialPortGroup);
+    serialPortLabel = new QLabel(tr("当前串口 : "), serialPortGroup);
     serialPortLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
     serialPortBox = new QComboBox(serialPortGroup);
     //serialPortBox->addItem(QString(gSerialPortStr));
@@ -74,33 +157,19 @@ SystemPage::SystemPage(QWidget *parent) :
     serialPortBox->addItem(tr("/dev/ttymxc4"));
     serialPortBox->setCurrentIndex(1);
     strcpy(gSerialPortStr, serialPortBox->currentText().toLatin1().data());
-    openBtn = new QPushButton(tr("Open"), serialPortGroup);
-    openBtn->setObjectName("functionBtn_small");
-    openBtn->setFixedSize(80, 30);
 
-    QGridLayout *serialPortLayout = new QGridLayout;
-    serialPortLayout->setMargin(20);
-    serialPortLayout->addWidget(serialPortLabel, 0, 0);
-    serialPortLayout->addWidget(serialPortBox, 0, 1);
-    serialPortLayout->addWidget(openBtn, 1, 1, Qt::AlignRight);
-    serialPortGroup->setLayout(serialPortLayout);
-
-    /* Select Parameters Box */
-
-    parametersGroup = new QGroupBox(tr("Select Parameters"), this);
-    parametersGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
-
-    baudRateLabel = new QLabel(tr("BaudRate : "), parametersGroup);
+    baudRateLabel = new QLabel(tr("波特率 : "), serialPortGroup);
     baudRateLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    baudRateBox = new QComboBox(parametersGroup);
+    baudRateBox = new QComboBox(serialPortGroup);
     baudRateBox->addItem(tr("9600"), Baud9600);
     baudRateBox->addItem(tr("19200"), Baud19200);
     baudRateBox->addItem(tr("38400"), Baud38400);
     baudRateBox->addItem(tr("115200"), Baud115200);
 
-    dataBitsLabel = new QLabel(tr("Data bits : "), parametersGroup);
+    /*
+    dataBitsLabel = new QLabel(tr("数据位 : "), serialPortGroup);
     dataBitsLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    dataBitsBox = new QComboBox(parametersGroup);
+    dataBitsBox = new QComboBox(serialPortGroup);
     dataBitsBox->addItem(tr("5"), Data5);
     dataBitsBox->addItem(tr("6"), Data6);
     dataBitsBox->addItem(tr("7"), Data7);
@@ -109,31 +178,68 @@ SystemPage::SystemPage(QWidget *parent) :
     dataBitsBox->setCurrentIndex(3);
 
 
-    parityLabel = new QLabel(tr("Parity : "), parametersGroup);
+    parityLabel = new QLabel(tr("奇偶校验 : "), serialPortGroup);
     parityLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    parityBox = new QComboBox(parametersGroup);
+    parityBox = new QComboBox(serialPortGroup);
     parityBox->addItem(tr("None"), NoParity);
     parityBox->addItem(tr("Even"), EvenParity);
     parityBox->addItem(tr("Odd"), OddParity);
     parityBox->addItem(tr("Mark"), MarkParity);
     parityBox->addItem(tr("Space"), SpaceParity);
 
-    stopBitsLabel = new QLabel(tr("Stop bits : "), parametersGroup);
+    stopBitsLabel = new QLabel(tr("停止位 : "), serialPortGroup);
     stopBitsLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    stopBitsBox = new QComboBox(parametersGroup);
+    stopBitsBox = new QComboBox(serialPortGroup);
     stopBitsBox->addItem(tr("1"), OneStop);
     stopBitsBox->addItem(tr("2"), TwoStop);
 
-    flowControlLabel = new QLabel(tr("Flow control : "), parametersGroup);
+
+    flowControlLabel = new QLabel(tr("流控 : "), serialPortGroup);
     flowControlLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    flowControlBox = new QComboBox(parametersGroup);
+    flowControlBox = new QComboBox(serialPortGroup);
     flowControlBox->addItem(tr("None"), NoFlowControl);
     flowControlBox->addItem(tr("RTS/CTS"), HardwareControl);
     flowControlBox->addItem(tr("XON/XOFF"), SoftwareControl);
+    */
 
-    applyBtn = new QPushButton(tr("Apply"), parametersGroup);
+    applyBtn = new QPushButton(tr("应用"), serialPortGroup);
     applyBtn->setObjectName("functionBtn_small");
     applyBtn->setFixedSize(80, 30);
+    applyBtn->setVisible(false); // 自动设置串口参数，这样就可以去掉Apply按钮
+
+    openBtn = new QPushButton(tr("打开"), serialPortGroup);
+    openBtn->setObjectName("functionBtn_small");
+    openBtn->setFixedSize(80, 30);
+
+
+
+    QGridLayout *serialPortLayout = new QGridLayout;
+    //serialPortLayout->setMargin(10);
+    serialPortLayout->addWidget(serialPortLabel, 0, 0);
+    serialPortLayout->addWidget(serialPortBox, 0, 1);
+    serialPortLayout->addWidget(baudRateLabel, 1, 0);
+    serialPortLayout->addWidget(baudRateBox, 1, 1);
+    //serialPortLayout->addWidget(dataBitsLabel, 2, 0);
+    //serialPortLayout->addWidget(dataBitsBox, 2, 1);
+    //serialPortLayout->addWidget(parityLabel, 3, 0);
+    //serialPortLayout->addWidget(parityBox, 3, 1);
+    //serialPortLayout->addWidget(stopBitsLabel, 4, 0);
+    //serialPortLayout->addWidget(stopBitsBox, 4, 1);
+    //serialPortLayout->addWidget(flowControlLabel, 5, 0);
+    //serialPortLayout->addWidget(flowControlBox, 5, 1);
+    serialPortLayout->addWidget(applyBtn, 5, 0, Qt::AlignRight);
+    serialPortLayout->addWidget(openBtn, 5, 1, Qt::AlignRight);
+    serialPortGroup->setLayout(serialPortLayout);
+
+    /* Select Parameters Box */
+
+#if 0
+    parametersGroup = new QGroupBox(tr("Select Parameters"), this);
+    parametersGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+
+
+
+
 
     QGridLayout *parametersLayout = new QGridLayout;
     parametersLayout->setMargin(20);
@@ -149,27 +255,28 @@ SystemPage::SystemPage(QWidget *parent) :
     parametersLayout->addWidget(flowControlBox, 4, 1);
     parametersLayout->addWidget(applyBtn, 5, 1, Qt::AlignRight);
     parametersGroup->setLayout(parametersLayout);
+#endif
 
     /* Serial Port Echo Test */
-    echoTestGroup = new QGroupBox(tr("Serial Port Echo Test"), this);
+    echoTestGroup = new QGroupBox(tr("串口环回测试"), this);
     echoTestGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
 
     sendArea = new QTextEdit(echoTestGroup);
-    sendArea->setMinimumWidth(360);
+    sendArea->setMinimumWidth(280);
 
     recvArea = new QTextEdit(echoTestGroup);
-    recvArea->setMinimumWidth(360);
+    recvArea->setMinimumWidth(280);
     recvArea->setReadOnly(true);
 
-    sendClearBtn = new QPushButton(tr("Clear"), echoTestGroup);
+    sendClearBtn = new QPushButton(tr("清除"), echoTestGroup);
     sendClearBtn->setObjectName("functionBtn_small");
     sendClearBtn->setFixedSize(80, 30);
 
-    recvClearBtn = new QPushButton(tr("Clear"), echoTestGroup);
+    recvClearBtn = new QPushButton(tr("清除"), echoTestGroup);
     recvClearBtn->setObjectName("functionBtn_small");
     recvClearBtn->setFixedSize(80, 30);
 
-    testBtn = new QPushButton(tr("Send"), echoTestGroup);
+    testBtn = new QPushButton(tr("发送"), echoTestGroup);
     testBtn->setObjectName("functionBtn_small");
     testBtn->setFixedSize(80, 30);
 
@@ -182,9 +289,9 @@ SystemPage::SystemPage(QWidget *parent) :
     echoTestLayout->addWidget(recvClearBtn, 3, 0, 1, 1);
     echoTestGroup->setLayout(echoTestLayout);
 
-    serialPortGroup->setGeometry(40, 96+30, 360, 140);
-    parametersGroup->setGeometry(40, 96+200, 360, 320);
-    echoTestGroup->setGeometry(40+360+40, 96+30, 420, 140+30+320);
+    serialPortGroup->setGeometry(40, 96+30, 360, 160);
+    //parametersGroup->setGeometry(40, 96+200, 360, 320);
+    echoTestGroup->setGeometry(40, 96+30+140+30, 360, 330);
     echoTestGroup->setEnabled(false);
 
     connect(openBtn, SIGNAL(clicked()), this, SLOT(openSerialPort()));
@@ -211,7 +318,6 @@ SystemPage::SystemPage(QWidget *parent) :
     char cmd[128];
     sprintf(cmd, "stty -F %s speed 9600 cs8 -parenb -cstopb -echo", gSerialPortStr);
     system(cmd);
-
 }
 
 void SystemPage::showRecvData(const QString msg)
@@ -226,9 +332,10 @@ void SystemPage::openSerialPort()
 {
     qDebug() << tr("openBtn clicked");
 
-    if(openBtn->text() == QString("Open"))
+    if(openBtn->text() == QString("打开"))
     {
         qDebug() << tr("open");
+        this->applyParameters(); // 自动设置串口参数，这样就可以去掉Apply按钮
 
         serialFd = open(gSerialPortStr, O_RDWR | O_NOCTTY | O_NDELAY);
         if(serialFd == -1) {
@@ -244,7 +351,7 @@ void SystemPage::openSerialPort()
             thread->start();
             echoTestGroup->setEnabled(true);
             applyBtn->setEnabled(false);
-            openBtn->setText(tr("Close"));
+            openBtn->setText(tr("关闭"));
 
             /*
             QMessageBox msgBox;
@@ -256,7 +363,7 @@ void SystemPage::openSerialPort()
 
         //return NoError;
     }
-    else if(openBtn->text() == QString("Close"))
+    else if(openBtn->text() == QString("关闭"))
     {
         qDebug() << tr("close");
 
@@ -267,7 +374,7 @@ void SystemPage::openSerialPort()
 
         echoTestGroup->setEnabled(false);
         applyBtn->setEnabled(true);
-        openBtn->setText(tr("Open"));
+        openBtn->setText(tr("打开"));
     }
 }
 
@@ -283,10 +390,11 @@ void SystemPage::applyParameters()
     char cmd[128];
     sprintf(cmd, "stty -F %s speed 9600 cs8 -parenb -cstopb -echo", gSerialPortStr);
     system(cmd);
-
+#if 0
     QMessageBox msgBox;
     msgBox.setText(tr("Configure parameters of %1 successfully.").arg(gSerialPortStr));
     msgBox.exec();
+#endif
 }
 
 void SystemPage::clearSendArea()
@@ -308,4 +416,118 @@ void SystemPage::sendSerialData()
     sprintf(cmd, "echo -e \"%s\" > %s", sendStr.toLatin1().data(), gSerialPortStr);
     system(cmd);
 
+}
+
+
+void SystemPage::on_updateTimer_timeout()
+{
+    static char buf[128];
+    memset(buf, 0, sizeof(buf));
+
+    FILE *fstream = NULL;
+
+
+    if(NULL == (fstream = popen("hwclock -u", "r"))) {
+
+        rtcDateTime->setText("RTC时间 : None");
+    }else {
+        fgets(buf, sizeof(buf), fstream);
+        rtcDateTime->setText(QString("RTC时间 : %1").arg(QString(buf)));
+    }
+
+    memset(buf, 0, sizeof(buf));
+
+
+    if(NULL == (fstream = popen("date", "r"))) {
+
+        sysDateTime->setText("系统时间 : None");
+    }else {
+        fgets(buf, sizeof(buf), fstream);
+        sysDateTime->setText(QString("系统时间 : %1").arg(QString(buf)));
+    }
+
+    pclose(fstream);
+}
+
+void SystemPage::readTestBtnOnClicked()
+{
+    //sdiskArea->setText("SATA disk read testing...");
+    sdiskArea->append(QString("SATA disk read testing..."));
+    qDebug("SATA disk read testing...");
+
+    char cmd[128];
+    char buf[256];
+
+    memset(cmd, 0, sizeof(cmd));
+    memset(buf, 0, sizeof(buf));
+
+    sprintf(cmd, "dd if=/dev/sda of=/dev/null bs=1M count=100");
+
+
+    FILE *fstream = NULL;
+    if(NULL == (fstream = popen(cmd, "r")))
+    {
+        sprintf(buf, "Execute command failed: %s", strerror(errno));
+        sdiskArea->setText(QString(buf));
+        return ;
+    }
+
+    fread(buf, sizeof(buf), 1, fstream);
+    qDebug(buf);
+
+    //sdiskArea->clear();
+    /*
+    while(NULL != fgets(buf, sizeof(buf), fstream))
+    {
+        qDebug("====== content ======");
+        qDebug(buf);
+        int len = strlen(buf);
+        if(buf[len-1] == '\n' || buf[len-1] == '\r')
+        {
+            buf[len-1] = '\0';
+        }
+        sdiskArea->append(QString(buf));
+    }
+    */
+    pclose(fstream);
+    sdiskArea->moveCursor(QTextCursor::Start);
+}
+
+void SystemPage::writeTestBtnOnClicked()
+{
+    //sdiskArea->setText("SATA disk write testing...");
+    sdiskArea->append(QString("SATA disk write testing..."));
+    qDebug("SATA disk write testing...");
+
+    char cmd[128];
+    char buf[256];
+
+    memset(cmd, 0, sizeof(cmd));
+    memset(buf, 0, sizeof(buf));
+
+    sprintf(cmd, "dd if=/dev/zero of=/dev/sda bs=1M count=100");
+
+
+    FILE *fstream = NULL;
+    if(NULL == (fstream = popen(cmd, "r")))
+    {
+        sprintf(buf, "Execute command failed: %s", strerror(errno));
+        sdiskArea->setText(QString(buf));
+        return ;
+    }
+
+    //sdiskArea->clear();
+    while(NULL != fgets(buf, sizeof(buf), fstream))
+    {
+        qDebug("====== content ======");
+        qDebug(buf);
+        int len = strlen(buf);
+        if(buf[len-1] == '\n' || buf[len-1] == '\r')
+        {
+            buf[len-1] = '\0';
+        }
+        sdiskArea->append(QString(buf));
+    }
+    pclose(fstream);
+    sdiskArea->moveCursor(QTextCursor::Start);
 }

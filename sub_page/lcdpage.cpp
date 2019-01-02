@@ -49,7 +49,8 @@ LcdPage::LcdPage(QWidget *parent) :
     MaxBacklightValue = QString(byteArray).toInt();
     backlightFile.close();
 
-    backlightLabel = new QLabel(tr("Backlight Level : ") + QString::number(backlightValue), this);
+    // Backlight Level
+    backlightLabel = new QLabel(tr("背光等级 : ") + QString::number(backlightValue), this);
     backlightLabel->setGeometry(100, 550, 150, 50);
 
     backlightBar = new QProgressBar(this);
@@ -62,7 +63,7 @@ LcdPage::LcdPage(QWidget *parent) :
     lcdInfoBox->setTitle(tr("LCD Info"));
     lcdInfoBox->setGeometry(100, 120, 700, 140);
     lcdInfoLabel = new QLabel(lcdInfoBox);
-    lcdInfoLabel->setText(tr("12 inch TFT LCD, made in China."));
+    lcdInfoLabel->setText(tr("12 英寸 TFT LCD, made in China."));
     resolutionLabel = new QLabel(lcdInfoBox);
     bppLabel = new QLabel(lcdInfoBox);
 
@@ -77,14 +78,17 @@ LcdPage::LcdPage(QWidget *parent) :
         printf("Can not get screen information.\n");
     }
     else {
-        resolutionLabel->setText(tr("Visible resolution : ") + QString::number(vinfo.xres) + tr(" x ") + QString::number(vinfo.yres));
-        bppLabel->setText(tr("Bits per pixel : ") + QString::number(vinfo.bits_per_pixel) + tr(" bpp"));
+        // Visible resolution
+        resolutionLabel->setText(tr("可视分辨率 : ") + QString::number(vinfo.xres) + tr(" x ") + QString::number(vinfo.yres));
+        // Bits per pixel
+        bppLabel->setText(tr("BPP值 : ") + QString::number(vinfo.bits_per_pixel) + tr(" bpp"));
         //grayscaleLabel->setText(QString("Grayscale : ") + QString::number(vinfo.grayscale));
         //pixclockLabel->setText(QString("Pixclock : ") + QString::number(vinfo.pixclock));
         //sizeLabel->setText(QString("Size : ") + QString::number(vinfo.height) + QString(" x ") + QString::number(vinfo.width));
     }
 
 #if LANGUAGE_CHINESE
+    lcdInfoBox->setTitle(tr("液晶屏参数"));
     operationBar->secondButton()->setText(tr("亮度减"));
     operationBar->thirdButton()->setText(tr("亮度加"));
     pixelCheckBtn->setText(tr("像素测试"));
@@ -164,7 +168,7 @@ void LcdPage::lcdBacklightUp()
     {
         char cmd[128];
         backlightValue++;
-        backlightLabel->setText(tr("Backlight Level : ") + QString::number(backlightValue));
+        backlightLabel->setText(tr("背光等级 : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
         sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, BACKLIGHT_NAME);
         system(cmd);
@@ -177,7 +181,7 @@ void LcdPage::lcdBacklightDown()
     {
         char cmd[128];
         backlightValue--;
-        backlightLabel->setText(tr("Backlight Level : ") + QString::number(backlightValue));
+        backlightLabel->setText(tr("背光等级 : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
         sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, BACKLIGHT_NAME);
         system(cmd);

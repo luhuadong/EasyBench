@@ -118,6 +118,87 @@ SeatPage::SeatPage(QWidget *parent) :
     connect(resetBtn, SIGNAL(clicked()), this, SLOT(restoreDefaultSettings()));
     connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyNewConfiguration()));
 
+    readChnlCfgFile(chnlCfgFileName);
+
+
+
+    /* Config Group */
+
+    configGroup = new QGroupBox(tr("席位模式配置"), this);
+    configGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+
+    spBtnGroup = new QButtonGroup(this);
+
+    QRadioButton *sp1 = new QRadioButton(tr("串口一"), configGroup);
+    QRadioButton *sp2 = new QRadioButton(tr("串口二"), configGroup);
+    QRadioButton *sp3 = new QRadioButton(tr("串口三"), configGroup);
+    QRadioButton *sp4 = new QRadioButton(tr("串口四"), configGroup);
+    spBtnGroup->addButton(sp1, 1);
+    spBtnGroup->addButton(sp2, 2);
+    spBtnGroup->addButton(sp3, 3);
+    spBtnGroup->addButton(sp4, 4);
+
+    QHBoxLayout *spBtnLayout = new QHBoxLayout;
+    spBtnLayout->addWidget(sp1);
+    spBtnLayout->addWidget(sp2);
+    spBtnLayout->addWidget(sp3);
+    spBtnLayout->addWidget(sp4);
+
+    towerModeBox = new QCheckBox(tr("塔台模式"), configGroup);
+    longitudeLine = new QLineEdit(configGroup);
+    longitudeLine->setMinimumHeight(32);
+    latitudeLine = new QLineEdit(configGroup);
+    latitudeLine->setMinimumHeight(32);
+
+    configApplyBtn = new QPushButton(tr("Apply"), configGroup);
+    configApplyBtn->setObjectName("functionBtn_small");
+    configApplyBtn->setFixedSize(140, 48);
+
+    QVBoxLayout *configLayout = new QVBoxLayout;
+    configLayout->setSpacing(20);
+    configLayout->setMargin(30);
+    configLayout->addWidget(new QLabel(tr("通信串口 : "), configGroup));
+    configLayout->addLayout(spBtnLayout);
+    configLayout->addStretch();
+    configLayout->addWidget(new QLabel(tr("当前经度 : "), configGroup));
+    configLayout->addWidget(longitudeLine);
+    configLayout->addWidget(new QLabel(tr("当前纬度 : "), configGroup));
+    configLayout->addWidget(latitudeLine);
+    configLayout->addStretch();
+    configLayout->addWidget(new QLabel(tr("塔台模式 : "), configGroup));
+    configLayout->addWidget(towerModeBox);
+    configLayout->addStretch();
+    configLayout->addWidget(configApplyBtn);
+
+    configGroup->setLayout(configLayout);
+    configGroup->setGeometry(40+380+40, 96+30, 400, 500);
+
+    connect(configApplyBtn, SIGNAL(clicked()), this, SLOT(applyModeConfiguration()));
+
+
+    // 根据config.ini配置文件进行初始化
+    cfgFileName = QString("/home/root/seat_imx/conf/config.ini");
+    QSettings configRead(cfgFileName, QSettings::IniFormat);
+    int bright = configRead.value("/BackLigth/Bright").toInt();
+    int port = configRead.value("/SerialPort/Port").toInt();
+    int blMode = configRead.value("/DeviceInfo/BacklightMode").toInt();
+    double longitude = configRead.value("/DeviceInfo/Longitude").toDouble();
+    double latitude = configRead.value("/DeviceInfo/Latitude").toDouble();
+
+
+    qDebug() << QString("bright=%1, port=%2, mode=%3, longitude=%4, latitude=%5").arg(bright).arg(port).arg(blMode).arg(longitude).arg(latitude);
+
+    if(port == 1 || port == 2 || port == 3 || port == 4) {
+        spBtnGroup->button(port)->setChecked(true);
+    }
+
+    if(blMode != 0) {
+        towerModeBox->setChecked(true);
+    }
+
+    longitudeLine->setText(QString::number(longitude));
+    latitudeLine->setText(QString::number(latitude));
+
 #if LANGUAGE_CHINESE
     chnlCfgGroup->setTitle(tr("席位通道配置"));
     channel1Label->setText(tr("通道1 : "));
@@ -126,85 +207,10 @@ SeatPage::SeatPage(QWidget *parent) :
     channel4Label->setText(tr("通道4 : "));
     resetBtn->setText(tr("恢复缺省配置"));
     applyBtn->setText(tr("应用"));
+    configApplyBtn->setText(tr("应用"));
 #endif
 
-    readChnlCfgFile(chnlCfgFileName);
 
-
-
-    /* RTC Group */
-
-    rtcGroup = new QGroupBox(tr("RTC"), this);
-    rtcGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
-
-    rtcName = new QLabel(tr("Device : None"), rtcGroup);
-    rtcName->setFont(QFont("Courier", 10, QFont::Normal));
-    rtcDateTime = new QLabel(tr("RTC : None"), rtcGroup);
-    rtcDateTime->setFont(QFont("Courier", 10, QFont::Normal));
-    sysDateTime = new QLabel(tr("Sys : None"), rtcGroup);
-    sysDateTime->setFont(QFont("Courier", 10, QFont::Normal));
-
-    QVBoxLayout *rtcLayout = new QVBoxLayout;
-    rtcLayout->setMargin(10);
-    rtcLayout->setSpacing(10);
-    rtcLayout->addWidget(rtcName);
-    rtcLayout->addWidget(rtcDateTime);
-    rtcLayout->addWidget(sysDateTime);
-    rtcGroup->setLayout(rtcLayout);
-
-    rtcGroup->setGeometry(40+380+40, 96+30, 400, 200);
-
-    char buf[32];
-    memset(buf, 0, sizeof(buf));
-
-    FILE *fstream = NULL;
-
-    if(NULL == (fstream = popen("cat /sys/class/rtc/rtc0/name", "r"))) {
-
-        rtcName->setText("Device : None");
-    }else {
-        fgets(buf, sizeof(buf), fstream);
-        rtcName->setText(QString("Device : %1").arg(QString(buf)));
-    }
-    pclose(fstream);
-
-
-
-    /* SATA Group */
-
-    sdiskGroup = new QGroupBox(tr("SATA Test"), this);
-    sdiskGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
-    sdiskGroup->setGeometry(40+380+40, 96+30+200+30, 400, 270);
-
-    sdiskArea = new QTextEdit(sdiskGroup);
-    sdiskArea->setReadOnly(true);
-
-    readTestBtn = new QPushButton(tr("Read"), sdiskGroup);
-    writeTestBtn = new QPushButton(tr("Write"), sdiskGroup);
-    readTestBtn->setObjectName("functionBtn_small");
-    readTestBtn->setFixedSize(120, 30);
-    writeTestBtn->setObjectName("functionBtn_small");
-    writeTestBtn->setFixedSize(120, 30);
-
-    QHBoxLayout *sdiskBtnLayout = new QHBoxLayout;
-    sdiskBtnLayout->setSpacing(10);
-    sdiskBtnLayout->addWidget(readTestBtn);
-    sdiskBtnLayout->addWidget(writeTestBtn);
-
-    QVBoxLayout *sdiskLayout = new QVBoxLayout;
-    sdiskLayout->setMargin(10);
-    sdiskLayout->setSpacing(10);
-    sdiskLayout->addWidget(sdiskArea);
-    sdiskLayout->addLayout(sdiskBtnLayout);
-    sdiskGroup->setLayout(sdiskLayout);
-
-    connect(readTestBtn, SIGNAL(clicked()), this, SLOT(readTestBtnOnClicked()));
-    connect(writeTestBtn, SIGNAL(clicked()), this, SLOT(writeTestBtnOnClicked()));
-
-
-    updateTimer = new QTimer(this);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_timeout()));
-    updateTimer->start(1000);
 }
 
 bool SeatPage::readChnlCfgFile(const QString &filename)
@@ -315,9 +321,10 @@ void SeatPage::readChannelElement()
 void SeatPage::restoreDefaultSettings()
 {
     QMessageBox msgBox;
-    QPushButton *noBtn = msgBox.addButton(tr("NO"), QMessageBox::ActionRole);
-    QPushButton *yesBtn = msgBox.addButton(tr("YES"), QMessageBox::ActionRole);
-    msgBox.setText(tr("Are you sure restore default settings ?"));
+    QPushButton *noBtn = msgBox.addButton(tr("否"), QMessageBox::ActionRole);
+    QPushButton *yesBtn = msgBox.addButton(tr("是"), QMessageBox::ActionRole);
+    //msgBox.setText(tr("Are you sure restore default settings ?"));
+    msgBox.setText("您确定要恢复出厂配置？");
     msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
     msgBox.exec();
     if(msgBox.clickedButton() == noBtn) {
@@ -389,122 +396,42 @@ void SeatPage::applyNewConfiguration()
         msgBox.setText(tr("Error: Can not write file.\nApply channel configuration failed."));
     }
     else {
-        msgBox.setText(tr("Apply channel configuration finished."));
+        //msgBox.setText(tr("Apply channel configuration finished."));
+        msgBox.setText("通道配置文件写入成功！\n路径：" + chnlCfgFileName + "\t");
     }
 
     msgBox.exec();
 
 }
 
-void SeatPage::on_updateTimer_timeout()
+void SeatPage::applyModeConfiguration()
 {
-    char buf[128];
-    memset(buf, 0, sizeof(buf));
+    QSettings configWrite(cfgFileName, QSettings::IniFormat);
 
-    FILE *fstream = NULL;
+    int bright = configWrite.value("/BackLigth/Bright").toInt();
+    int port = spBtnGroup->checkedId();
+    int blMode = 0;
 
-    /*
-    if(NULL == (fstream = popen("hwclock -u", "r"))) {
-
-        rtcDateTime->setText("RTC : None");
-    }else {
-        fgets(buf, sizeof(buf), fstream);
-        rtcDateTime->setText(QString("RTC : %1").arg(QString(buf)));
+    if(towerModeBox->isChecked()) {
+        blMode = 1;
     }
 
-    memset(buf, 0, sizeof(buf));
-    */
+    double longitude = longitudeLine->text().toDouble();
+    double latitude = latitudeLine->text().toDouble();
 
-    if(NULL == (fstream = popen("date", "r"))) {
+    qDebug() << QString("bright=%1, port=%2, mode=%3, longitude=%4, latitude=%5").arg(bright).arg(port).arg(blMode).arg(longitude).arg(latitude);
 
-        sysDateTime->setText("Sys : None");
-    }else {
-        fgets(buf, sizeof(buf), fstream);
-        sysDateTime->setText(QString("Sys : %1").arg(QString(buf)));
-    }
+    // Write to ini file
+    configWrite.setValue("/SerialPort/Port", port);
+    configWrite.setValue("/DeviceInfo/BacklightMode", blMode);
+    configWrite.setValue("/DeviceInfo/Longitude", longitude);
+    configWrite.setValue("/DeviceInfo/Latitude", latitude);
 
-    pclose(fstream);
+    configWrite.sync();
+
+    QMessageBox msgBox;
+    msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
+    msgBox.setText("模式配置文件写入成功！\n路径：" + cfgFileName + "\t");
+    msgBox.exec();
 }
 
-void SeatPage::readTestBtnOnClicked()
-{
-    //sdiskArea->setText("SATA disk read testing...");
-    sdiskArea->append(QString("SATA disk read testing..."));
-    qDebug("SATA disk read testing...");
-
-    char cmd[128];
-    char buf[256];
-
-    memset(cmd, 0, sizeof(cmd));
-    memset(buf, 0, sizeof(buf));
-
-    sprintf(cmd, "dd if=/dev/sda of=/dev/null bs=1M count=100");
-
-
-    FILE *fstream = NULL;
-    if(NULL == (fstream = popen(cmd, "r")))
-    {
-        sprintf(buf, "Execute command failed: %s", strerror(errno));
-        sdiskArea->setText(QString(buf));
-        return ;
-    }
-
-    fread(buf, sizeof(buf), 1, fstream);
-    qDebug(buf);
-
-    //sdiskArea->clear();
-    /*
-    while(NULL != fgets(buf, sizeof(buf), fstream))
-    {
-        qDebug("====== content ======");
-        qDebug(buf);
-        int len = strlen(buf);
-        if(buf[len-1] == '\n' || buf[len-1] == '\r')
-        {
-            buf[len-1] = '\0';
-        }
-        sdiskArea->append(QString(buf));
-    }
-    */
-    pclose(fstream);
-    sdiskArea->moveCursor(QTextCursor::Start);
-}
-
-void SeatPage::writeTestBtnOnClicked()
-{
-    //sdiskArea->setText("SATA disk write testing...");
-    sdiskArea->append(QString("SATA disk write testing..."));
-    qDebug("SATA disk write testing...");
-
-    char cmd[128];
-    char buf[256];
-
-    memset(cmd, 0, sizeof(cmd));
-    memset(buf, 0, sizeof(buf));
-
-    sprintf(cmd, "dd if=/dev/zero of=/dev/sda bs=1M count=100");
-
-
-    FILE *fstream = NULL;
-    if(NULL == (fstream = popen(cmd, "r")))
-    {
-        sprintf(buf, "Execute command failed: %s", strerror(errno));
-        sdiskArea->setText(QString(buf));
-        return ;
-    }
-
-    //sdiskArea->clear();
-    while(NULL != fgets(buf, sizeof(buf), fstream))
-    {
-        qDebug("====== content ======");
-        qDebug(buf);
-        int len = strlen(buf);
-        if(buf[len-1] == '\n' || buf[len-1] == '\r')
-        {
-            buf[len-1] = '\0';
-        }
-        sdiskArea->append(QString(buf));
-    }
-    pclose(fstream);
-    sdiskArea->moveCursor(QTextCursor::Start);
-}

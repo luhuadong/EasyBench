@@ -12,6 +12,7 @@
 #include <QGroupBox>
 #include <QPushButton>
 #include <QTextEdit>
+#include <QTimer>
 
 class SerialRecvThread : public QThread
 {
@@ -47,6 +48,10 @@ private slots:
     void clearRecvArea();
     void sendSerialData();
     void changeSerialPort(const QString &text);
+
+    void on_updateTimer_timeout(void);
+    void readTestBtnOnClicked(void);
+    void writeTestBtnOnClicked(void);
 
 private:
     typedef enum BaudRate
@@ -140,9 +145,10 @@ private:
     QComboBox *serialPortBox;
     QPushButton *openBtn;
 
-    QGroupBox *parametersGroup;
+    //QGroupBox *parametersGroup;
     QLabel    *baudRateLabel;
     QComboBox *baudRateBox;
+    /*
     QLabel    *dataBitsLabel;
     QComboBox *dataBitsBox;
     QLabel    *parityLabel;
@@ -151,6 +157,7 @@ private:
     QComboBox *stopBitsBox;
     QLabel    *flowControlLabel;
     QComboBox *flowControlBox;
+    */
     QPushButton *applyBtn;
 
     QGroupBox *echoTestGroup;
@@ -160,8 +167,20 @@ private:
     QPushButton *recvClearBtn;
     QPushButton *testBtn;
 
+    void initSerialPortArea();
 
 
+    QTimer *updateTimer;
+
+    QGroupBox *rtcGroup;
+    QLabel *rtcName;
+    QLabel *rtcDateTime;
+    QLabel *sysDateTime;
+
+    QGroupBox *sdiskGroup; // SATA interface disk
+    QTextEdit *sdiskArea;
+    QPushButton *readTestBtn;
+    QPushButton *writeTestBtn;
 
 };
 
