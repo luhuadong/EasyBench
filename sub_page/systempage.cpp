@@ -424,29 +424,30 @@ void SystemPage::on_updateTimer_timeout()
     static char buf[128];
     memset(buf, 0, sizeof(buf));
 
-    FILE *fstream = NULL;
+    FILE *fstream1 = NULL;
+    FILE *fstream2 = NULL;
 
-
-    if(NULL == (fstream = popen("hwclock -u", "r"))) {
+    if(NULL == (fstream1 = popen("hwclock -u", "r"))) {
 
         rtcDateTime->setText("RTC时间 : None");
     }else {
-        fgets(buf, sizeof(buf), fstream);
+        fgets(buf, sizeof(buf), fstream1);
         rtcDateTime->setText(QString("RTC时间 : %1").arg(QString(buf)));
     }
 
     memset(buf, 0, sizeof(buf));
 
 
-    if(NULL == (fstream = popen("date", "r"))) {
+    if(NULL == (fstream2 = popen("date", "r"))) {
 
         sysDateTime->setText("系统时间 : None");
     }else {
-        fgets(buf, sizeof(buf), fstream);
+        fgets(buf, sizeof(buf), fstream2);
         sysDateTime->setText(QString("系统时间 : %1").arg(QString(buf)));
     }
 
-    pclose(fstream);
+    pclose(fstream1);
+    pclose(fstream2);
 }
 
 void SystemPage::readTestBtnOnClicked()
