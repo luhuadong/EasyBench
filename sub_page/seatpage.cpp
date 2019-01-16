@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <stdlib.h>
 
 SeatPage::SeatPage(QWidget *parent) :
     PageWidget(parent)
@@ -428,6 +429,8 @@ void SeatPage::applyModeConfiguration()
     configWrite.setValue("/DeviceInfo/Latitude", latitude);
 
     configWrite.sync();
+
+    system(" sync && pkill touchScreenCtrl ");
 
     QMessageBox msgBox;
     msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
