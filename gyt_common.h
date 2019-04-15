@@ -1,6 +1,7 @@
 #ifndef GYT_COMMON_H
 #define GYT_COMMON_H
 
+#include <stdbool.h>
 
 
 //#define SYS_ADVANTECH
@@ -24,6 +25,7 @@ typedef enum TouchType{
 }TouchType;
 
 GY_GLOBAL_EXT TouchType TOUCH_TYPE;
+GY_GLOBAL_EXT bool HAS_EEPROM;
 
 GY_GLOBAL_EXT char gMachineTypeStr[80];
 GY_GLOBAL_EXT char gSerialPortStr[32];

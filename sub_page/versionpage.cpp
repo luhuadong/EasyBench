@@ -83,7 +83,22 @@ void VersionPage::getVersionData()
     QString v_gcc = gyVersionRead.value("/LINUX/GCC", QString("arm-poky-linux-gnueabi-gcc")).toString();
     QString v_model = gyVersionRead.value("/PLATFORM/Vendor", QString("GYT")).toString() + QString(" ")
                     + gyVersionRead.value("/PLATFORM/Model", QString("Advantech ROM-5420-B1")).toString();
-    QString v_baseBoard = gyVersionRead.value("/PLATFORM/BaseBoard", QString("C019 v1.3")).toString();
+
+    QString v_baseBoard;
+    if(HAS_EEPROM) {
+        QFile eepromfile("/mnt/w25q80/version");
+        if(!eepromfile.open(QFile::ReadOnly | QFile::Text)) {
+            qDebug() << tr("(E) Open w25q80 failed");
+        }
+        //v_baseBoard = eepromfile.readLine();
+        v_baseBoard.prepend(eepromfile.readLine(32));
+        v_baseBoard.remove('\n');
+        eepromfile.close();
+    } else {
+        v_baseBoard = gyVersionRead.value("/PLATFORM/BaseBoard", QString("C019 v1.3")).toString();
+    }
+    qDebug() << tr("EEEEEEEEEEEE") << v_baseBoard;
+
     QString v_developer = gyVersionRead.value("/PLATFORM/Developer", QString("广州广有通信设备有限公司")).toString();
 
 
@@ -97,42 +112,6 @@ void VersionPage::getVersionData()
                   << v_yocto << v_kernel << v_uboot
                   << v_gcc << v_model << v_baseBoard << v_developer;
 
-#if 0
-    QString kernelStr;
-    QString yoctoStr;
-    QFile tmpFile;
-
-    tmpFile.setFileName("/proc/version");
-    if(!tmpFile.open(QIODevice::ReadOnly)) {
-        kernelStr = tr("3.10.17");
-    }
-    else {
-        kernelStr = tmpFile.readLine();
-    }
-    tmpFile.close();
-
-    tmpFile.setFileName("/etc/issue.net");
-    if(!tmpFile.open(QIODevice::ReadOnly)) {
-        yoctoStr = tr("Yocto 1.8");
-    }
-    else {
-        yoctoStr = tmpFile.readLine();
-    }
-    tmpFile.close();
-
-
-    QStringList itemNameList;
-    itemNameList << tr("设备型号") << tr("序列号") << tr("系统版本")
-                 << tr("Yocto版本") << tr("内核版本") << tr("固件版本")
-                 << tr("软件版本") << tr("硬件版本") << tr("开发者") << tr(" ");
-
-    QStringList itemValueList;
-    itemValueList << QString(gMachineTypeStr) << tr("4401-2518-9763-AC08") << tr("GYLinux_GW_SV_1.0.1")
-                  << yoctoStr << kernelStr << tr("fs 1.0.0-B2016112801")
-                  << tr("seat_imx 2.0.0.10554") << tr("Freescale i.MX6 Quad, ARMv7 Processor rev 10")
-                  << tr("Guangzhou Guangyou communications equipment Co., Ltd.")
-                  << tr(" ");
-#endif
 
     for (int row = 0; row < itemNameList.count(); ++row) {
         for (int column = 0; column < 2; ++column) {

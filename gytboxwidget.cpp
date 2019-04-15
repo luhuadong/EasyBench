@@ -29,6 +29,8 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     strcpy(gVideoInputStr, configRead.value("DEVICE/Video_input").toString().toLatin1().data());
     strcpy(BACKLIGHT_NAME, configRead.value("LCD/Backlight_name").toString().toLatin1().data());
 
+    HAS_EEPROM = configRead.value("DEVICE/EEPROM").toBool();
+
     setWindowTitle(tr("GYT Box"));
     //setFixedSize(1024, 768);
     setFixedSize(LCD_WIDTH, LCD_HEIGHT - TITLE_HEIGHT);
