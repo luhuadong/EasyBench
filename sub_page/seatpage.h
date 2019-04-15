@@ -15,6 +15,8 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttributes>
 #include <QXmlStreamAttribute>
+#include <QDomDocument>
+#include <QDomElement>
 #include <QPushButton>
 #include <QTextEdit>
 #include <QButtonGroup>
@@ -35,11 +37,23 @@ private slots:
     void applyNewConfiguration();
 
     void applyModeConfiguration();
+    void applyVideoResConfig();
+    void applyHfTestConfig();
 
 private:
+    bool openXmlFile(const QString &filePath);
+
     /* chnlCfg.xml */
     bool readChnlCfgFile(const QString &filename);
     void readChannelElement();
+
+    bool readSettingsFile(const QString &filename);
+    void readSettingsElement();
+
+    void initChnlCfgUI();
+    void initModeCfgUI();
+    void initVideoResCfgUI();
+    void initHfTestCfgUI();
 
     QStringList channelStrList_zh;
     QStringList channelStrList_en;
@@ -86,6 +100,30 @@ private:
     QPushButton *configApplyBtn;
 
     QString cfgFileName;
+
+    /* video resolution */
+    typedef enum ResType
+    {
+        QVGA = 0,
+        VGA  = 1,
+        XGA  = 2,
+        P720 = 3,
+        ResCount = 4
+
+    } ResType;
+
+    QString settingFileName;
+    QDomDocument settingDoc;
+
+    QGroupBox *videoResGroup;
+    QStringList resStrList;
+    QStringList bitrateStrList;
+    QComboBox *resBox;
+    QPushButton *resApplyBtn;
+
+    /* Handfree test */
+    QGroupBox *hfTestGroup;
+    QPushButton *hfApplyBtn;
 
 
 };

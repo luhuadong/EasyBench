@@ -11,16 +11,10 @@
 #include <errno.h>
 #include <stdlib.h>
 
-SeatPage::SeatPage(QWidget *parent) :
-    PageWidget(parent)
+void SeatPage::initChnlCfgUI()
 {
-    //setTitleLabelText(tr("Seat Settings"));
-    setTitleLabelText(tr("席位功能设置"));
-
     channelStrList_en << tr("LeftPhone") << tr("RightPhone") << tr("Speak") << tr("Radio");
     channelStrList_zh << tr("左电话") << tr("右电话") << tr("通播") << tr("电台");
-
-    chnlCfgFileName = QString("/home/root/seat_imx/conf/chnlCfg.xml");
 
     chnlCfgGroup = new QGroupBox(tr("Channel Configuration"), this);
     chnlCfgGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
@@ -84,10 +78,10 @@ SeatPage::SeatPage(QWidget *parent) :
 
     resetBtn = new QPushButton(tr("Factory Reset"), chnlCfgGroup);
     resetBtn->setObjectName("functionBtn_small");
-    resetBtn->setFixedSize(140, 64);
+    resetBtn->setFixedSize(140, 48);
     applyBtn = new QPushButton(tr("Apply"), chnlCfgGroup);
     applyBtn->setObjectName("functionBtn_small");
-    applyBtn->setFixedSize(140, 64);
+    applyBtn->setFixedSize(140, 48);
 
     QGridLayout *chnlboxLayout = new QGridLayout;
     chnlboxLayout->setMargin(20);
@@ -105,26 +99,31 @@ SeatPage::SeatPage(QWidget *parent) :
     chnlboxLayout->addWidget(channel4Check, 3, 2);
 
     QHBoxLayout *chnlBtnLayout = new QHBoxLayout;
-    chnlBtnLayout->setMargin(20);
+    //chnlBtnLayout->setMargin(20);
     chnlBtnLayout->addWidget(resetBtn);
     chnlBtnLayout->addWidget(applyBtn);
 
     QVBoxLayout *chnlCfgLayout = new QVBoxLayout;
-    chnlCfgLayout->setSpacing(20);
+    chnlCfgLayout->setMargin(20);
+    //chnlCfgLayout->setSpacing(20);
     chnlCfgLayout->addLayout(chnlboxLayout);
     chnlCfgLayout->addLayout(chnlBtnLayout);
     chnlCfgGroup->setLayout(chnlCfgLayout);
-    chnlCfgGroup->setGeometry(40, 96+30, 380, 500);
+    chnlCfgGroup->setGeometry(40, 96+30, 380, 320);
 
-    connect(resetBtn, SIGNAL(clicked()), this, SLOT(restoreDefaultSettings()));
-    connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyNewConfiguration()));
+#if LANGUAGE_CHINESE
+    chnlCfgGroup->setTitle(tr("席位通道配置"));
+    channel1Label->setText(tr("通道1 : "));
+    channel2Label->setText(tr("通道2 : "));
+    channel3Label->setText(tr("通道3 : "));
+    channel4Label->setText(tr("通道4 : "));
+    resetBtn->setText(tr("恢复缺省配置"));
+    applyBtn->setText(tr("应用"));
+#endif
+}
 
-    readChnlCfgFile(chnlCfgFileName);
-
-
-
-    /* Config Group */
-
+void SeatPage::initModeCfgUI()
+{
     configGroup = new QGroupBox(tr("席位模式配置"), this);
     configGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
 
@@ -161,21 +160,34 @@ SeatPage::SeatPage(QWidget *parent) :
     configLayout->addWidget(new QLabel(tr("通信串口 : "), configGroup));
     configLayout->addLayout(spBtnLayout);
     configLayout->addStretch();
-    configLayout->addWidget(new QLabel(tr("当前经度 : "), configGroup));
-    configLayout->addWidget(longitudeLine);
-    configLayout->addWidget(new QLabel(tr("当前纬度 : "), configGroup));
-    configLayout->addWidget(latitudeLine);
+    QHBoxLayout *longitudeLayout = new QHBoxLayout;
+    longitudeLayout->addWidget(new QLabel(tr("当前经度 : "), configGroup));
+    longitudeLayout->addWidget(longitudeLine);
+    //configLayout->addWidget(new QLabel(tr("当前经度 : "), configGroup));
+    //configLayout->addWidget(longitudeLine);
+    QHBoxLayout *latitudeLayout = new QHBoxLayout;
+    latitudeLayout->addWidget(new QLabel(tr("当前纬度 : "), configGroup));
+    latitudeLayout->addWidget(latitudeLine);
+    //configLayout->addWidget(new QLabel(tr("当前纬度 : "), configGroup));
+    //configLayout->addWidget(latitudeLine);
+    configLayout->addLayout(longitudeLayout);
+    configLayout->addLayout(latitudeLayout);
     configLayout->addStretch();
-    configLayout->addWidget(new QLabel(tr("塔台模式 : "), configGroup));
-    configLayout->addWidget(towerModeBox);
-    configLayout->addStretch();
-    configLayout->addWidget(configApplyBtn);
+    QHBoxLayout *towerLayout = new QHBoxLayout;
+    towerLayout->addWidget(towerModeBox);
+    towerLayout->addWidget(configApplyBtn);
+    configLayout->addLayout(towerLayout);
+    //configLayout->addWidget(new QLabel(tr("塔台模式 : "), configGroup));
+    //configLayout->addWidget(towerModeBox);
+    //configLayout->addStretch();
+    //configLayout->addWidget(configApplyBtn);
 
     configGroup->setLayout(configLayout);
-    configGroup->setGeometry(40+380+40, 96+30, 400, 500);
+    configGroup->setGeometry(40+380+40, 96+30, 400, 320);
 
-    connect(configApplyBtn, SIGNAL(clicked()), this, SLOT(applyModeConfiguration()));
-
+#if LANGUAGE_CHINESE
+    configApplyBtn->setText(tr("应用"));
+#endif
 
     // 根据config.ini配置文件进行初始化
     cfgFileName = QString("/home/root/seat_imx/conf/config.ini");
@@ -186,32 +198,121 @@ SeatPage::SeatPage(QWidget *parent) :
     double longitude = configRead.value("/DeviceInfo/Longitude").toDouble();
     double latitude = configRead.value("/DeviceInfo/Latitude").toDouble();
 
-
     qDebug() << QString("bright=%1, port=%2, mode=%3, longitude=%4, latitude=%5").arg(bright).arg(port).arg(blMode).arg(longitude).arg(latitude);
 
     if(port == 1 || port == 2 || port == 3 || port == 4) {
         spBtnGroup->button(port)->setChecked(true);
     }
-
     if(blMode != 0) {
         towerModeBox->setChecked(true);
     }
 
     longitudeLine->setText(QString::number(longitude));
     latitudeLine->setText(QString::number(latitude));
+}
+
+void SeatPage::initVideoResCfgUI()
+{
+    videoResGroup = new QGroupBox(tr("视频分辨率设置"), this);
+    videoResGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+
+    resStrList << tr("320,240") << tr("640,480") << tr("1024,768") << tr("1280,720");
+    bitrateStrList << tr("170000") << tr("512000") << tr("2048000") << tr("4500000");
+
+    resBox = new QComboBox(videoResGroup);
+    resBox->addItem(resStrList.at(0), QVGA);
+    resBox->addItem(resStrList.at(1), VGA);
+    resBox->addItem(resStrList.at(2), XGA);
+    resBox->addItem(resStrList.at(3), P720);
+    resBox->setMinimumHeight(32);
+
+    resApplyBtn = new QPushButton(tr("Apply"), videoResGroup);
+    resApplyBtn->setObjectName("functionBtn_small");
+    resApplyBtn->setFixedSize(140, 48);
+
+    QHBoxLayout *videoResLayout = new QHBoxLayout;
+    videoResLayout->addWidget(new QLabel(tr("分辨率 : "), videoResGroup));
+    videoResLayout->addWidget(resBox);
+    videoResLayout->addWidget(resApplyBtn);
+
+    videoResGroup->setLayout(videoResLayout);
+    videoResGroup->setGeometry(40, 96+30+320+20, 380, 160);
 
 #if LANGUAGE_CHINESE
-    chnlCfgGroup->setTitle(tr("席位通道配置"));
-    channel1Label->setText(tr("通道1 : "));
-    channel2Label->setText(tr("通道2 : "));
-    channel3Label->setText(tr("通道3 : "));
-    channel4Label->setText(tr("通道4 : "));
-    resetBtn->setText(tr("恢复缺省配置"));
-    applyBtn->setText(tr("应用"));
-    configApplyBtn->setText(tr("应用"));
+    resApplyBtn->setText(tr("应用"));
 #endif
+}
 
+void SeatPage::initHfTestCfgUI()
+{
+    hfTestGroup = new QGroupBox(tr("麦克风免提测试"), this);
+    hfTestGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
 
+    hfApplyBtn = new QPushButton(tr("Apply"), hfTestGroup);
+    hfApplyBtn->setObjectName("functionBtn_small");
+    hfApplyBtn->setFixedSize(140, 48);
+
+    QHBoxLayout *hfTestLayout = new QHBoxLayout;
+    hfTestLayout->addWidget(hfApplyBtn);
+
+    hfTestGroup->setLayout(hfTestLayout);
+    hfTestGroup->setGeometry(40+380+40, 96+30+320+20, 400, 160);
+
+#if LANGUAGE_CHINESE
+    hfApplyBtn->setText(tr("开始测试"));
+#endif
+}
+
+SeatPage::SeatPage(QWidget *parent) :
+    PageWidget(parent)
+{
+    //setTitleLabelText(tr("Seat Settings"));
+    setTitleLabelText(tr("席位功能设置"));
+
+    /* Seat Channel Configuration */
+
+    initChnlCfgUI();
+    connect(resetBtn, SIGNAL(clicked()), this, SLOT(restoreDefaultSettings()));
+    connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyNewConfiguration()));
+
+    chnlCfgFileName = QString("/home/root/seat_imx/conf/chnlCfg.xml");
+    readChnlCfgFile(chnlCfgFileName);
+
+    /* Seat Mode Configuration */
+
+    initModeCfgUI();
+    connect(configApplyBtn, SIGNAL(clicked()), this, SLOT(applyModeConfiguration()));
+
+    /* video resolution */
+
+    initVideoResCfgUI();
+    connect(resApplyBtn, SIGNAL(clicked()), this, SLOT(applyVideoResConfig()));
+
+    settingFileName = QString("/home/root/seat_imx/conf/settings.xml");
+    readSettingsFile(settingFileName);
+
+    /* Handfree test */
+
+    initHfTestCfgUI();
+    connect(hfApplyBtn, SIGNAL(clicked()), this, SLOT(applyHfTestConfig()));
+
+}
+
+bool SeatPage::openXmlFile(const QString &filePath)
+{
+    QFile file(filePath);
+
+    if(!file.open(QFile::ReadOnly | QFile::Text)) {
+        qDebug() << tr("(E) Open %s failed") << filePath;
+        return false;
+    }
+    if(!settingDoc.setContent(&file)) {
+        qDebug() << tr("(E) Set content to QDomDocument failed");
+        file.close();
+        return false;
+    }
+    file.close();
+    return true;
 }
 
 bool SeatPage::readChnlCfgFile(const QString &filename)
@@ -438,3 +539,168 @@ void SeatPage::applyModeConfiguration()
     msgBox.exec();
 }
 
+bool SeatPage::readSettingsFile(const QString &filename)
+{
+    qDebug() << "############# Reading settings.xml";
+
+    QFile file(filename);
+    if(!file.open(QFile::ReadOnly | QFile::Text)) {
+        return false;
+    }
+    xmlReader.setDevice(&file);
+
+    xmlReader.readNext();
+    while(!xmlReader.atEnd()) {
+        if(xmlReader.isStandaloneDocument()) {
+            qDebug() << tr("standalone=yes");
+            //xmlReader.readNext();
+        }
+
+        if(xmlReader.isStartElement()) {
+            qDebug() << tr("start element");
+            if(xmlReader.name() == "setting") {
+                qDebug() << tr("<setting>");
+                readSettingsElement();
+            }
+            else {
+                qDebug() << tr("unknown element");
+                xmlReader.readNext();
+            }
+        }
+        else {
+            qDebug() << tr("skip...");
+            xmlReader.readNext();
+        }
+    }
+
+    file.close();
+}
+
+void SeatPage::readSettingsElement()
+{
+    qDebug() << tr("--readSettingsElement--");
+    xmlReader.readNext();
+
+    while(!xmlReader.atEnd()) {
+
+        if(xmlReader.isEndElement()) {
+            qDebug() << tr("isEndElement") << xmlReader.name();
+            if(xmlReader.name() == "setting") {
+                xmlReader.readNext();
+                break;
+            }
+            xmlReader.readNext();
+            continue;
+        }
+
+        if(xmlReader.isStartElement()) {
+
+            qDebug() << xmlReader.name();
+            if(xmlReader.name() == "video") {
+                qDebug() << "XML: get video tag";
+            }
+            else {
+                qDebug() << tr("other");
+                xmlReader.readNext();
+                continue;
+            }
+
+            QXmlStreamAttributes attrs = xmlReader.attributes();
+            for(int i=0; i<attrs.count(); i++) {
+                QXmlStreamAttribute attr = attrs.at(i);
+                qDebug() << tr("\t+ ") << attr.name() << attr.value();
+
+                if(attr.name() == "size") {
+                    for(int j=0; j<ResCount; j++) {
+                        if(attr.value() == resStrList.at(j)) {
+                            resBox->setCurrentIndex(j);
+                            break;
+                        }
+                    }
+                }
+            }
+            xmlReader.readNext();
+        }
+        else {
+            xmlReader.readNext();
+        }
+    }
+}
+
+void SeatPage::applyVideoResConfig()
+{
+    /*
+     * <video
+     *      rtpport="50088"
+     *      jitter="30"
+     *      size="640,480"
+     *      maxsize="352,288"
+     *      payload="h264"
+     *      bitrate="170000"
+     *      autoadaptbitrate="0"
+     *      camera="Directshow capture: USB 视频设备"
+     *      transport="gateway"
+     *      requesttimeout="30"
+     *      queryaddrtimeout="10"
+     *      symmetricrtp="0"
+     *      videotimeout="1"
+     * />
+    */
+
+    /* Open */
+    if(!openXmlFile(settingFileName)) {
+        qDebug() << tr("(E) Open %s failed") << settingFileName;
+    }
+
+    /* Modify */
+    QDomElement root = settingDoc.documentElement();
+    if(root.tagName() != "setting") {
+        return;
+    }
+
+    QDomNode node = root.firstChild();
+    while(!node.isNull()) {
+
+        QDomElement elem = node.toElement();
+        if(!elem.isNull()) {
+
+            if(elem.nodeName() == "video") {
+                qDebug() << tr("(I) I found the node -- video");
+                if(elem.hasAttribute("size")) {
+                    qDebug() << tr("(I) Has attribute SIZE") << elem.attribute("size");
+                }
+                elem.setAttribute("size", resBox->currentText());
+                elem.setAttribute("maxsize", resBox->currentText());
+                elem.setAttribute("bitrate", bitrateStrList.at(resBox->currentIndex()));
+            }
+        }
+        node = node.nextSibling();
+    }
+
+    /* Save */
+    QFile file(settingFileName);
+    if(!file.open(QFile::WriteOnly | QFile::Truncate)) {
+        qWarning() << tr("(E) Open settings.xml failed");
+        return ;
+    }
+    QTextStream ts(&file);
+    ts.reset();
+    ts.setCodec("utf-8");
+    settingDoc.save(ts, 4, QDomNode::EncodingFromTextStream);
+    file.close();
+
+    QMessageBox msgBox;
+    msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
+
+    if(file.error()) {
+        msgBox.setText(tr("Error: Can not write file.\nApply video resolution failed."));
+    } else {
+        msgBox.setText("视频分辨率设置成功！\n路径：" + settingFileName + "\t");
+    }
+    msgBox.exec();
+}
+
+void SeatPage::applyHfTestConfig()
+{
+
+}
