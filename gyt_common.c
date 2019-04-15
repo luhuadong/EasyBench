@@ -92,6 +92,45 @@ unsigned char calcCheckSum(unsigned char *data, unsigned int len)
     return sum;
 }
 
+bool is_singleton(void)
+{
+    int fd = -1;
+    char buf[32];
+
+    fd = open(DEFAULT_FILE, O_WRONLY | O_CREAT, 0666);
+    if(fd < 0) {
+        printf("(E) Open %s failed.\n", DEFAULT_FILE);
+        return false;
+    }
+
+    struct flock lock;
+    bzero(&lock, sizeof(lock));
+
+    if(fcntl(fd, F_GETLK, &lock) < 0) {
+        printf("(E) Fail to fcntl F_GETLK.\n");
+        return false;
+    }
+
+    lock.l_type = F_WRLCK;
+    lock.l_whence = SEEK_SET;
+
+    if(fcntl(fd, F_SETLK, &lock) < 0) {
+        printf("(E) Fail to fcntl F_SETLK.\n");
+        return false;
+    }
+
+    pid_t pid = getpid();
+    int len = snprintf(buf, 32, "%d\n", (int)pid);
+
+    // Write pid to the file, don't close
+    if(-1 == write(fd, buf, len)) {
+        printf("(E) Fail to write pid into file.\n");
+        return false;
+    }
+
+    return true;
+}
+
 
 
 

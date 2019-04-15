@@ -16,6 +16,7 @@ extern "C"
 int main(int argc, char *argv[])
 {
     // Ensure only one process is running at the same time.
+#if 0
     QFile lockFile;
     lockFile.setFileName(QString("/home/root/.lock_gyt_box"));
     if (lockFile.exists()) {
@@ -24,6 +25,12 @@ int main(int argc, char *argv[])
     else {
         //system("touch /home/root/.lock_gyt_box");
     }
+#else
+    if(!is_singleton()) {
+        printf("(W) The program is already running.\n");
+        return -1;
+    }
+#endif
 
     QApplication a(argc, argv);
 

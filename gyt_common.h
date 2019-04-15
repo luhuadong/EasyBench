@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#define DEFAULT_FILE "/var/run/gyt_box.pid"
+
 
 //#define SYS_ADVANTECH
 //#define SYS_KONTRON
@@ -103,6 +105,8 @@ extern "C"{
 unsigned char calcCheckSum(unsigned char *data, unsigned int len);
 
 void detectDevices(void);
+
+bool is_singleton(void);
 
 #ifdef __cplusplus
 }
