@@ -296,6 +296,18 @@ SeatPage::SeatPage(QWidget *parent) :
     initHfTestCfgUI();
     connect(hfApplyBtn, SIGNAL(clicked()), this, SLOT(applyHfTestConfig()));
 
+    /* TCP connection establishment */
+
+    initTcpClient();
+    tcpClient->connectToHost(QHostAddress("192.168.3.119"), 8080);
+
+}
+
+SeatPage::~SeatPage()
+{
+
+    tcpClient->disconnectFromHost();
+    delete tcpClient;
 }
 
 bool SeatPage::openXmlFile(const QString &filePath)
@@ -701,6 +713,91 @@ void SeatPage::applyVideoResConfig()
 }
 
 void SeatPage::applyHfTestConfig()
+{
+    if(tcpClient->state() != QAbstractSocket::ConnectedState) {
+        qDebug() << tr("(E) TCP client does not connect to server");
+
+        QMessageBox msgBox;
+        msgBox.setFont(QFont("Helvetica", 14, QFont::Normal));
+        msgBox.setText("与控制板握手失败，请检查是否已开启TCP服务！\t");
+        msgBox.exec();
+
+        return ;
+    }
+
+    if(hfApplyBtn->text() == tr("开始测试")) {
+        qDebug() << tr("(I) Start hand-free testing");
+        hfApplyBtn->setText(tr("结束测试"));
+        tcpClientSend("Hello, World");
+    }
+    else {
+        qDebug() << tr("(I) Finish hand-free testing");
+        hfApplyBtn->setText(tr("开始测试"));
+    }
+}
+
+void SeatPage::tcpClientSend(QString msg)
+{
+    qDebug() << tr("(I) GytBoxWidget::send()");
+
+    QByteArray bytes = msg.toUtf8();
+    bytes.append('\n');
+
+    qDebug() << tr("(I) Send ......");
+
+    tcpClient->write(bytes);
+
+    qDebug() << tr("(I) Send over");
+}
+
+void SeatPage::initTcpClient()
+{
+    tcpClient = new QTcpSocket(this);
+
+    connect(tcpClient, SIGNAL(connected()), this, SLOT(onConnected()));
+    connect(tcpClient, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+    connect(tcpClient, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onSocketStateChange(QAbstractSocket::SocketState)));
+    connect(tcpClient, SIGNAL(readyRead()), this, SLOT(onSocketReadyRead()));
+}
+
+QString SeatPage::getLocalIP()
+{
+    QString   hostName = QHostInfo::localHostName();
+    QHostInfo hostInfo = QHostInfo::fromName(hostName);
+    QString   localIP  = "";
+    QList<QHostAddress> addList = hostInfo.addresses();
+
+    if(!addList.isEmpty()) {
+
+        for(int i=0; i<addList.count(); i++) {
+
+            QHostAddress aHost = addList.at(i);
+            if(QAbstractSocket::IPv4Protocol == aHost.protocol()) {
+                localIP = aHost.toString();
+                break;
+            }
+        }
+    }
+    return localIP;
+}
+
+void SeatPage::onConnected()
+{
+    qDebug() << tr("======> TCP Connect!") << tcpClient->state();
+    //tcpClientSend("Fuck you!");
+}
+
+void SeatPage::onDisconnected()
+{
+
+}
+
+void SeatPage::onSocketStateChange(QAbstractSocket::SocketState socketState)
+{
+
+}
+
+void SeatPage::onSocketReadyRead()
 {
 
 }

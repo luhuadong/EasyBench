@@ -23,12 +23,17 @@
 #include <QRadioButton>
 #include <QLineEdit>
 #include <QSettings>
+#include <QTcpSocket>
+#include <QHostInfo>
 
 class SeatPage : public PageWidget
 {
     Q_OBJECT
 public:
     explicit SeatPage(QWidget *parent = 0);
+    ~SeatPage();
+
+    void tcpClientSend(QString msg);
 
 public slots:
 
@@ -39,6 +44,11 @@ private slots:
     void applyModeConfiguration();
     void applyVideoResConfig();
     void applyHfTestConfig();
+
+    void onConnected();
+    void onDisconnected();
+    void onSocketStateChange(QAbstractSocket::SocketState socketState);
+    void onSocketReadyRead(); // Read data from socket
 
 private:
     bool openXmlFile(const QString &filePath);
@@ -54,6 +64,13 @@ private:
     void initModeCfgUI();
     void initVideoResCfgUI();
     void initHfTestCfgUI();
+
+    /* Socket */
+
+    void initTcpClient();
+    QString getLocalIP();
+
+    QTcpSocket *tcpClient;
 
     QStringList channelStrList_zh;
     QStringList channelStrList_en;

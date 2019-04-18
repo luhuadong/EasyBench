@@ -43,11 +43,14 @@ public:
     }pageTypes;
 
 private slots:
+    void parseIni(QString &filePath);
+
     void menuBtnGroupToggled(int);
     //void showHomePage(void);
     //void sideBtnToggled(bool);
 
 private:
+    void initMainUI();
 
     //---------- 标题栏 -----------
     //QWidget *titleWidget;

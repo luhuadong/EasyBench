@@ -9,28 +9,29 @@
 #include <QString>
 
 
-
 GytBoxWidget::GytBoxWidget(QWidget *parent)
     : QWidget(parent)
 {
+    /* Parse gyt_box.conf file */
+
     QString cfgFileName = QString(QDir::currentPath() +"/gyt_box.conf");
-    QSettings configRead(cfgFileName, QSettings::IniFormat);
-    int type = configRead.value("/LCD/Type").toInt();
-    if(0 == type) {
-        TOUCH_TYPE = TOUCH_RESISTIVE;
-    }else if(1 == type) {
-        TOUCH_TYPE = TOUCH_CAPACITIVE;
-    }else {
-        TOUCH_TYPE = TOUCH_OTHER;
-    }
+    parseIni(cfgFileName);
 
-    strcpy(gMachineTypeStr, configRead.value("VERSION/Machine_type").toString().toLatin1().data());
-    strcpy(gSerialPortStr, configRead.value("DEVICE/Serial_port").toString().toLatin1().data());
-    strcpy(gVideoInputStr, configRead.value("DEVICE/Video_input").toString().toLatin1().data());
-    strcpy(BACKLIGHT_NAME, configRead.value("LCD/Backlight_name").toString().toLatin1().data());
+    /* Initialization interface */
 
-    HAS_EEPROM = configRead.value("DEVICE/EEPROM").toBool();
+    initMainUI();
+    connect(menuBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(menuBtnGroupToggled(int)));
+}
 
+
+GytBoxWidget::~GytBoxWidget()
+{
+    // It's useless
+    system("rm /home/root/.lock_gyt_box");
+}
+
+void GytBoxWidget::initMainUI()
+{
     setWindowTitle(tr("GYT Box"));
     //setFixedSize(1024, 768);
     setFixedSize(LCD_WIDTH, LCD_HEIGHT - TITLE_HEIGHT);
@@ -121,9 +122,6 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     prevPage = PAGE_LCD;
     currPage = PAGE_LCD;
 
-    connect(menuBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(menuBtnGroupToggled(int)));
-
-
     /*
     QLabel *label = new QLabel(tr("Hello World !"), this);
     label->setFixedSize(1024, 720);
@@ -141,12 +139,30 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
     */
 }
 
-GytBoxWidget::~GytBoxWidget()
+
+void GytBoxWidget::parseIni(QString &filePath)
 {
-    system("rm /home/root/.lock_gyt_box");
+    QSettings configRead(filePath, QSettings::IniFormat);
+    int type = configRead.value("/LCD/Type").toInt();
+    if(0 == type) {
+        TOUCH_TYPE = TOUCH_RESISTIVE;
+    }else if(1 == type) {
+        TOUCH_TYPE = TOUCH_CAPACITIVE;
+    }else {
+        TOUCH_TYPE = TOUCH_OTHER;
+    }
+
+    strcpy(gMachineTypeStr, configRead.value("VERSION/Machine_type").toString().toLatin1().data());
+    strcpy(gSerialPortStr, configRead.value("DEVICE/Serial_port").toString().toLatin1().data());
+    strcpy(gVideoInputStr, configRead.value("DEVICE/Video_input").toString().toLatin1().data());
+    strcpy(BACKLIGHT_NAME, configRead.value("LCD/Backlight_name").toString().toLatin1().data());
+
+    HAS_EEPROM = configRead.value("DEVICE/EEPROM").toBool();
 }
+
 
 void GytBoxWidget::menuBtnGroupToggled(int id)
 {
     centerPages->setCurrentIndex(id);
 }
+
