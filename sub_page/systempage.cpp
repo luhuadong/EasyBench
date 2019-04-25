@@ -138,8 +138,22 @@ SystemPage::SystemPage(QWidget *parent) :
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_timeout()));
     updateTimer->start(1000);
 
-
+    initOperationBar();
 }
+
+
+void SystemPage::initOperationBar()
+{
+    // 开启关闭
+    if(0 == system("netstat -nult | grep -w 22")) {
+        operationBar->firstButton()->setText(tr("SSH已开启"));
+    } else {
+        operationBar->firstButton()->setText(tr("SSH已关闭"));
+    }
+
+    connect(operationBar->firstButton(), SIGNAL(clicked()), this, SLOT(on_sshBtn_clicked()));
+}
+
 
 void SystemPage::initSerialPortArea()
 {
@@ -531,4 +545,21 @@ void SystemPage::writeTestBtnOnClicked()
     }
     pclose(fstream);
     sdiskArea->moveCursor(QTextCursor::Start);
+}
+
+void SystemPage::on_sshBtn_clicked()
+{
+    if(operationBar->firstButton()->text() == QString::fromLocal8Bit("SSH已关闭")) {
+        qDebug() << tr("Open SSH");
+        system("/etc/init.d/sshd start");
+        operationBar->firstButton()->setText(tr("SSH已开启"));
+    }
+    else if(operationBar->firstButton()->text() == QString::fromLocal8Bit("SSH已开启")) {
+        qDebug() << tr("Close SSH");
+        system("/etc/init.d/sshd stop");
+        operationBar->firstButton()->setText(tr("SSH已关闭"));
+    }
+    else {
+        qDebug() << tr("Don't change SSH");
+    }
 }

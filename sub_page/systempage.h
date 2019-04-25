@@ -53,7 +53,12 @@ private slots:
     void readTestBtnOnClicked(void);
     void writeTestBtnOnClicked(void);
 
+    void on_sshBtn_clicked(void);
+
 private:
+
+    void initOperationBar(void);
+
     typedef enum BaudRate
     {
         Baud1200    = 1200,
