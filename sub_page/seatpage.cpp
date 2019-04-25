@@ -11,6 +11,9 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#define HANDFREE_START 0xB5
+#define HANDFREE_STOP  0xBA
+
 void SeatPage::initChnlCfgUI()
 {
     channelStrList_en << tr("LeftPhone") << tr("RightPhone") << tr("Speak") << tr("Radio");
@@ -299,7 +302,7 @@ SeatPage::SeatPage(QWidget *parent) :
     /* TCP connection establishment */
 
     initTcpClient();
-    tcpClient->connectToHost(QHostAddress("192.168.3.119"), 8080);
+    tcpClient->connectToHost(QHostAddress(PCB_TCP_SERVER_IP), PCB_TCP_SERVER_PORT);
 
 }
 
@@ -710,6 +713,8 @@ void SeatPage::applyVideoResConfig()
         msgBox.setText("视频分辨率设置成功！\n路径：" + settingFileName + "\t");
     }
     msgBox.exec();
+
+    system("sync"); // 领导要求加的
 }
 
 void SeatPage::applyHfTestConfig()
@@ -727,19 +732,35 @@ void SeatPage::applyHfTestConfig()
 
     if(hfApplyBtn->text() == tr("开始测试")) {
         qDebug() << tr("(I) Start hand-free testing");
+        tcpClientSend(HANDFREE_START);
         hfApplyBtn->setText(tr("结束测试"));
-        tcpClientSend("Hello, World");
     }
     else {
-        qDebug() << tr("(I) Finish hand-free testing");
+        qDebug() << tr("(I) Stop hand-free testing");
+        tcpClientSend(HANDFREE_STOP);
         hfApplyBtn->setText(tr("开始测试"));
     }
 }
 
-void SeatPage::tcpClientSend(QString msg)
+void SeatPage::tcpClientSend(char msg)
 {
     qDebug() << tr("(I) GytBoxWidget::send()");
 
+#if 1
+    applyCMD cmd = {0xAA, 0x07, 0xA0, 0x00, msg, 0x00, 0xEE};
+
+    cmd.csum = calcCheckSum((unsigned char *)&cmd, sizeof(cmd)-2);
+
+    QByteArray bytes;
+    bytes.append((char *)&cmd, sizeof(cmd));
+
+    if(-1 == tcpClient->write(bytes)) {
+        qDebug() << tr("(E) TCP socket send data failed");
+        return ;
+    }
+    qDebug() << tr("(I) TCP socket send data succeed");
+
+#else
     QByteArray bytes = msg.toUtf8();
     bytes.append('\n');
 
@@ -748,6 +769,7 @@ void SeatPage::tcpClientSend(QString msg)
     tcpClient->write(bytes);
 
     qDebug() << tr("(I) Send over");
+#endif
 }
 
 void SeatPage::initTcpClient()

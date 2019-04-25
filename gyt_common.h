@@ -5,6 +5,9 @@
 
 #define DEFAULT_FILE "/var/run/gyt_box.pid"
 
+#define PCB_TCP_SERVER_IP   "192.168.3.188"
+#define PCB_TCP_SERVER_PORT 8000
+
 
 //#define SYS_ADVANTECH
 //#define SYS_KONTRON

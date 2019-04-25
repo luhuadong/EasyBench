@@ -33,7 +33,7 @@ public:
     explicit SeatPage(QWidget *parent = 0);
     ~SeatPage();
 
-    void tcpClientSend(QString msg);
+    void tcpClientSend(char msg);
 
 public slots:
 

@@ -2,7 +2,7 @@ from socket import *
 
 server = socket(AF_INET, SOCK_STREAM)
 
-server.bind(("", 8080))
+server.bind(("", 8000))
 server.listen(5)
 
 client, info = server.accept()
