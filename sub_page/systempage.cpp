@@ -277,6 +277,7 @@ void SystemPage::initSerialPortArea()
 
     sendArea = new QTextEdit(echoTestGroup);
     sendArea->setMinimumWidth(280);
+    sendArea->setText(tr("Guangzhou Guangyou Communication Equipment Co., Ltd."));
 
     recvArea = new QTextEdit(echoTestGroup);
     recvArea->setMinimumWidth(280);
