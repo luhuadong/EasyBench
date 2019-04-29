@@ -111,6 +111,8 @@ void detectDevices(void);
 
 bool is_singleton(void);
 
+int get_timezone(void);
+
 #ifdef __cplusplus
 }
 #endif

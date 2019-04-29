@@ -1,4 +1,5 @@
 #include "seatpage.h"
+#include "module/sunriset/sunriset.h"
 #include <QTextCodec>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -152,6 +153,8 @@ void SeatPage::initModeCfgUI()
     longitudeLine->setMinimumHeight(32);
     latitudeLine = new QLineEdit(configGroup);
     latitudeLine->setMinimumHeight(32);
+    sunrisetLabel = new QLabel(tr(" "), configGroup);
+    sunrisetLabel->setAlignment(Qt::AlignCenter);
 
     configApplyBtn = new QPushButton(tr("Apply"), configGroup);
     configApplyBtn->setObjectName("functionBtn_small");
@@ -163,18 +166,15 @@ void SeatPage::initModeCfgUI()
     configLayout->addWidget(new QLabel(tr("通信串口 : "), configGroup));
     configLayout->addLayout(spBtnLayout);
     configLayout->addStretch();
-    QHBoxLayout *longitudeLayout = new QHBoxLayout;
-    longitudeLayout->addWidget(new QLabel(tr("当前经度 : "), configGroup));
-    longitudeLayout->addWidget(longitudeLine);
-    //configLayout->addWidget(new QLabel(tr("当前经度 : "), configGroup));
-    //configLayout->addWidget(longitudeLine);
-    QHBoxLayout *latitudeLayout = new QHBoxLayout;
-    latitudeLayout->addWidget(new QLabel(tr("当前纬度 : "), configGroup));
-    latitudeLayout->addWidget(latitudeLine);
-    //configLayout->addWidget(new QLabel(tr("当前纬度 : "), configGroup));
-    //configLayout->addWidget(latitudeLine);
-    configLayout->addLayout(longitudeLayout);
-    configLayout->addLayout(latitudeLayout);
+
+    QHBoxLayout *lonlatLayout = new QHBoxLayout;
+    lonlatLayout->addWidget(new QLabel(tr("经度 : "), configGroup));
+    lonlatLayout->addWidget(longitudeLine);
+    lonlatLayout->addWidget(new QLabel(tr("纬度 : "), configGroup));
+    lonlatLayout->addWidget(latitudeLine);
+
+    configLayout->addLayout(lonlatLayout);
+    configLayout->addWidget(sunrisetLabel);
     configLayout->addStretch();
     QHBoxLayout *towerLayout = new QHBoxLayout;
     towerLayout->addWidget(towerModeBox);
@@ -284,7 +284,11 @@ SeatPage::SeatPage(QWidget *parent) :
     /* Seat Mode Configuration */
 
     initModeCfgUI();
+    connect(longitudeLine, SIGNAL(editingFinished()), this, SLOT(calSunrisetTime()));
+    connect(latitudeLine,  SIGNAL(editingFinished()), this, SLOT(calSunrisetTime()));
     connect(configApplyBtn, SIGNAL(clicked()), this, SLOT(applyModeConfiguration()));
+
+    calSunrisetTime();
 
     /* video resolution */
 
@@ -822,4 +826,34 @@ void SeatPage::onSocketStateChange(QAbstractSocket::SocketState socketState)
 void SeatPage::onSocketReadyRead()
 {
 
+}
+
+void SeatPage::calSunrisetTime()
+{
+    float longitude = longitudeLine->text().toFloat();
+    float latitude  = latitudeLine->text().toFloat();
+
+    time_t timer = time(NULL);
+    struct tm *tblock = localtime(&timer);
+
+    double dawn, dark;
+
+    civil_twilight(tblock->tm_year + 1900, tblock->tm_mon + 1, tblock->tm_mday,
+                   (double)longitude, (double)latitude, &dawn, &dark);
+
+    int timezone = get_timezone();
+
+    int dawnHour, dawnMin;
+    timeconvert(dawn, timezone, &dawnHour, &dawnMin);
+
+    int darkHour, darkMin;
+    timeconvert(dark, timezone, &darkHour, &darkMin);
+
+    char buf[256];
+    sprintf(buf, "参考日出时间 %02d:%02d , 参考日落时间 %02d:%02d", dawnHour, dawnMin, darkHour, darkMin);
+
+    qDebug() << tr("Timezone") << timezone << buf;
+
+    sunrisetLabel->setText(QString(buf));
+    sunrisetLabel->setStyleSheet("color: #ff0000");
 }

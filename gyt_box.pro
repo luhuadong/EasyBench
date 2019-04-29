@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     custom_widget/inputlineedit.cpp \
     sub_page/networkpage.cpp \
     sub_page/systempage.cpp \
-    sub_page/seatpage.cpp
+    sub_page/seatpage.cpp \
+    module/sunriset/sunriset.cpp
 
 HEADERS  += gytboxwidget.h \
     gyt_common.h \
@@ -56,7 +57,8 @@ HEADERS  += gytboxwidget.h \
     custom_widget/inputlineedit.h \
     sub_page/networkpage.h \
     sub_page/systempage.h \
-    sub_page/seatpage.h
+    sub_page/seatpage.h \
+    module/sunriset/sunriset.h
 
 RESOURCES += \
     resource/images.qrc \

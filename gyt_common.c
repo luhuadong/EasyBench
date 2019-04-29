@@ -11,6 +11,8 @@ extern "C"{
 #include <linux/fb.h>
 //#include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <time.h>
+#include <sys/time.h>
 
 #ifdef __cplusplus
 }
@@ -132,6 +134,14 @@ bool is_singleton(void)
 }
 
 
+int get_timezone()
+{
+    struct timezone tz;
+
+    gettimeofday(NULL, &tz);
+
+    return tz.tz_minuteswest / -60;
+}
 
 
 

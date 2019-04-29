@@ -41,6 +41,8 @@ private slots:
     void restoreDefaultSettings();
     void applyNewConfiguration();
 
+    void calSunrisetTime();
+
     void applyModeConfiguration();
     void applyVideoResConfig();
     void applyHfTestConfig();
@@ -114,6 +116,7 @@ private:
     QCheckBox *towerModeBox;
     QLineEdit *longitudeLine;
     QLineEdit *latitudeLine;
+    QLabel *sunrisetLabel;
     QPushButton *configApplyBtn;
 
     QString cfgFileName;
