@@ -14,6 +14,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = gyt_box
 TEMPLATE = app
 
+LIBS    +=-L/opt/fsl-imx-x11/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi/usr/lib -lasound
 
 SOURCES += main.cpp\
         gytboxwidget.cpp \

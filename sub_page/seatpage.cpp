@@ -11,6 +11,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <alsa/asoundlib.h>
 
 #define HANDFREE_START 0xB5
 #define HANDFREE_STOP  0xBA
@@ -299,6 +300,11 @@ SeatPage::SeatPage(QWidget *parent) :
     readSettingsFile(settingFileName);
 
     /* Handfree test */
+
+    g_AudioPara.buffer_size_ratio = 8;
+    g_AudioPara.frame_size = 160;
+    g_AudioPara.max_frame_size = 640;
+    g_AudioPara.sample_rate = 8000;
 
     initHfTestCfgUI();
     connect(hfApplyBtn, SIGNAL(clicked()), this, SLOT(applyHfTestConfig()));
@@ -856,4 +862,102 @@ void SeatPage::calSunrisetTime()
 
     sunrisetLabel->setText(QString(buf));
     sunrisetLabel->setStyleSheet("color: #ff0000");
+}
+
+
+bool SeatPage::initAudio()
+{
+    unsigned int exact_rate = g_AudioPara.sample_rate;;
+    int period_size = g_AudioPara.frame_size;
+    int buffer_size = period_size * g_AudioPara.buffer_size_ratio;
+
+    char *captureDev = strdup("default");
+    snd_pcm_t *pcm_handle;
+    snd_pcm_hw_params_t *hwparams;
+    snd_pcm_sw_params_t *swparams;
+
+    int error;
+
+    system("amixer -q set 'Capture Mux' LINE_IN &");
+
+    snd_pcm_hw_params_alloca(&hwparams);
+
+
+    /* Open PCM. The last parameter of this function is the mode. */
+    /* If this is set to 0, the standard mode is used. Possible   */
+    /* other values are SND_PCM_NONBLOCK and SND_PCM_ASYNC.       */
+    /* If SND_PCM_NONBLOCK is used, read / write access to the    */
+    /* PCM device will return immediately. If SND_PCM_ASYNC is    */
+    /* specified, SIGIO will be emitted whenever a period has     */
+    /* been completely processed by the soundcard.                */
+    if (snd_pcm_open(&pcm_handle, captureDev, SND_PCM_STREAM_CAPTURE, 0) < 0)
+    {
+        qDebug("Error opening PCM device %s\n", captureDev);
+        return(false);
+    }
+
+    /* Init hwparams with full configuration space */
+    if (snd_pcm_hw_params_any(pcm_handle, hwparams) < 0)
+    {
+        qDebug("Can not configure this PCM device.\n");
+        return(false);
+    }
+
+    /* Set access type. */
+    if (snd_pcm_hw_params_set_access(pcm_handle, hwparams, SND_PCM_ACCESS_RW_INTERLEAVED) < 0) {
+        qDebug("Error setting access.\n");
+        return(false);
+    }
+
+    /* Set sample format */
+    if (snd_pcm_hw_params_set_format(pcm_handle, hwparams, SND_PCM_FORMAT_S16_LE) < 0) {
+        qDebug("Error setting format.\n");
+        return(false);
+    }
+
+    /* Set sample rate. If the exact rate is not supported */
+    /* by the hardware, use nearest possible rate.         */
+    if (snd_pcm_hw_params_set_rate_near(pcm_handle, hwparams, &exact_rate, 0) < 0) {
+        qDebug("Error setting rate.\n");
+        return(false);
+    }
+
+    /* Set number of channels */
+    if (snd_pcm_hw_params_set_channels(pcm_handle, hwparams, 2) < 0) {
+        qDebug("Error setting channels.\n");
+        return(false);
+    }
+
+    /* Set period size. */
+    if (snd_pcm_hw_params_set_period_size_near(pcm_handle, hwparams, (snd_pcm_uframes_t*)&period_size, 0) < 0) {
+        qDebug("Error setting periods.\n");
+        return(false);
+    }
+    qDebug("Period size set to %d\n", period_size);
+
+    /* Set buffer size (in frames). The resulting latency is given by */
+    /* latency = periodsize * periods / (rate * bytes_per_frame)     */
+    if (error=snd_pcm_hw_params_set_buffer_size_near(pcm_handle, hwparams,  (snd_pcm_uframes_t*)&buffer_size) < 0)
+    {
+        qDebug("Error setting buffersize. %s\n", snd_strerror (error));
+        return(false);
+    }
+    qDebug("capture Buffer size set to %d\n", buffer_size);
+
+    /* Apply HW parameter settings to */
+    /* PCM device and prepare device  */
+    if (snd_pcm_hw_params(pcm_handle, hwparams) < 0)
+    {
+        qDebug("Error setting HW params.\n");
+        return(false);
+    }
+
+    //g_AECState.audioInfo.pcm_handle_capture = pcm_handle;
+
+    snd_pcm_sw_params_malloc(&swparams);
+    snd_pcm_sw_params_current(pcm_handle, swparams);
+    snd_pcm_uframes_t val;
+    snd_pcm_sw_params_get_start_threshold(swparams, &val);
+
+    return true;
 }

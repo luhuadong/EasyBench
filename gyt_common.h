@@ -40,6 +40,13 @@ GY_GLOBAL_EXT char BACKLIGHT_NAME[32];
 GY_GLOBAL_EXT unsigned int LCD_WIDTH;
 GY_GLOBAL_EXT unsigned int LCD_HEIGHT;
 
+typedef struct Audio_Parameter {
+    int frame_size;
+    int max_frame_size;
+    int sample_rate;
+    int buffer_size_ratio;
+} Audio_Parameter;
+
 #pragma pack(push)
 #pragma pack(1)
 

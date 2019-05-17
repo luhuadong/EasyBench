@@ -67,6 +67,8 @@ private:
     void initVideoResCfgUI();
     void initHfTestCfgUI();
 
+    bool initAudio();
+
     /* Socket */
 
     void initTcpClient();
@@ -144,6 +146,7 @@ private:
     /* Handfree test */
     QGroupBox *hfTestGroup;
     QPushButton *hfApplyBtn;
+    Audio_Parameter g_AudioPara;
 
 
 };
