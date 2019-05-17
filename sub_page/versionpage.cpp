@@ -17,7 +17,7 @@ VersionPage::VersionPage(QWidget *parent) :
     tabView = new QTableView(this);
     //tabView->setFixedSize(720, 288);
     //tabView->move(0, 96);
-    tabView->setGeometry(0+80, 96+36, 900-160, 720-96-72-72);
+    tabView->setGeometry(0+80, 96+36+36, 900-160, 720-96-72-72-72-24);
     tabModel = new QStandardItemModel;
     //itemCntLabel->setProperty("h", 6);
 
@@ -75,7 +75,7 @@ void VersionPage::getVersionData()
     gyVersionFile = QString("/etc/gy-version");
     QSettings gyVersionRead(gyVersionFile, QSettings::IniFormat);
     QString v_productName = gyVersionRead.value("/PLATFORM/Product", QString("GY33ASEAT")).toString();
-    QString v_serialNumber = gyVersionRead.value("/PLATFORM/SN", QString("4401-2518-9763-AC08")).toString();
+    //QString v_serialNumber = gyVersionRead.value("/PLATFORM/SN", QString("4401-2518-9763-AC08")).toString();
     QString v_gyos = gyVersionRead.value("/LINUX/GYOS", QString("GYTLinux_GW-SV_1.0.1")).toString();
     QString v_yocto = gyVersionRead.value("/LINUX/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
     QString v_kernel = gyVersionRead.value("/LINUX/Kernel", QString("3.14.52")).toString();
@@ -103,14 +103,10 @@ void VersionPage::getVersionData()
 
 
     QStringList itemNameList;
-    itemNameList << tr("设备型号") << tr("序列号") << tr("系统版本")
-                 << tr("Yocto版本") << tr("内核版本") << tr("Uboot版本")
-                 << tr("GCC版本") << tr("核心模块") << tr("硬件版本") << tr("开发者");
+    itemNameList << tr("设备型号") << tr("系统版本") << tr("Yocto版本") << tr("内核版本") << tr("Uboot版本") << tr("GCC版本") << tr("核心模块") << tr("开发者");
 
     QStringList itemValueList;
-    itemValueList << v_productName << v_serialNumber << v_gyos
-                  << v_yocto << v_kernel << v_uboot
-                  << v_gcc << v_model << v_baseBoard << v_developer;
+    itemValueList << v_productName << v_gyos << v_yocto << v_kernel << v_uboot << v_gcc << v_model << v_developer;
 
 
     for (int row = 0; row < itemNameList.count(); ++row) {
