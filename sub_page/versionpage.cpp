@@ -7,6 +7,8 @@
 #include <QFontDatabase>
 #include <QDebug>
 
+#define TAB_ITEM_HEIGHT 48
+
 VersionPage::VersionPage(QWidget *parent) :
     PageWidget(parent)
 {
@@ -15,9 +17,8 @@ VersionPage::VersionPage(QWidget *parent) :
 
     //-------------- table ----------------
     tabView = new QTableView(this);
-    //tabView->setFixedSize(720, 288);
-    //tabView->move(0, 96);
-    tabView->setGeometry(0+80, 96+36+36, 900-160, 720-96-72-72-72-24);
+
+    tabView->setGeometry(0+80, 96+36+24, 900-160, 9 * TAB_ITEM_HEIGHT + 2);
     tabModel = new QStandardItemModel;
     //itemCntLabel->setProperty("h", 6);
 
@@ -42,7 +43,7 @@ VersionPage::VersionPage(QWidget *parent) :
     font.setBold(true);
     tabView->horizontalHeader()->setFont(font);
     tabView->horizontalHeader()->setFixedHeight(34);
-    tabView->verticalHeader()->setDefaultSectionSize(48);   // 改变默认行高
+    tabView->verticalHeader()->setDefaultSectionSize(TAB_ITEM_HEIGHT);   // 改变默认行高
     //tabView->horizontalHeader()->setTextElideMode(Qt::ElideLeft);    // 超出显示区域时省略号在左边
     tabView->setColumnWidth(0, 150); // 设置第一列宽度为150
     //tabView->setColumnWidth(1, 400); // 设置第二列宽度为400
@@ -103,10 +104,10 @@ void VersionPage::getVersionData()
 
 
     QStringList itemNameList;
-    itemNameList << tr("设备型号") << tr("系统版本") << tr("Yocto版本") << tr("内核版本") << tr("Uboot版本") << tr("GCC版本") << tr("核心模块") << tr("开发者");
+    itemNameList << tr("设备型号") << tr("系统版本") << tr("Yocto版本") << tr("内核版本") << tr("Uboot版本") << tr("GCC版本") << tr("核心模块") << tr("开发者") << tr("GYT Box");
 
     QStringList itemValueList;
-    itemValueList << v_productName << v_gyos << v_yocto << v_kernel << v_uboot << v_gcc << v_model << v_developer;
+    itemValueList << v_productName << v_gyos << v_yocto << v_kernel << v_uboot << v_gcc << v_model << v_developer << GYTBOX_VERSION;
 
 
     for (int row = 0; row < itemNameList.count(); ++row) {

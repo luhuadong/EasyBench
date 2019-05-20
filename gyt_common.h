@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#define GYTBOX_VERSION "v1.0.0"
 #define DEFAULT_FILE "/var/run/gyt_box.pid"
 
 #define PCB_TCP_SERVER_IP   "192.168.3.188"
