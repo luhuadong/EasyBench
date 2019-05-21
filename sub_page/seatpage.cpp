@@ -741,11 +741,20 @@ void SeatPage::applyHfTestConfig()
     }
 
     if(hfApplyBtn->text() == tr("开始测试")) {
+        system("pkill adt_aec");
+
         qDebug() << tr("(I) Start hand-free testing");
+
+        system("amixer -q set 'Capture Mux' LINE_IN &");
+        //initAudio();
+        system("amixer -q set 'PCM' 192 &");
+
         tcpClientSend(HANDFREE_START);
         hfApplyBtn->setText(tr("结束测试"));
     }
     else {
+        system("/home/root/tools/aec/start.sh");
+
         qDebug() << tr("(I) Stop hand-free testing");
         tcpClientSend(HANDFREE_STOP);
         hfApplyBtn->setText(tr("开始测试"));
@@ -856,7 +865,7 @@ void SeatPage::calSunrisetTime()
     timeconvert(dark, timezone, &darkHour, &darkMin);
 
     char buf[256];
-    sprintf(buf, "参考日出时间 %02d:%02d , 参考日落时间 %02d:%02d", dawnHour, dawnMin, darkHour, darkMin);
+    sprintf(buf, "参考日出时间 %02d:%02d , 参考日落时间 %02d:%02d", (dawnHour+8)%24, dawnMin, (darkHour+8)%24, darkMin);
 
     qDebug() << tr("Timezone") << timezone << buf;
 
@@ -864,10 +873,10 @@ void SeatPage::calSunrisetTime()
     sunrisetLabel->setStyleSheet("color: #ff0000");
 }
 
-
+#if 0
 bool SeatPage::initAudio()
 {
-    unsigned int exact_rate = g_AudioPara.sample_rate;;
+    unsigned int exact_rate = g_AudioPara.sample_rate;
     int period_size = g_AudioPara.frame_size;
     int buffer_size = period_size * g_AudioPara.buffer_size_ratio;
 
@@ -878,10 +887,7 @@ bool SeatPage::initAudio()
 
     int error;
 
-    system("amixer -q set 'Capture Mux' LINE_IN &");
-
     snd_pcm_hw_params_alloca(&hwparams);
-
 
     /* Open PCM. The last parameter of this function is the mode. */
     /* If this is set to 0, the standard mode is used. Possible   */
@@ -961,3 +967,92 @@ bool SeatPage::initAudio()
 
     return true;
 }
+
+
+void frameProcess(void *ptr )
+{
+    bool restartOutput=false;
+    short int RxOut[g_AudioPara.frame_size];  //not use it indeed
+    int readerror, writeerror;
+    int i,retVal;
+    int j = 0;
+
+    ADT_Int16 echo[g_AudioPara.max_frame_size];
+    ADT_Int16 ref[g_AudioPara.max_frame_size];
+    ADT_Int16 clean[g_AudioPara.max_frame_size];
+
+    ADT_Int16 stereo[g_AudioPara.max_frame_size * 2];
+    ADT_Int16 out_stereo[g_AudioPara.max_frame_size * 2];
+    snd_pcm_uframes_t size = g_AudioPara.frame_size;
+
+
+    while(1)
+    {
+        //qDebug("frameProcess begin");
+
+        /* In order to support the function that use bypass mode during test for Yinliuyi
+         * So
+         */
+        //while(g_AECState.is_enable || g_AECState.by_pass_mode)
+        while(g_AECState.is_enable)
+        //while(1)
+        {
+            readerror = snd_pcm_readi(g_AECState.audioInfo.pcm_handle_capture, stereo, size);
+            if (readerror < 0)
+            {
+                qDebug("alsa read error (%s)\n", snd_strerror (readerror));
+                if (xrunRecovery(g_AECState.audioInfo.pcm_handle_capture, readerror) < 0) {
+                    qDebug("microphone: Write error: %s\n", snd_strerror(readerror));
+                }
+                memset(out_stereo, 0, sizeof(out_stereo));
+                continue;
+            }
+            else
+            {
+                if(readerror != size)
+                    qDebug("Short on samples captured: %d\n", readerror);
+
+                for(i=0,j=0;i<size*2;i=i+2)
+                {
+
+                    //fwrite(stereo+i, sizeof(ADT_Int16), 1, g_AECState.echofile);       //left
+                    //fwrite(stereo+1+i, sizeof(ADT_Int16), 1, g_AECState.reffile);       //right
+
+                    memcpy(ref+j,stereo+i,sizeof(ADT_Int16));
+                    memcpy(echo+j,stereo+1+i,sizeof(ADT_Int16));
+                    j++;
+                }
+
+                if(g_AECState.is_enable == false)
+                    break;
+
+
+                if(g_AECState.by_pass_mode)
+                {
+                    for(i=0,j=0;j<size;i=i+2)
+                    {
+                        memcpy(out_stereo+i,echo+j,sizeof(ADT_Int16));
+                        memset(out_stereo+1+i, 0, sizeof(ADT_Int16));
+                        j++;
+                    }
+
+                    while ((writeerror = snd_pcm_writei (g_AECState.audioInfo.pcm_handle_playback, out_stereo, size)) < 0)
+                    {
+                        if (writeerror == -EAGAIN)
+                            continue;
+                        qDebug("alsa write error (%s)\n", snd_strerror (writeerror));
+                        xrunRecovery(g_AECState.audioInfo.pcm_handle_playback, writeerror);
+                        restartOutput=true;
+                        break;
+                    }
+                    if(writeerror >=0 &&(writeerror!= size))
+                        qDebug("Short on samples played: %d\n", writeerror);
+                }
+            }
+        } // while(g_AECState.is_enable)
+
+        usleep(2*1000);
+
+    } // while(1)
+}
+#endif

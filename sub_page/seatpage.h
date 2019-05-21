@@ -67,7 +67,7 @@ private:
     void initVideoResCfgUI();
     void initHfTestCfgUI();
 
-    bool initAudio();
+    //bool initAudio();
 
     /* Socket */
 
