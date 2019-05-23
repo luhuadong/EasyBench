@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 
+//#define QT5_4_3
+#define QT5_5_1
+
 #define GYTBOX_VERSION "v1.0.0"
 #define DEFAULT_FILE "/var/run/gyt_box.pid"
 

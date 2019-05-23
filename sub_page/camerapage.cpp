@@ -76,9 +76,11 @@ void CameraPage::setCamera(const QCameraInfo &cameraInfo)
     //imageCapture->setCaptureDestination(QCameraImageCapture::Capturet);
     //camera->setCaptureMode(QCamera::CaptureStillImage);
 
+#ifdef QT5_5_1
     QCameraViewfinderSettings set;
     set.setResolution(showResolution.w, showResolution.h);
     camera->setViewfinderSettings(set);
+#endif
     camera->setCaptureMode(QCamera::CaptureVideo);
 
     isCapturingImage = false;

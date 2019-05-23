@@ -12,7 +12,10 @@
 #include <QCameraInfo>
 #include <QCameraViewfinder>
 #include <QCameraImageCapture>
+
+#ifdef QT5_5_1
 #include <QCameraViewfinderSettings>
+#endif
 
 class CameraPage : public PageWidget
 {
