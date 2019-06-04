@@ -77,7 +77,11 @@ void VersionPage::getVersionData()
     QSettings gyVersionRead(gyVersionFile, QSettings::IniFormat);
     QString v_productName = gyVersionRead.value("/PLATFORM/Product", QString("GY33ASEAT")).toString();
     //QString v_serialNumber = gyVersionRead.value("/PLATFORM/SN", QString("4401-2518-9763-AC08")).toString();
-    QString v_gyos = gyVersionRead.value("/LINUX/GYOS", QString("GYTLinux_GW-SV_1.0.1")).toString();
+
+    QString gyos = gyVersionRead.value("/LINUX/GYOS", QString("GYTLinux_GW-SV")).toString();
+    QString rootfs = gyVersionRead.value("/LINUX/Rootfs", QString("1.0.0")).toString();
+    QString v_gyos = gyos + QString("_") + rootfs;
+
     QString v_yocto = gyVersionRead.value("/LINUX/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
     QString v_kernel = gyVersionRead.value("/LINUX/Kernel", QString("3.14.52")).toString();
     QString v_uboot = gyVersionRead.value("/LINUX/UBoot", QString("2015.04-g624b022")).toString();
