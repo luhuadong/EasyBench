@@ -856,7 +856,8 @@ void SeatPage::calSunrisetTime()
     civil_twilight(tblock->tm_year + 1900, tblock->tm_mon + 1, tblock->tm_mday,
                    (double)longitude, (double)latitude, &dawn, &dark);
 
-    int timezone = get_timezone();
+    //int timezone = get_timezone();
+    int timezone = 8;
 
     int dawnHour, dawnMin;
     timeconvert(dawn, timezone, &dawnHour, &dawnMin);
@@ -865,7 +866,7 @@ void SeatPage::calSunrisetTime()
     timeconvert(dark, timezone, &darkHour, &darkMin);
 
     char buf[256];
-    sprintf(buf, "参考日出时间 %02d:%02d , 参考日落时间 %02d:%02d", (dawnHour+8)%24, dawnMin, (darkHour+8)%24, darkMin);
+    sprintf(buf, "参考日出时间 %02d:%02d , 参考日落时间 %02d:%02d", (dawnHour)%24, dawnMin, (darkHour)%24, darkMin);
 
     qDebug() << tr("Timezone") << timezone << buf;
 
