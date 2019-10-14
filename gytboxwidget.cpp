@@ -33,8 +33,11 @@ GytBoxWidget::~GytBoxWidget()
 void GytBoxWidget::initMainUI()
 {
     setWindowTitle(tr("GYT Box"));
-    //setFixedSize(1024, 768);
+#if FIXED_WINDOWN
+    setFixedSize(1024, 768);
+#else
     setFixedSize(LCD_WIDTH, LCD_HEIGHT - TITLE_HEIGHT);
+#endif
     //setWindowFlags(Qt::FramelessWindowHint);
 
     //---------- 标题栏 -----------

@@ -18,6 +18,7 @@
 
 // Please always enable !
 #define LANGUAGE_CHINESE 1
+#define FIXED_WINDOWN    1
 
 #define TITLE_HEIGHT 40
 
