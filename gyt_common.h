@@ -16,9 +16,24 @@
 //#define SYS_ADVANTECH
 //#define SYS_KONTRON
 
-// Please always enable !
-#define LANGUAGE_CHINESE 1
-#define FIXED_WINDOWN    1
+#define LANGUAGE_CHINESE 1  /* All the text show as Chinese, please always enable */
+
+#define FIXED_WINDOWN    1  /* Fixed window size or not */
+#define WINDOW_DESKTOP
+/* #define WINDOW_EMBEDDED */
+
+#if FIXED_WINDOWN
+#define FIXED_WINDOWN_WIDTH 1024
+#ifdef WINDOW_DESKTOP
+#define FIXED_WINDOWN_HEIGHT 720
+#else
+#define FIXED_WINDOWN_HEIGHT 768
+#endif
+#endif
+
+#define CONNECT_STM32    0  /* Connect to base board (STM32) via ethernet */
+
+#define SEAT_TEST        1  /* All of configuration files use test files */
 
 #define TITLE_HEIGHT 40
 

@@ -43,6 +43,8 @@ private slots:
 
     void calSunrisetTime();
 
+    void videoEncodeBoxChange(const QString &text);
+
     void applyModeConfiguration();
     void applyVideoResConfig();
     void applyHfTestConfig();
@@ -59,6 +61,7 @@ private:
     bool readChnlCfgFile(const QString &filename);
     void readChannelElement();
 
+    QString getVideoAttribute(const QString &attr);
     bool readSettingsFile(const QString &filename);
     void readSettingsElement();
 
@@ -123,24 +126,49 @@ private:
 
     QString cfgFileName;
 
-    /* video resolution */
-    typedef enum ResType
+    /* video encode format */
+    typedef enum VideoEncodeType
+    {
+        H263 = 0,
+        H264  = 1,
+        VideoEncodeCount = 2
+
+    } VideoEncodeType;
+
+    /* video H.264 resolution */
+    typedef enum VideoH264_ResType
     {
         QVGA = 0,
         VGA  = 1,
         XGA  = 2,
         P720 = 3,
-        ResCount = 4
+        VideoH264_ResCount = 4
 
-    } ResType;
+    } VideoH264_ResType;
+
+    /* video H.263 resolution */
+    typedef enum VideoH263_ResType
+    {
+        CIF = 0,
+        CIF4  = 1,
+        VideoH263_ResCount = 2
+
+    } VideoH263_ResType;
 
     QString settingFileName;
     QDomDocument settingDoc;
 
     QGroupBox *videoResGroup;
-    QStringList resStrList;
-    QStringList bitrateStrList;
+
+    QStringList videoEncodeStrList;
+    QComboBox *videoEncodeBox;
+
+    QStringList resH263_StrList;
+    QStringList bitrateH263_StrList;
+    QStringList resH264_StrList;
+    QStringList bitrateH264_StrList;
     QComboBox *resBox;
+
     QPushButton *resApplyBtn;
 
     /* Handfree test */

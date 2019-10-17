@@ -4,6 +4,7 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QFormLayout>
 #include <QMessageBox>
 #include <QDebug>
 
@@ -220,26 +221,70 @@ void SeatPage::initVideoResCfgUI()
     videoResGroup = new QGroupBox(tr("视频分辨率设置"), this);
     videoResGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
 
-    resStrList << tr("320,240") << tr("640,480") << tr("1024,768") << tr("1280,720");
-    bitrateStrList << tr("170000") << tr("512000") << tr("2048000") << tr("4500000");
+    videoEncodeStrList << tr("h263") << tr("h264");
+    videoEncodeBox = new QComboBox(videoResGroup);
+    videoEncodeBox->addItem(videoEncodeStrList.at(0), H263);
+    videoEncodeBox->addItem(videoEncodeStrList.at(1), H264);
+    videoEncodeBox->setMinimumHeight(32);
+
+    QString videoPayload = getVideoAttribute(QString("payload"));
+    QString videoSize = getVideoAttribute(QString("size"));
+
+    for(int i=0; i<VideoEncodeCount; i++) {
+        if(videoEncodeStrList.at(i) == videoPayload) {
+            videoEncodeBox->setCurrentIndex(i);
+            break;
+        }
+    }
+
+    resH263_StrList << tr("352,288") << tr("704,576");
+    bitrateH263_StrList << tr("512000") << tr("1024000");
+
+    resH264_StrList << tr("320,240") << tr("640,480") << tr("1024,768") << tr("1280,720");
+    bitrateH264_StrList << tr("170000") << tr("512000") << tr("2048000") << tr("4500000");
 
     resBox = new QComboBox(videoResGroup);
-    resBox->addItem(resStrList.at(0), QVGA);
-    resBox->addItem(resStrList.at(1), VGA);
-    resBox->addItem(resStrList.at(2), XGA);
-    resBox->addItem(resStrList.at(3), P720);
+
+    if(QString("h263") == videoPayload) {
+        resBox->addItem(resH263_StrList.at(0), CIF);
+        resBox->addItem(resH263_StrList.at(1), CIF4);
+
+        for(int i=0; i<VideoH263_ResCount; i++) {
+            if(resH263_StrList.at(i) == videoSize) {
+                resBox->setCurrentIndex(i);
+                break;
+            }
+        }
+    }
+    else if(QString("h264") == videoPayload) {
+        resBox->addItem(resH264_StrList.at(0), QVGA);
+        resBox->addItem(resH264_StrList.at(1), VGA);
+        resBox->addItem(resH264_StrList.at(2), XGA);
+        resBox->addItem(resH264_StrList.at(3), P720);
+
+        for(int i=0; i<VideoH264_ResCount; i++) {
+            if(resH264_StrList.at(i) == videoSize) {
+                resBox->setCurrentIndex(i);
+                break;
+            }
+        }
+    }
     resBox->setMinimumHeight(32);
 
     resApplyBtn = new QPushButton(tr("Apply"), videoResGroup);
     resApplyBtn->setObjectName("functionBtn_small");
-    resApplyBtn->setFixedSize(140, 48);
+    resApplyBtn->setFixedSize(100, 48);
 
-    QHBoxLayout *videoResLayout = new QHBoxLayout;
-    videoResLayout->addWidget(new QLabel(tr("分辨率 : "), videoResGroup));
-    videoResLayout->addWidget(resBox);
-    videoResLayout->addWidget(resApplyBtn);
+    QFormLayout *videoCfgLayout = new QFormLayout;
+    videoCfgLayout->setMargin(20);
+    videoCfgLayout->addRow(tr("编码格式 : "), videoEncodeBox);
+    videoCfgLayout->addRow(tr("分辨率 : "), resBox);
 
-    videoResGroup->setLayout(videoResLayout);
+    QHBoxLayout *videoLayout = new QHBoxLayout;
+    videoLayout->addLayout(videoCfgLayout);
+    videoLayout->addWidget(resApplyBtn);
+
+    videoResGroup->setLayout(videoLayout);
     videoResGroup->setGeometry(40, 96+30+320+20, 380, 160);
 
 #if LANGUAGE_CHINESE
@@ -273,13 +318,20 @@ SeatPage::SeatPage(QWidget *parent) :
     //setTitleLabelText(tr("Seat Settings"));
     setTitleLabelText(tr("席位功能设置"));
 
+#if SEAT_TEST
+    chnlCfgFileName = QString("./conf/chnlCfg.xml");
+    settingFileName = QString("./conf/settings.xml");
+#else
+    chnlCfgFileName = QString("/home/root/seat_imx/conf/chnlCfg.xml");
+    settingFileName = QString("/home/root/seat_imx/conf/settings.xml");
+#endif
+
     /* Seat Channel Configuration */
 
     initChnlCfgUI();
     connect(resetBtn, SIGNAL(clicked()), this, SLOT(restoreDefaultSettings()));
     connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyNewConfiguration()));
 
-    chnlCfgFileName = QString("/home/root/seat_imx/conf/chnlCfg.xml");
     readChnlCfgFile(chnlCfgFileName);
 
     /* Seat Mode Configuration */
@@ -294,10 +346,10 @@ SeatPage::SeatPage(QWidget *parent) :
     /* video resolution */
 
     initVideoResCfgUI();
+    connect(videoEncodeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(videoEncodeBoxChange(QString)));
     connect(resApplyBtn, SIGNAL(clicked()), this, SLOT(applyVideoResConfig()));
 
-    settingFileName = QString("/home/root/seat_imx/conf/settings.xml");
-    readSettingsFile(settingFileName);
+    //readSettingsFile(settingFileName);
 
     /* Handfree test */
 
@@ -564,6 +616,39 @@ void SeatPage::applyModeConfiguration()
     msgBox.exec();
 }
 
+
+QString SeatPage::getVideoAttribute(const QString &attr)
+{
+    /* Open */
+    if(!openXmlFile(settingFileName)) {
+        qDebug() << tr("(E) Open %s failed") << settingFileName;
+        return NULL;
+    }
+
+    /* Read */
+    QDomElement root = settingDoc.documentElement();
+    if(root.tagName() != "setting") {
+        return NULL;
+    }
+
+    QDomNode node = root.firstChild();
+    while(!node.isNull()) {
+
+        QDomElement elem = node.toElement();
+        if(!elem.isNull()) {
+
+            if(elem.nodeName() == "video") {
+
+                if(elem.hasAttribute(attr)) {
+                    return elem.attribute(attr);
+                }
+                else return NULL;
+            }
+        }
+        node = node.nextSibling();
+    }
+}
+
 bool SeatPage::readSettingsFile(const QString &filename)
 {
     qDebug() << "############# Reading settings.xml";
@@ -635,20 +720,50 @@ void SeatPage::readSettingsElement()
                 QXmlStreamAttribute attr = attrs.at(i);
                 qDebug() << tr("\t+ ") << attr.name() << attr.value();
 
+#if 0
                 if(attr.name() == "size") {
-                    for(int j=0; j<ResCount; j++) {
+                    for(int j=0; j<VideoResCount; j++) {
                         if(attr.value() == resStrList.at(j)) {
                             resBox->setCurrentIndex(j);
                             break;
                         }
                     }
                 }
+                else if(attr.name() == "payload") {
+                    for(int j=0; j<VideoEncodeCount; j++) {
+                        if(attr.value() == videoEncodeStrList.at(j)) {
+                            videoEncodeBox->setCurrentIndex(j);
+                            break;
+                        }
+                    }
+                }
+#endif
             }
             xmlReader.readNext();
         }
         else {
             xmlReader.readNext();
         }
+    }
+}
+
+void SeatPage::videoEncodeBoxChange(const QString &text)
+{
+    resBox->clear();
+
+    if(QString("h263") == text) {
+        resBox->addItem(resH263_StrList.at(0), CIF);
+        resBox->addItem(resH263_StrList.at(1), CIF4);
+
+        resBox->setCurrentIndex(0);
+    }
+    else if(QString("h264") == text) {
+        resBox->addItem(resH264_StrList.at(0), QVGA);
+        resBox->addItem(resH264_StrList.at(1), VGA);
+        resBox->addItem(resH264_StrList.at(2), XGA);
+        resBox->addItem(resH264_StrList.at(3), P720);
+
+        resBox->setCurrentIndex(0);
     }
 }
 
@@ -690,13 +805,22 @@ void SeatPage::applyVideoResConfig()
         if(!elem.isNull()) {
 
             if(elem.nodeName() == "video") {
+
                 qDebug() << tr("(I) I found the node -- video");
                 if(elem.hasAttribute("size")) {
                     qDebug() << tr("(I) Has attribute SIZE") << elem.attribute("size");
                 }
+
+                /* update attributes: payload, size, maxsize, bitrate */
+                elem.setAttribute("payload", videoEncodeBox->currentText());
+                if(QString("h263") == videoEncodeBox->currentText()) {
+                    elem.setAttribute("bitrate", bitrateH263_StrList.at(resBox->currentIndex()));
+                }
+                else {
+                    elem.setAttribute("bitrate", bitrateH264_StrList.at(resBox->currentIndex()));
+                }
                 elem.setAttribute("size", resBox->currentText());
                 elem.setAttribute("maxsize", resBox->currentText());
-                elem.setAttribute("bitrate", bitrateStrList.at(resBox->currentIndex()));
             }
         }
         node = node.nextSibling();

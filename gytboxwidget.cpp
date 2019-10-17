@@ -26,18 +26,19 @@ GytBoxWidget::GytBoxWidget(QWidget *parent)
 
 GytBoxWidget::~GytBoxWidget()
 {
-    // It's useless
-    system("rm /home/root/.lock_gyt_box");
+    /* You do not neet to do that since used flock */
+    //system("rm /home/root/.lock_gyt_box");
 }
 
 void GytBoxWidget::initMainUI()
 {
     setWindowTitle(tr("GYT Box"));
 #if FIXED_WINDOWN
-    setFixedSize(1024, 768);
+    setFixedSize(FIXED_WINDOWN_WIDTH, FIXED_WINDOWN_HEIGHT);
 #else
     setFixedSize(LCD_WIDTH, LCD_HEIGHT - TITLE_HEIGHT);
 #endif
+    /* Not consistent between desktop and embedded Qt */
     //setWindowFlags(Qt::FramelessWindowHint);
 
     //---------- 标题栏 -----------

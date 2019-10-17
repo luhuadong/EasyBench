@@ -1,0 +1,528 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<strings>
+ 	<promptstring>
+ 		<phone>
+ 			<string name="CallOutReject" text="电话呼出失败: 被拒绝" />
+ 			<string name="CallOutTimeout" text="电话呼出失败: 超时" />
+      <string name="CallInUnknow" text="未知号码" />
+      <string name="CloseRing" text="电话铃声已关闭" />
+      <string name="OpenRing" text="电话铃声已打开" />
+      <string name="PleaseHookOff" text="电话呼出失败:未摘机" />
+      <string name="LeftHandFreeVol" text="左免提音量" />
+      <string name="RightHandFreeVol" text="右免提音量" />
+      <string name="HandFreeVol" text="免提音量" />
+      <string name="transfer" text="转移" />
+ 		</phone>
+ 		<speak>
+ 			<string name="CallOutNone" text="通播呼出失败: 未知错误" />
+ 			<string name="CallOutNoMulticastAddr" text="通播呼出失败: 无效多播地址" />
+ 			<string name="CallOutNoSpeakChn"	text="通播呼出失败: 无效通道号" />
+ 			<string name="CallOutCodeError" text="通播呼出失败: 号码错误" />
+ 			<string name="CallOutAllocateResFail" text="通播呼出失败: 申请资源失败" />
+ 			<string name="CallOutStateClash" text="通播呼出失败: 状态冲突" />
+ 			<string name="CallOutHadCalled" text="通播呼出失败: 对方已被呼叫" />
+ 			<string name="CallOutNoHostSvr" text="通播呼出失败: 无法连接服务器" />
+      <string name="SpeakEmceeName" text="通播主持" />
+      <string name="SpeakInUsed" text="通播呼出失败: 通道正在使用中" />
+ 		</speak>
+ 		<recordplay>
+ 			<string name="RecordInfoClientNoConnect" text="席位录音客户端未连接" />
+ 			<string name="SearchTimeStartGreatStop" text="检索时间:开始不能大于结束" />
+      <string name="SearchTimeTooGreat" text="最大检索时间不能超%1天" />
+ 			<string name="RecordServerBusy" text="检索失败:录音服务器 %1 忙" />
+ 			<string name="SearchStop" text="检索停止:共收到 %1 条录音记录" />
+ 			<string name="SearchTimeout" text="检索失败: 录音检索超时, 共收到 %1 条录音记录" />
+ 			<string name="SearchEnd" text="检索完成: 共 %1 条记录,收到 %2 条" />
+ 			<string name="PlayFailedSvrBusy" text="放音失败: 录音服务器忙" />
+      <string name="PlayFailedChannelUsed" text="放音失败: 通道占用" />
+      <string name="PlayFailedFileNotExists" text="放音失败: 文件不存在" />
+      <string name="PlayFailedUnknow" text="放音失败" />
+      <string name="EmptyCode" text="(未知号码)" />
+      <string name="HaveVideo" text="有" />
+      <string name="NullVideo" text="无" />
+ 		</recordplay>
+    <recordreplay>
+      <string name="RecordReplayClose" text="正在重演中,是否退出?" />
+      <string name="RecordReplayChnlUsed" text="通道无法进入放音状态" />
+    </recordreplay>
+ 		<video>
+ 			<string name="HeartbeatTimeout" text="%1 连接中断" />
+ 			<string name="PeerRequestSession" text="%1 请求与你视频" />
+ 			<string name="PeerHangUp" text="%1 停止视频" />
+ 			<string name="PeerReject" text="%1 拒绝视频请求" />
+ 			<string name="PeerSessionExists" text="%1 已经在视频中" />
+ 			<string name="PeerExitSession" text="%1 已退出视频" />
+ 			<string name="PeerSessionTimeout" text="%1 视频超时" />
+ 			<string name="CallOutTimeout" text="向 %1 请求视频超时" />
+ 			<string name="ExistsCannotStartOther" text="已在视频通话中,不能启动另一组视频通话" />
+ 			<string name="QueryKeyAddrTimeout" text="查找 %1 的视频地址超时" />
+ 			<string name="QueryKeyAddrFailed" text="查找 %1 的视频地址失败" />
+ 			<string name="CallOutExit" text="已停止与 %1 视频" />
+ 			<string name="CallInExit" text="已停止与 %1 视频" />
+ 			<string name="RespondTimeout" text="应答 %1 的视频请求超时" />
+ 			<string name="CallInParamInvalidate" text="%1 的视频呼入参数不正确" />
+ 			<string name="UnknowError" text="视频未知错误" />
+ 			<string name="ExistsCannotPreview" text="正在视频中,不能进行预览" />
+ 			<string name="QueryKeyAddrNoHost" text="查找 %1 的视频地址失败: 未连接服务器" />
+ 			<string name="QueryKeyAddrNoCode" text="查找 %1 的视频地址失败: 无此号码" />
+ 			<string name="QueryKeyAddrErrorSeatChIndex" text="查找 %1 的视频地址失败: 无效通道索引" />
+ 			<string name="QueryKeyAddrErrorChState" text="查找 %1 的视频地址失败: 通道不在通话中" />
+ 			<string name="QueryKeyAddrTalkObjectToMany" text="查找 %1 的视频地址失败: 存在多个视频地址" />
+ 			<string name="LocalNatFailed" text="与 %1 视频失败: 本地网关转发失败" />
+ 			<string name="LocalNatNotExists" text="与 %1 视频失败: 本地网关转发不存在" />
+ 			<string name="LocalNatStartFailed" text="与 %1 视频失败: 启动本地网关转发失败" />
+ 			<string name="PeerNatFailed" text="与 %1 视频失败: 对方网关转发失败" />
+ 			<string name="PeerNatNotExists" text="与 %1 视频失败: 对方网关转发不存在" />
+ 			<string name="PeerNatStartFailed" text="与 %1 视频失败: 对方启动网关转发失败" />
+ 			<string name="CallInExists" text="视频请求失败: %1 忙" />
+      <string name="SpeakNoCamera" text="无法启动视频: %1 无视频能力" />
+      <string name="SpeakVideoCtrl" text="通播视频" />
+      <string name="SpeakNoName" text="(未知成员)" />
+      <string name="PhoneVideoRecvOnly" text="只看对方" />
+      <string name="PhoneVideoSendRecv" text="双方可看" />
+ 		</video>
+ 		<systemstatus>
+ 			<string name="SeatConnGWFailed" text="与网关连接断开" />
+      <string name="SeatHostSvrConnFailed" text="与交换管理服务器断开" />
+ 			<string name="SeatRecSvrConnFailed" text="与录音服务器断开" />
+ 			<string name="SeatMonitorConnFailed" text="与监控服务器断开" />
+ 			<string name="LeftPhoneRingClosed" text="左电话铃声关闭" />
+ 			<string name="RightPhoneRingClosed" text="右电话铃声关闭" />
+ 			<string name="PhoneRingClosed" text="电话铃声已关闭" />
+ 			<string name="LeftPhoneVolumeClosed" text="左电话音量关闭" />
+ 			<string name="RightPhoneVolumeClosed" text="右电话音量关闭" />
+ 			<string name="SpeakVolumeClosed" text="通播通道音量关闭" />
+ 			<string name="RadioVolumeClosed" text="电台通道音量关闭" />
+      <string name="SerialOpenFailed" text="串口打开失败" />
+      <string name="BoardInitFailed" text="席位板未初始化" />
+      <string name="E1StatusAbnormal" text="E1异常" />
+      <string name="E1NoSyncSignal" text="E1无同步信号" />
+      <string name="E1NoE1Signal" text="E1无信号" />
+      <string name="Q921StatusAbnormal" text="Q921异常" />
+      <string name="Q921StatusFree" text="Q921释放" />
+      <string name="GatewayInitFailed" text="E1数据通道未初始化" />
+      <string name="SpeakRingClosed" text="通播铃声已关闭" />
+      <string name="CryptoAnalogClosed" text="七号机异常" />
+      <string name="CryptoDigitalClosed" text="密话机异常" />
+      <string name="GatewayNetClosed" text="网关网络连接异常" />
+      <string name="GatewayDspClosed" text="网关DSP状态异常" />
+      <string name="GatewayE1Closed" text="网关E1状态异常" />      
+      <string name="Mon" text="星期一" />
+      <string name="Tue" text="星期二" />
+      <string name="Wed" text="星期三" />
+      <string name="Thu" text="星期四" />
+      <string name="Fri" text="星期五" />
+      <string name="Sat" text="星期六" />
+      <string name="Sun" text="星期日" /> 
+      <string name="EarphoneIn" text="耳机插入" />   
+      <string name="EarphoneOut" text="耳机拨出" />    
+ 		</systemstatus>
+    <logon>
+      <string name="UserNameCannotEmpty" text="用户名不能为空" />
+      <string name="UserLogonTimeout" text="登录超时" />
+      <string name="UserUIDNotExists" text="用户ID不存在" />
+      <string name="UserPWDError" text="密码不正确" />
+      <string name="UserAlreadyLogon" text="用户已在其它地方登录" />
+      <string name="UserIDInvalidate" text="此ID不是用户ID" />
+      <string name="UserLogonSuccess" text="登录成功" />
+      <string name="UserLogonByS28" text="指控用户登录" />
+      <string name="UserLogonUnknowError" text="未知错误" />
+      <string name="UserLogonByOther" text="已有其它用户登录本席位" />
+      <string name="UserLogonByS28Seat" text="已有指控用户登录" />
+      <string name="UserLogoutSuccess" text="用户已注销" />
+      <string name="UserLogoutUIDError" text="用户注销失败: UID错误" />
+      <string name="UserLogoutFailedByS28Logon" text="用户注销失败: 本用户为指控用户登录" />
+      <string name="UserLogoutFailedNoLogon" text="用户注销失败: 用户未登录" />
+    </logon>
+    <userinfo>
+      <string name="QueryUserInfoFailed" text="查询用户信息失败" />
+      <string name="UserQueryTimeout" text="查询用户信息超时" />
+      <string name="QueryUserBaseInfoFailed" text="查询用户基本信息失败" />
+      <string name="QueryUserFriendInfoFailed" text="查询用户通迅录信息失败" />
+      <string name="QuerySeatFriendInfoFailed" text="查询席位通迅录信息失败" />
+      <string name="QueryUserLayoutFailed" text="查询用户个性化信息失败" />
+      <string name="QueryUserBaseInfoTimeout" text="查询用户基本信息超时" />
+      <string name="QueryUserFriendInfoTimeout" text="查询用户通迅录信息超时" />
+      <string name="QuerySeatFriendInfoTimeout" text="查询席位通迅录信息超时" />
+      <string name="QueryUserLayoutTimeout" text="查询用户个性化信息超时" />
+      <string name="DownloadUserLayout" text="下载用户个性化信息" />
+      <string name="UploadUserLayout" text="保存配置文件" />
+      <string name="DownloadUserHistory" text="下载用户历史记录" />
+      <string name="UserDataSuccess" text="成功" />
+      <string name="UserDataUserMgrError" text="失败:用户管理错误" />
+      <string name="UserDataUserMsgFail" text="失败:下载消息错误" />
+      <string name="UserDataUserMsgTimeout" text="失败:下载消息超时" />
+      <string name="UserDataTimeout" text="失败:下载超时" />
+      <string name="UserDataNoUID" text="失败:无效用户ID" />
+      <string name="UserDataNotExists" text="失败:配置文件不存在" />
+      <string name="UserDataTooLong" text="失败:配置文件长度超长" />
+      <string name="SaveUserInfo" text="是否保存本次所有修改" />
+      <string name="ResetUserInfoChanged" text="是否取消本次所有修改" />
+      <string name="UserInfoNoChanged" text="信息未改变" />
+      <string name="UploadUserBaseInfoSuccess" text="修改用户信息成功" />
+      <string name="UploadUserBaseInfoTimeOut" text="修改用户信息失败: 超时" />
+      <string name="UploadUserBaseInfoUIDError" text="修改用户信息失败: 用户ID错误" />
+      <string name="UploadUserBaseInfoCodeFull" text="修改用户信息失败: 号码总数已满4个" />
+      <string name="UploadUserBaseInfoCodeExists" text="修改用户信息失败: 已有相同类型的相同号码存在" />
+      <string name="UploadUserBaseInfoCodeCantModify" text="修改用户信息失败: IP号码不允许修改" />
+      <string name="UploadUserBaseInfoCodeNoFind" text="修改用户信息失败: 无法找到与原号码对应的记录" />
+      <string name="UploadUserBaseInfoCodeUnknowError" text="修改用户信息失败: 未知错误" />
+      <string name="UploadFriendInfoIsEmpty" text="联系人信息为空" />
+      <string name="UploadFriendInfoNoChanged" text="联系人信息未改变" />
+      <string name="SaveFriendModifyInfo" text="是否保存本次所有修改" />
+      <string name="SaveFriendAddInfo" text="是否保存新联系人信息" />
+      <string name="ResetFriendAddInfo" text="是否取消填写的信息" />
+      <string name="RemoveFriendInfo" text="是否删除当前联系人信息" />
+      <string name="UploadFriendInfoSuccess" text="%1联系人信息成功" />
+      <string name="UploadFriendGroupSuccess" text="%1群组成功" />
+      <string name="UploadFriendInfoTimeOut" text="%1联系人信息失败: 超时" />
+      <string name="UploadFriendInfoUIDError" text="%1联系人信息失败: 用户ID错误" />
+      <string name="UploadFriendInfoNameExists" text="%1联系人信息失败: 此联系人已经存在" />
+      <string name="UploadFriendInfoNameNoExists" text="%1联系人信息失败: 此联系人不存在" />
+      <string name="UploadFriendInfoCodeFull" text="%1联系人信息失败: 号码总数已满4个" />
+      <string name="UploadFriendInfoIPCodeExists" text="%1联系人失败: 已经存在一个IP号码" />
+      <string name="UploadFriendInfoIPCodeNoFindUID" text="%1联系人失败: IP号码无法找到对应的用户ID" />
+      <string name="UploadFriendInfoCodeNoFindSrcCode" text="%1联系人失败: IP号码无法找到原号码记录" />
+      <string name="UploadFriendInfoCodeExists" text="%1联系人信息失败: 已有相同类型的相同号码存在" />
+      <string name="UploadFriendInfoRemarkError" text="%1联系人信息失败: 备注不正确" />
+      <string name="UploadFriendInfoNameError" text="%1联系人信息失败: 此联系人名称不正确" />
+      <string name="UploadFriendInfoParamError" text="%1联系人信息失败: 返回参数不正确" />
+      <string name="UploadFriendInfoCodeUnknowError" text="%1联系人信息失败: 未知错误" />
+      <string name="UploadAdd" text="增加" />
+      <string name="UploadModify" text="修改" />
+      <string name="UploadRemove" text="删除" />
+      <string name="NameCantEmpty" text="请输入名称" />
+      <string name="CodeCantEmpty" text="请完整填写号码" />
+      <string name="CodeTypeCantEmpty" text="请选择号码类型" />
+    </userinfo>
+    <codetype>
+      <string name="IPCode" text="IP号码" />
+      <string name="ServeCode" text="军线" />
+      <string name="CivilCode" text="民线" />
+      <string name="Mobile" text="手机" />
+      <string name="Seat" text="IP号码" />
+      <string name="SIPTel" text="IP号码" />
+      <string name="ExtCode" text="IP号码" />
+      <string name="SpecialCode" text="IP号码" />
+      <string name="RingGroup" text="IP号码" />
+      <string name="SpeakGroup" text="IP号码" />
+      <string name="NightService" text="值班军线" />
+      <string name="UnknowCode" text="其它" />
+      <string name="InvalidCode" text="(空号码)" />
+    </codetype>
+    <userfriend>
+      <string name="PhoneNoHasKeyRight" text="请先将电话手柄摘机,然后进行呼出" />
+      <string name="PhoneCodeEmpty" text="不能呼叫空号码" />
+      <string name="FriendCodeEmpty" text="无此好友相关号码" />
+      <string name="FriendCodeNumOverflow" text="保存失败:该好友的号码总数已满4个" />
+    </userfriend>
+    <commonaddr>
+      <string name="PhoneNoHasKeyRight" text="请先将电话手柄摘机,然后进行呼出" />
+      <string name="PhoneCodeEmpty" text="不能呼叫空号码" />
+      <string name="CodeNoExists" text="号码不存在" />
+      <string name="FriendGroupHint" text="通讯录" />
+    </commonaddr>
+    <config>
+      <string name="SwitchConfigDevOnSpeaking" text="用户已注销,若要清除用户信息,请将通播挂机及停止控制电台" />
+      <string name="SwitchConfigDevOnRadioing" text="用户已注销,若要清除用户信息,请将通播挂机及停止控制电台" />
+      <string name="SwitchConfigUserOnSpeaking" text="用户信息已下载,请将通播挂机及停止控制电台,以进行更新" />
+      <string name="SwitchConfigUserOnRadioing" text="用户信息已下载,请将通播挂机及停止控制电台,以进行更新" />
+      <string name="SwitchConfigDevOnDispatching" text="用户已注销,若要清除用户信息,请停止导调" />
+      <string name="SwitchConfigUserOnDispatching" text="用户信息已下载,请停止导调,以进行更新" />
+      <string name="ConfigUpdateSucess" text="席位数据更新成功" />
+    </config>
+    <messagebox>
+      <string name="normal" text="确定" />
+      <string name="save" text="保存" />
+      <string name="hint" text="确定" />
+    </messagebox>
+    <toolbarsetup>
+      <string name="ConfigNoChanged" text="配置未改变" />
+      <string name="SaveConfig" text="是否保存当前操作" />
+    </toolbarsetup>
+    <seatsetup>
+      <string name="CannotOpenUserNoLogon" text="用户未登陆,不能进行席位配置" />
+      <string name="SelectHint" text="请选择编辑的页按键" />
+      <string name="EditHint" text="您可以继续以下操作" />
+      <string name="RemovePage" text="是否删除 [%1] 页按键" />
+      <string name="AddPageTitle" text="新建%1页按键" />
+      <string name="EditPageTitle" text="编辑%1页按键" />
+      <string name="AddHotkeyTitle" text="新建%1按键" />
+      <string name="EditHotkeyTitle" text="编辑%1按键" />
+      <string name="PhonePageType" text="电话" />
+      <string name="SpeakPageType" text="通播" />
+      <string name="AddButton" text="新建" />
+      <string name ="EditButton" text="编辑" />
+      <string name="RemoveHotkey" text="是否删除 [%1] 按键" />
+      <string name="CopyNoSpace" text="复制失败:放置按键的空间不足够" />
+      <string name="MoveNoSpace" text="移动失败:放置按键的空间不足够" />
+      <string name="MoveNoSamePageType" text="移动失败:不能放置按键到不同类型的页中" />
+      <string name="HotkeyMinSize" text="1格" />
+      <string name="HotkeyMiddleSize" text="2格" />
+      <string name="HotkeyMaxSize" text="4格" />
+      <string name="ResetChange" text="复位将取消本次所有操作,是否继续?" />
+      <string name="SaveChange" text="是否保存本次操作?" />
+      <string name="SaveChangeHasEmptyPage" text="存在空白页面,空白页面信息将不作保存,是否继续保存本次操作?" />
+      <string name="GenerateFileFailed" text="生成配置文件失败" />
+      <string name="SaveFileFailed" text="写配置文件失败" />
+      <string name="ConfigFileTooLarge" text="配置文件超过最大允许保存的长度,请减少按键" />
+      <string name="UserNoLogon" text="保存配置文件失败,用户未登陆" />
+      <string name="ReadConfigFileFailed" text="保存配置文件失败,读取配置文件错误" />
+      <string name="ExitSetupForm" text="是否退出席位配置界面" />
+      <string name="ConfigFileNoChanged" text="配置文件未改变" />
+      <string name="UploadBuildLayoutZipFailed" text="保存配置文件失败:生成压缩文件失败" />
+    </seatsetup>
+    <keyboard>
+      <string name="IMEDefaultName" text="英文" />
+      <string name="zh" text="拼音" />
+      <string name="en" text="英文" />
+    </keyboard>
+    <talklog>
+      <string name="TalkLenFormat" text="%1秒" />
+      <string name="PhoneNoHasKeyRight" text="请先将电话手柄摘机,然后进行呼出" />
+      <string name="callback" text="回拨" />
+      <string name="redial" text="重拨" />
+      <string name="DeleteTalkRecByType" text="是否删除所有%1记录" />
+      <string name="DeleteAllTalkRec" text="是否删除全部通话记录" />
+      <string name="DeleteOneTalkRec" text="是否删除当前通话记录"  />
+      <string name="EmptyCode" text="(未知号码)" />
+    </talklog>
+    <contract>
+      <string name="SeatContract" text="席位通讯录" />
+      <string name="UserContract" text="用户通讯录" />
+      <string name="AllContracts" text="所有联系人" />
+      <string name="FindResult" text="查找结果" />
+      <string name="save" text="保存" />
+      <string name="create" text="新建" />
+      <string name="DeleteGroup" text="是否删除群组: %1" />
+      <string name="UnGrouped" text="未分组" />
+      <string name="GroupExists" text="群组 %1 已存在" />
+    </contract>
+    <hotkeytype>
+      <string name="SeatPhone" text="席位" />
+      <string name="UserPhone" text="用户" />
+      <string name="MobilePhone" text="手机" />
+      <string name="ServePhone" text="军线固话" />
+      <string name="CivilPhone" text="民线固话" />
+      <string name="MagnetPhone" text="磁石专线" />
+      <string name="TelephonistPhone" text="话务员" />
+      <string name="TrunkPhone" text="环路" />
+      <string name="SatellitePhone" text="卫星电话" />
+      <string name="SubscriberPhone" text="普通电话" />
+      <string name="SpecialPhone" text="外线电话" />
+      <string name="SipPhone" text="SIP电话" />
+      <string name="FolderPhone" text="文件夹" />
+      <string name="UnknowPhone" text="其它" />
+      <string name="LocalMemberSpeak" text="本地用户" />
+      <string name="RemoteMemberSpeak" text="远程用户" />
+      <string name="LocalGroupSpeak" text="本地通播组" />
+      <string name="RemoteGroupSpeak" text="远程通播组" />
+      <string name="ListenSpeak" text="仅收听" />
+      <string name="TalkSpeak" text="仅发话" />
+      <string name="FolderSpeak" text="文件夹" />
+    </hotkeytype>
+    <nightservice>
+      <string name="StopNightService" text="是否取消席位转移" />
+      <string name="EnterNightService" text="是否开始席位转移" />
+      <string name="NoNightServiceCode" text="请选择席位转移目的" />
+      <string name="SystemSetupCode" text="系统配置" />
+      <string name="HistoryCode" text="历史记录" />
+      <string name="HotkeyCode" text="按键配置" />
+      <string name="UserCode" text="自定义" />
+    </nightservice>
+    <duty>
+      <string name="ChangeDuty" text="总值班员由:\n%1 更换为 %2" />
+      <string name="CancelDelayInfo" text="是否不换班?" />
+    </duty>
+    <speakbook>
+      <string name="DataRootName" text="动态通播" />
+      <string name="AreaData" text="军区数据" />
+      <string name="LocalData" text="本地数据" />
+    </speakbook>
+    <application>
+      <string name="ExitAppTitle" text="请输入你要 退出系统 的密码" />
+      <string name="ExitAppOKButton" text="退出系统" />
+      <string name="EnterAdvanceSetupTitle" text="请输入你要进入 高级设置 的密码" />
+      <string name="EnterAdvanceSetupOKButton" text="进入" />
+      <string name="EnterTaTaiSignalTitle" text="请输入你要进入 联网警报 的密码" />
+      <string name="EnterTaTaiSignalOKButton" text="进入" />
+      <string name="EnterTalkRecordSearchTitle" text="请输入你要进入 录音录像检索 的密码" />
+      <string name="EnterTalkRecordSearchOKButton" text="进入" />
+      <string name="PasswordIsEmpty" text="密码不能为空" />
+      <string name="PasswordIncorrect" text="密码错误" />
+      <string name="PhoneCallIn" text="电话呼入:" />
+      <string name="SpeakCallIn" text="通播呼入:" />
+      <string name="RebootGateway" text="是否继续重启席位网关?" />
+      <string name="ChangeSkin" text="更换主题将重启席位界面,是否继续?" />
+      <string name="SkinChanged" text="主题已变化,将要重启席位界面以更换主题,是否继续?" />
+      <string name="BackChannelSuccess" text="通道参数备份成功!" />
+      <string name="RestoreChannel" text="是否继续还原通道参数?" />
+      <string name="BackChannelFileNotExist" text="通道参数备份数据不存在!" />
+      <string name="RestoreChannelSucess" text="通道参数还原成功!" />
+    </application>
+    <dynamicspeak>
+      <string name="DeleteSelectKey" text="是否删除选中按键" />
+      <string name="DeleteAllKey" text="是否删除所有按键" />
+      <string name="SaveFileFailed" text="保存动态通播配置失败" />
+      <string name="SaveFileFailedMD5" text="保存动态通播配置失败,MD5错误" />
+      <string name="ChangeConfigFile" text="是否保存动态通播配置文件" />
+      <string name="SendFileFailed" text="传输动态通播配置失败:错误代码 0x%1" />
+      <string name="SpeakStartAll" text="全部通播" />
+      <string name="SpeakStopAll" text="全部停止" />
+    </dynamicspeak>
+    <speakmember>
+      <string name="SpeakMemberIdle" text="(未知)" />
+      <string name="SpeakMemberCalling" text="呼出中" />
+      <string name="SpeakMemberRinging" text="振铃中" />
+      <string name="SpeakMemberTalking" text="通播中" />
+      <string name="SpeakMemberBusy" text="忙线中" />
+      <string name="SpeakMemberBye" text="退出" />
+      <string name="SpeakMemberSeatNoOpen" text="席位未开机" />
+      <string name="SpeakMemberSeatNoLogon" text="用户未登录" />
+      <string name="SpeakMemberStateHint" text="%2: %1" />
+    </speakmember>
+ 		<voicevad>
+ 			<string name="Speak" text="%1" />
+ 			<string name="Radio" text="%1" />
+ 			<string name="Dispatch" text="%1" />
+ 			<string name="RadioVadPTT" text=" 对空话" />
+ 			<string name="RadioVadSpk" text=" 勤务话" />
+ 			<string name="SeatToRadioVad" text=" 向 "/>
+ 		</voicevad>
+ 		<dispatch>
+ 			<string name="ExitDispatch" text="是否停止导调" />
+ 		</dispatch>
+ 		<cryptomac>
+ 			<string name="DestroyKeyPwdErr" text="密码错误,请重新输入" />
+ 			<string name="DestroyAnalogKeyHint" text="注意,将要销毁江河台密钥,密钥销毁后将无法进行密话通话!!" />
+ 			<string name="DestroyDigitalKeyHint" text="注意,将要销毁江河台密钥,密钥销毁后将无法进行密话通话!!" />
+ 			<string name="DestroyAnalogKeyOk" text="江河台密钥已经销毁" />
+ 			<string name="DestroyDigitalKeyOk" text="江河台密钥已经销毁" />
+ 			<string name="DestroyAnalogKeyFailed" text="江河台密钥销毁失败,请重新销毁!" />
+ 			<string name="DestroyDigitalKeyFailed" text="江河台密钥销毁失败,请重新销毁!" />
+ 			<string name="DeviceError" text="%1故障,故障代码为:%2" />
+ 			<string name="IncommingCall" text="%1\n号码:%2" />
+ 			<string name="DigitalHookOff" text="电话呼出失败:密话机未摘机" />
+ 			<string name="AnalogDialModeName" text="7号机" />
+ 			<string name="DigitalAutoModeName" text="密话机" />
+ 			<string name="DeviceUnlink" text="设备故障" />
+ 		</cryptomac>
+ 		<screensaver>
+ 			<string name="SeatUnlockPasswordError" text="密码不正确" />
+ 			<string name="PleaseUnlockSeat" text="请解锁席位!" />
+      <string name="PleaseSetUnlockPassword" text="请设置锁屏密码" />
+ 		</screensaver>
+ 		<shortwareradio>
+ 			<string name="NoReport" text="无报告" />
+ 			<string name="Scan2" text="扫描2" />
+ 			<string name="Scan5" text="扫描5" />
+ 			<string name="Direct" text="直接" />
+ 			<string name="Free" text="闲置" />
+ 			<string name="Manual" text="人工" />
+ 			<string name="Probe" text="探测" />
+ 			<string name="Call" text="呼叫" />
+ 			<string name="Link" text="建链" />
+ 			<string name="Error" text="故障" />
+ 			<string name="CommFailed" text="通信失败" />
+ 			<string name="Open" text="正常" />
+ 			<string name="Close" text="关机" />
+ 			<string name="Simplex" text="单工" />
+ 			<string name="HalfDuplex" text="半双工" />
+ 			<string name="Duplex" text="双工" />
+ 			<string name="HighPower" text="高功率" />
+ 			<string name="MiddlePower" text="中功率" />
+ 			<string name="LowPower" text="低功率" />
+ 			<string name="PowerOn" text="开机" />
+ 			<string name="PowerOff" text="关机" />
+ 			<string name="AnalogVoc" text="模拟话" />
+ 			<string name="DigitalVoc" text="明话" />
+ 			<string name="CryptoVoc" text="密话" />
+ 			<string name="CryptoVoc1" text="密话1" />
+ 			<string name="CryptoVoc2" text="密话2" />
+ 			<string name="Unknow" text="未知" />
+ 		</shortwareradio>
+ 		<telconf>
+ 			<string name="Conf" text="会议"/>
+ 			<string name="ConfInitSec" text="会议中..."/>	
+ 			<string name="MasterConfInitSec" text="会议主持中..."/>	
+ 			<string name="ConfTryInit" text="正在启动会议"/>	
+ 			<string name="ConfInitFail" text="会议启动失败"/>
+ 			<string name="ConfStop" text="会议退出"/>
+      <string name="ConfMemberIdle" text="" />
+      <string name="ConfMemberTryEnter" text="呼出中" />
+      <string name="ConfMemberRinging" text="振铃中" />
+      <string name="ConfMemberEnterSec" text="会议中" />
+      <string name="ConfMemberEnterFail" text="呼出失败" />
+      <string name="ConfMemberExit" text="对端挂机" />
+      <string name="ConfMemberTalking" text="听说" />
+      <string name="ConfMemberStateHint" text="%2: %1" />
+      <string name="SelectMember" text="请先选择需要操作的会议成员" />
+ 		</telconf>
+     <alarmclock>
+      <string name="SelectDeleteAlarm" text="请选择需要删除的闹钟" />
+      <string name="SelectModifyAlarm" text="请选择需要修改的闹钟" />
+      <string name="DeleteAlaramQuery" text="是否真的删除该闹钟?" />
+      <string name="FillCorrectParam" text="请正确填写信息" />
+      <string name="OneClockOneDay" text="单次闹钟不能选择多天" />
+      <string name="onealarm" text="单次" />
+      <string name="repeatalarm" text="重复" />
+      <string name="monday" text="一" />
+      <string name="tuesday" text="二" />
+      <string name="wednesday" text="三" />
+      <string name="thursday" text="四" />
+      <string name="friday" text="五" />
+      <string name="saturday" text="六" />
+      <string name="sunday" text="日" />
+      <string name="AddClock" text="新增闹钟" />
+      <string name="ModifyClock" text="修改闹钟" />
+     </alarmclock>
+     <tataisignal>
+      <string name="SelectCmd" text="请选择指令" />
+      <string name="SelectTarget" text="请选择目标" />
+      <string name="CmdHasSend" text="指令已发送" />
+      <string name="WaitAck" text="待确认" />
+      <string name="ComfirmAck" text="已确认" />
+      <string name="OpenTextPanel" text="附加短信" />
+      <string name="CloseTextPanel" text="关闭短信" />   
+      <string name="PageNoEmpty" text="请至少选择一个页面" />      
+      <string name="SendTo" text="发送" />
+      <string name="CopyTo" text="抄送至" />
+      <string name="SendFailed" text="发送失败" />
+      <string name="SendSuccess" text="发送成功" />
+      <string name="Sending" text="正在发送" />
+      <string name="Online" text="在线" />
+      <string name="Offline" text="离线" />
+      <string name="LockConfirm" text="是否锁定%1界面" />
+     </tataisignal>
+ 	</promptstring>
+ 	<errorstring>
+ 		<appinit>
+ 			<string name="ConnectServerFailed" text="连接服务器失败" />
+ 			<string name="OpenViewDataClientFailed" text="席位下载:打开连接失败" />
+ 			<string name="ViewDataClientConnectClosed" text="席位下载:连接关闭" />
+ 			<string name="ViewDataClientConnectTimeout" text="席位下载:连接超时" />
+ 			<string name="ViewDataClientSendFetchInfoFail" text="席位下载:发送下载信息失败" />
+ 			<string name="ViewDataClientOpenSaveFileFail" text="席位下载:打开保存文件失败" />
+ 			<string name="ViewDataClientOpenClientFaile" text="席位下载:创建连接失败" />
+ 			<string name="ViewDataClientConnectStartFail" text="席位下载:连接服务器失败" />
+ 			<string name="ViewDataClientWriteFileError" text="席位下载:保存文件失败" />
+ 			<string name="ViewDataClientMD5Error" text="席位下载:下载的文件MD5错误" />
+ 			<string name="UnknowError" text="未知错误" />
+ 		</appinit>
+ 		<recordplay>
+ 			<string name="StartPlayFailed" text="播放录音失败" />
+ 			<string name="StopPlayFailed" text="停止录音失败" />
+ 		</recordplay>
+ 		<backlight>
+ 			<string name="Connecting" text="正在连接背光控制服务器" />
+ 			<string name="Close" text="与背光控制服务器断开" />
+ 			<string name="DevNoInit" text="背光控制模块未连接" />
+ 		</backlight>
+ 	</errorstring>
+  <coderuler>
+    <ruler express="^161[0-9]{8,8}$" codetype="0" />
+    <ruler express="^13[0-9]{9,9}$" codetype="3" />
+    <ruler express="^14[57][0-9]{8,8}$" codetype="3" />
+    <ruler express="^1[58][0-35-9][0-9]{8,8}$" codetype="3" />
+  </coderuler>
+</strings>

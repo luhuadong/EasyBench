@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<setting name="seat settting">
+    <channel_normal>
+        <all channelno="255" type="255" text="所有通道" />
+        <leftphone channelno="0" type="0" text="左话机" />
+        <rightphone channelno="1" type="0" text="右话机" />
+        <speak channelno="2" type="1" text="通播" />
+        <radio channelno="3" type="2" text="电台" />
+    </channel_normal>
+    <channel_leader>
+        <all channelno="255" type="255" text="所有通道" />
+        <leftphone channelno="0" type="0" text="话机" />
+        <speak channelno="2" type="1" text="通播" />
+        <radio channelno="3" type="2" text="电台" />
+    </channel_leader>
+    <channel_normal_ex>
+        <channel channelno="4" text="扩展电话1" />
+        <channel channelno="5" text="扩展电话2" />
+        <channel channelno="6" text="扩展电话3" />
+        <channel channelno="7" text="扩展电话4" />
+    </channel_normal_ex>
+    <channel_leader_ex />
+    <play_channel_normal>
+        <leftphone channelno="0" type="0" text="左话筒" />
+        <rightphone channelno="1" type="0" text="右话筒" />
+        <speak channelno="2" type="1" text="左扬声器" />
+        <radio channelno="3" type="2" text="右扬声器" />
+    </play_channel_normal>
+    <play_channel_leader>
+        <leftphone channelno="0" type="0" text="话筒" />
+        <speak channelno="2" type="1" text="扬声器" />
+    </play_channel_leader>
+    <chnlvolumn volstep="32" />
+    <server ip="192.168.3.101" />
+    <local ip="192.168.3.100" />
+    <backlightserver ip="127.0.0.1" />
+    <hotkeyicon size="small" />
+    <radiomode control="singlecontrol" listen="listen" />
+    <video rtpport="50088" jitter="30" size="1280,720" maxsize="1280,720" payload="h264" bitrate="4500000" autoadaptbitrate="0" camera="Directshow capture: USB 视频设备" transport="gateway" requesttimeout="30" queryaddrtimeout="10" symmetricrtp="0" videotimeout="1" />
+    <toolbar>
+        <item type="commonaddress" />
+        <item type="contacts" />
+        <item type="talkrecord" />
+        <item type="nightservice" />
+        <item type="duty" />
+    </toolbar>
+</setting>

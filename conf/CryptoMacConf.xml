@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<crypto>
+    <serialport name_win32="COM1" name_unix="/dev/ttymxc1" baudrate="19200" databit="8" stopbit="1" parity="none" name="COM1" />
+     <channel channelNo="0" />
+    <analog name="江河台" dialtray="1" autocallout="0" talkdefzc="1" autopopdialtray="1" talkbackzc="1" />
+    <digital name="密话机" dialtray="1" autocallout="0" talkdefzc="0" autopopdialtray="0" talkbackzc="0" />
+    <hintmsg jssuccess="" jsfailed="" />
+    <ringfile ring="CryptoMacRingTone.wav" hintring="CryptoMacRingHint.wav" digitalring="CryptoDigitalRing.wav" digitalhintring="CryptoDigitalRingHint.wav" />
+    <netid default="1" auto_analog="1" auto_analog_time="300000" />
+    <rightdialtray autopopup="1" />
+    <leftdialtray autopopup="1" />
+    <bigcallarea bigcallarea="0" />
+</crypto>

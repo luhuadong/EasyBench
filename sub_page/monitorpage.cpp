@@ -156,7 +156,7 @@ MonitorPage::MonitorPage(QWidget *parent) :
     connect(operationBar->secondButton(), SIGNAL(clicked()), this, SLOT(fanModeBtnClicked()));
     connect(operationBar->thirdButton(), SIGNAL(clicked()), this, SLOT(changeFanSpeedBtnClicked()));
 
-#if 1
+#if CONNECT_STM32
     createSocketWithBasePcb();
     if(sockToBasdPcbIsOk) {
         BasePcbThread *pcbThread = new BasePcbThread(sockfd, this);

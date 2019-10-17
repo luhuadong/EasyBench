@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<channel>
+    <channel0 type="leftphone" enable="1" />
+    <channel1 type="rightphone" enable="0" />
+    <channel2 type="speak" enable="1" />
+    <channel3 type="radio" enable="1" />
+</channel>

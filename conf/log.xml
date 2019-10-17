@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<log name="log config">
+	<config>
+		<!--level value: off, fatal, error, warn, info, debug, trace, all-->
+		<level value="warn" />
+		
+		<!-- appender value: console, file, rollingfile, ntevent, socket, win32console, win32debug-->
+		<appender value="rollingfile" />
+	</config>
+	
+	<layout>
+		<simple name="simple" />
+		<ttcc name="time thread context" use_gmt="false" />
+		
+		<!--	%d: date format {
+              %a: Abbreviated weekday name 
+              %A: Full weekday name
+              %b: Abbreviated month name
+              %B: Full month name
+              %c: Standard date and time string
+              %d: Day of month as a decimal(1-31)
+              %H: Hour(0-23)
+              %I: Hour(1-12)
+              %j: Day of year as a decimal(1-366)
+              %m: Month as decimal(1-12)
+              %M: Minute as decimal(0-59)
+              %p: Locale's equivalent of AM or PM
+              %q: milliseconds as decimal(0-999)
+              %Q: fractional milliseconds as decimal(0-999.999)
+              %S: Second as decimal(0-59)
+              %U: Week of year, Sunday being first day(0-53)
+              %w: Weekday as a decimal(0-6, Sunday being 0)
+              %W: Week of year, Monday being first day(0-53)
+              %x: Standard date string
+              %X: Standard time string
+              %y: Year in decimal without century(0-99)
+              %Y: Year including century as decimal
+              %Z: Time zone name
+              %: The percent sign
+          }
+          %t: thread id
+          %p: log level name
+          %c: logger name
+          %x: Nested Diagnostic Context
+          %m: log message
+          %l: location file
+          %n: log line
+   -->
+	<pattern name="pattern" format="%d{%Y-%m-%d %H:%M:%S} [%t] %-5p %c{2} %%%x%% - %m [%l]%n" />
+	</layout>
+	
+	<appender>
+		<console name="seat" layout="simple" />		
+		<!-- mode: trunc, append -->
+		<file name="seat" layout="ttcc" filename="seat.log" mode="append" />
+		<rollingfile name="seat" layout="ttcc" filename="seat.log" maxfilesize="5M" maxfilenum="5" />
+		<nteventlog name="seat" layout="ttcc" sever="" log="log" source="seat" />
+		<socket name="seat" layout="ttcc" host="127.0.0.1" port="61234" />
+		<win32console name="seat" layout="ttcc" allocconsole="true" />
+		<win32debug name="seat" />
+	</appender>
+
+</log>
