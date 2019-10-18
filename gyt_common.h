@@ -3,9 +3,6 @@
 
 #include <stdbool.h>
 
-//#define QT5_4_3
-#define QT5_5_1
-
 #define GYTBOX_VERSION "v1.0.0"
 #define DEFAULT_FILE "/var/run/gyt_box.pid"
 
@@ -16,7 +13,10 @@
 //#define SYS_ADVANTECH
 //#define SYS_KONTRON
 
-#define QT_VERSION_4     1  /* Recommend to use Qt5 strongly */
+#define QT_VERSION_4     0  /* Recommend to use Qt5 strongly */
+#define QT_VERSION_5     1
+
+#define SEAT_TEST        1  /* All of configuration files use test files */
 
 #define LANGUAGE_CHINESE 1  /* All the text show as Chinese, please always enable */
 
@@ -32,12 +32,9 @@
 #define FIXED_WINDOWN_HEIGHT 768
 #endif
 #endif
+#define TITLE_HEIGHT 40
 
 #define CONNECT_STM32    0  /* Connect to base board (STM32) via ethernet */
-
-#define SEAT_TEST        1  /* All of configuration files use test files */
-
-#define TITLE_HEIGHT 40
 
 #ifdef GY_GLOBAL
 #define GY_GLOBAL_EXT

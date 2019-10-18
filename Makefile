@@ -304,6 +304,7 @@ DIST          = ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/sp
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/qt_config.prf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/linux-g++/qmake.conf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/exclusive_builds.prf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/toolchain.prf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/default_pre.prf \
@@ -545,6 +546,7 @@ Makefile: gyt_box.pro ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/linux
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/qt_config.prf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/linux-g++/qmake.conf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/exclusive_builds.prf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/toolchain.prf \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/default_pre.prf \
@@ -744,6 +746,7 @@ Makefile: gyt_box.pro ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/linux
 ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/qt_config.prf:
 ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/linux-g++/qmake.conf:
 ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/exclusive_builds.prf:
 ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/toolchain.prf:
 ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/default_pre.prf:
@@ -5280,6 +5283,7 @@ grayscalewidget.o: module/lcd/grayscalewidget.cpp module/lcd/grayscalewidget.h \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/qframe.h \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/QVector \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtGui/QList \
+		gyt_common.h \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/QVBoxLayout \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/qlayout.h \
@@ -6149,6 +6153,9 @@ seatpage.o: sub_page/seatpage.cpp sub_page/seatpage.h \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/QHBoxLayout \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/QVBoxLayout \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/QFormLayout \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/qformlayout.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/QLayout \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/QMessageBox \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/qmessagebox.h \
 		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtWidgets/qdialog.h \

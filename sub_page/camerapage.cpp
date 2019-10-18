@@ -12,8 +12,10 @@ CameraPage::CameraPage(QWidget *parent) :
     showResolution.w = 640;
     showResolution.h = 480;
 
+#if QT_VERSION_5
     cameraViewfinder = new QCameraViewfinder(this);
     cameraViewfinder->setGeometry(130, 96+36, showResolution.w, showResolution.h);
+#endif
 
     /*
     processImage = new ProcessImage(this);
@@ -51,9 +53,12 @@ CameraPage::CameraPage(QWidget *parent) :
     operationBar->thirdButton()->setText(tr("关闭"));
 #endif
 
+#if QT_VERSION_5
     setCamera(QCameraInfo::defaultCamera());
+#endif
 }
 
+#if QT_VERSION_5
 
 void CameraPage::setCamera(const QCameraInfo &cameraInfo)
 {
@@ -76,7 +81,7 @@ void CameraPage::setCamera(const QCameraInfo &cameraInfo)
     //imageCapture->setCaptureDestination(QCameraImageCapture::Capturet);
     //camera->setCaptureMode(QCamera::CaptureStillImage);
 
-#ifdef QT5_5_1
+#ifdef QT_VERSION_5
     QCameraViewfinderSettings set;
     set.setResolution(showResolution.w, showResolution.h);
     camera->setViewfinderSettings(set);
@@ -168,3 +173,4 @@ void CameraPage::displayCaptureError(int id, const QCameraImageCapture::Error er
     isCapturingImage = false;
 
 }
+#endif

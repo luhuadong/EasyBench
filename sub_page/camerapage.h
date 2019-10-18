@@ -8,12 +8,12 @@
 #include <QString>
 #include <QWidget>
 #include <QLabel>
+
+#if QT_VERSION_5
 #include <QCamera>
 #include <QCameraInfo>
 #include <QCameraViewfinder>
 #include <QCameraImageCapture>
-
-#ifdef QT5_5_1
 #include <QCameraViewfinderSettings>
 #endif
 
@@ -26,6 +26,7 @@ public:
 public slots:
 
 private slots:
+#if QT_VERSION_5
     void setCamera(const QCameraInfo &cameraInfo);
     void openCamera();
     void closeCamera();
@@ -37,7 +38,7 @@ private slots:
     void processCapturedImage(int requestId, const QImage &img);
     void imageSaved(int id, const QString &fileName);
     void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
-
+#endif
 
 private:
     //ProcessImage *processImage;
@@ -48,10 +49,11 @@ private:
         u_int32_t h;
     } showResolution;
 
+#if QT_VERSION_5
     QCamera             *camera;           // 读取摄像头
     QCameraViewfinder   *cameraViewfinder; // 渲染摄像头
     QCameraImageCapture *imageCapture;     // 获取摄像头当前帧
-
+#endif
     bool isCapturingImage;
 
 };
