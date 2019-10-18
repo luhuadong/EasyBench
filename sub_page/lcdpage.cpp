@@ -78,6 +78,8 @@ LcdPage::LcdPage(QWidget *parent) :
         printf("Can not get screen information.\n");
     }
     else {
+        /* Screen fix information */
+        //lcdInfoLabel->setText(tr());
         // Visible resolution
         resolutionLabel->setText(tr("可视分辨率 : ") + QString::number(vinfo.xres) + tr(" x ") + QString::number(vinfo.yres));
         // Bits per pixel
@@ -126,7 +128,7 @@ void LcdPage::pixelCheckBtnClicked()
     */
     colorBtn = new QPushButton;
     colorBtn->setObjectName("noneOutlineBtn");
-    colorBtn->setFixedSize(1024, 768);
+    colorBtn->setFixedSize(LCD_WIDTH, LCD_HEIGHT);
     colorBtn->setWindowFlags(Qt::FramelessWindowHint);
     colorBtn->setStyleSheet("background-color: #0000FF");
     colorBtn->setCursor(Qt::BlankCursor);

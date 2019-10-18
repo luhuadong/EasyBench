@@ -1,4 +1,5 @@
 #include "grayscalewidget.h"
+#include "gyt_common.h"
 #include <QLabel>
 #include <QVBoxLayout>
 
@@ -6,7 +7,7 @@ GrayscaleWidget::GrayscaleWidget(QWidget *parent) :
     QWidget(parent)
 {
     setWindowFlags(Qt::FramelessWindowHint);
-    setFixedSize(1024, 768);
+    setFixedSize(LCD_WIDTH, LCD_HEIGHT);
     setCursor(Qt::BlankCursor);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;

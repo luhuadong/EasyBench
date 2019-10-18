@@ -16,6 +16,8 @@
 //#define SYS_ADVANTECH
 //#define SYS_KONTRON
 
+#define QT_VERSION_4     1  /* Recommend to use Qt5 strongly */
+
 #define LANGUAGE_CHINESE 1  /* All the text show as Chinese, please always enable */
 
 #define FIXED_WINDOWN    1  /* Fixed window size or not */
