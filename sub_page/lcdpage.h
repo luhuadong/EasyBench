@@ -27,7 +27,7 @@ class LcdPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit LcdPage(QWidget *parent = 0);
+    explicit LcdPage(GytOptions *options, QWidget *parent = 0);
 
 public slots:
 

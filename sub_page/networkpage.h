@@ -19,7 +19,7 @@ class NetworkPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit NetworkPage(QWidget *parent = 0);
+    explicit NetworkPage(GytOptions *options, QWidget *parent = 0);
 
 signals:
 

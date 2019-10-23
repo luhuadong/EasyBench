@@ -8,8 +8,8 @@
 #include <QIntValidator>
 #include <QRegExpValidator>
 
-DatetimePage::DatetimePage(QWidget *parent) :
-    PageWidget(parent)
+DatetimePage::DatetimePage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     setTitleLabelText(tr("Setting panel"));
 

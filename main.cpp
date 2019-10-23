@@ -1,5 +1,6 @@
 #include "gytboxwidget.h"
 #include "gyt_common.h"
+#include "gyt_options.h"
 #include <QApplication>
 #include <QFile>
 #include <QMessageBox>
@@ -66,7 +67,9 @@ int main(int argc, char *argv[])
     //calcCheckSum("1234567890", 10);
     detectDevices();
 
-    GytBoxWidget w;
+    GytOptions g_opt;
+
+    GytBoxWidget w(&g_opt);
     w.show();
 
     return a.exec();

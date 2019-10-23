@@ -5,12 +5,13 @@
 #include <QLabel>
 #include "operationbar.h"
 #include "gyt_common.h"
+#include "gyt_options.h"
 
 class PageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PageWidget(QWidget *parent = 0);
+    explicit PageWidget(GytOptions *options, QWidget *parent = 0);
 
     void setBackgroundPicture(const QString &path);
     void setTitleLabelText(const QString &text);
@@ -20,6 +21,9 @@ public:
 signals:
 
 public slots:
+
+protected:
+    GytOptions *g_opt;
 
 private:
     //QWidget *tipsWidget;

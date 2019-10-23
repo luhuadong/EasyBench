@@ -31,8 +31,8 @@ extern "C"
 //    return sum;
 //}
 
-MonitorPage::MonitorPage(QWidget *parent) :
-    PageWidget(parent)
+MonitorPage::MonitorPage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     //setTitleLabelText(tr("System Monitor"));
     setTitleLabelText(tr("系统性能监测"));

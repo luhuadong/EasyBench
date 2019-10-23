@@ -16,8 +16,8 @@
 #define I210NIC_FILE "I210NIC-origin.otp"
 
 
-NetworkPage::NetworkPage(QWidget *parent) :
-    PageWidget(parent)
+NetworkPage::NetworkPage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     //setTitleLabelText(tr("Network Setting"));
     setTitleLabelText(tr("网卡及网络设置"));

@@ -8,6 +8,7 @@
 #include <QToolButton>
 #include <QStackedWidget>
 
+#include "gyt_options.h"
 #include "sub_page/lcdpage.h"
 #include "sub_page/touchpage.h"
 #include "sub_page/camerapage.h"
@@ -25,7 +26,7 @@ class GytBoxWidget : public QWidget
     Q_OBJECT
 
 public:
-    GytBoxWidget(QWidget *parent = 0);
+    GytBoxWidget(GytOptions *options, QWidget *parent = 0);
     ~GytBoxWidget();
 
     typedef enum {
@@ -43,6 +44,7 @@ public:
     }pageTypes;
 
 private slots:
+    /* obsoleting */
     void parseIni(QString &filePath);
 
     void menuBtnGroupToggled(int);
@@ -51,6 +53,8 @@ private slots:
 
 private:
     void initMainUI();
+
+    GytOptions *g_opt;
 
     //---------- 标题栏 -----------
     //QWidget *titleWidget;

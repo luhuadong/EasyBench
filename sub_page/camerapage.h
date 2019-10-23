@@ -21,7 +21,7 @@ class CameraPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit CameraPage(QWidget *parent = 0);
+    explicit CameraPage(GytOptions *options, QWidget *parent = 0);
 
 public slots:
 

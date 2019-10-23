@@ -312,19 +312,14 @@ void SeatPage::initHfTestCfgUI()
 #endif
 }
 
-SeatPage::SeatPage(QWidget *parent) :
-    PageWidget(parent)
+SeatPage::SeatPage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     //setTitleLabelText(tr("Seat Settings"));
     setTitleLabelText(tr("席位功能设置"));
 
-#if SEAT_TEST
-    chnlCfgFileName = QString("./conf/chnlCfg.xml");
-    settingFileName = QString("./conf/settings.xml");
-#else
-    chnlCfgFileName = QString("/home/root/seat_imx/conf/chnlCfg.xml");
-    settingFileName = QString("/home/root/seat_imx/conf/settings.xml");
-#endif
+    chnlCfgFileName = g_opt->getSeatRoot() + QString("conf/chnlCfg.xml");
+    settingFileName = g_opt->getSeatRoot() + QString("conf/settings.xml");
 
     /* Seat Channel Configuration */
 

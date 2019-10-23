@@ -9,14 +9,16 @@
 #include <QString>
 
 
-GytBoxWidget::GytBoxWidget(QWidget *parent)
+GytBoxWidget::GytBoxWidget(GytOptions *options, QWidget *parent)
     : QWidget(parent)
 {
+    g_opt = options;
     /* Parse gyt_box.conf file */
 
     QString cfgFileName = QString(QDir::currentPath() +"/gyt_box.conf");
+#if 0
     parseIni(cfgFileName);
-
+#endif
     /* Initialization interface */
 
     initMainUI();
@@ -34,7 +36,7 @@ void GytBoxWidget::initMainUI()
 {
     setWindowTitle(tr("GYT Box"));
 #if FIXED_WINDOWN
-    setFixedSize(FIXED_WINDOWN_WIDTH, FIXED_WINDOWN_HEIGHT);
+    setFixedSize(g_opt->fixedSize().width(), g_opt->fixedSize().height());
 #else
     setFixedSize(LCD_WIDTH, LCD_HEIGHT - TITLE_HEIGHT);
 #endif
@@ -96,15 +98,15 @@ void GytBoxWidget::initMainUI()
     centerPages = new QStackedWidget(this);
     centerPages->setGeometry(124, 0, 900, 720);
 
-    lcdPage = new LcdPage(this);
-    touchPage = new TouchPage(this);
-    cameraPage = new CameraPage(this);
+    lcdPage = new LcdPage(g_opt, this);
+    touchPage = new TouchPage(g_opt, this);
+    cameraPage = new CameraPage(g_opt, this);
     //datetimePage = new DatetimePage(this);
-    networkPage = new NetworkPage(this);
-    systemPage = new SystemPage(this);
-    seatPage = new SeatPage(this);  // Settings Page
-    monitorPage = new MonitorPage(this);
-    versionPage = new VersionPage(this);
+    networkPage = new NetworkPage(g_opt, this);
+    systemPage = new SystemPage(g_opt, this);
+    seatPage = new SeatPage(g_opt, this);  // Settings Page
+    monitorPage = new MonitorPage(g_opt, this);
+    versionPage = new VersionPage(g_opt, this);
     //realtimePage = new RealtimePage(this);
 
 
@@ -143,7 +145,7 @@ void GytBoxWidget::initMainUI()
     */
 }
 
-
+/* obsoleting */
 void GytBoxWidget::parseIni(QString &filePath)
 {
     QSettings configRead(filePath, QSettings::IniFormat);

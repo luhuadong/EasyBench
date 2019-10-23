@@ -7,8 +7,8 @@
 #include <QApplication>
 
 
-LcdPage::LcdPage(QWidget *parent) :
-    PageWidget(parent)
+LcdPage::LcdPage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     //setTitleLabelText(tr("LCD Screen Test"));
     setTitleLabelText(tr("液晶显示屏测试"));

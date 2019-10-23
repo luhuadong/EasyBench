@@ -54,8 +54,8 @@ void SerialRecvThread::run()
     }
 }
 
-SystemPage::SystemPage(QWidget *parent) :
-    PageWidget(parent)
+SystemPage::SystemPage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     //setTitleLabelText(tr("Serial Port Test"));
     setTitleLabelText(tr("系统功能测试"));

@@ -34,7 +34,7 @@ class MonitorPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit MonitorPage(QWidget *parent = 0);
+    explicit MonitorPage(GytOptions *options, QWidget *parent = 0);
 
     void setBasePcbTemp1Text(const float);
     void setBasePcbTemp2Text(const float);

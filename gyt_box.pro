@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     sub_page/networkpage.cpp \
     sub_page/systempage.cpp \
     sub_page/seatpage.cpp \
-    module/sunriset/sunriset.cpp
+    module/sunriset/sunriset.cpp \
+    gyt_options.cpp
 
 HEADERS  += gytboxwidget.h \
     gyt_common.h \
@@ -61,7 +62,8 @@ HEADERS  += gytboxwidget.h \
     sub_page/networkpage.h \
     sub_page/systempage.h \
     sub_page/seatpage.h \
-    module/sunriset/sunriset.h
+    module/sunriset/sunriset.h \
+    gyt_options.h
 
 RESOURCES += \
     resource/images.qrc \

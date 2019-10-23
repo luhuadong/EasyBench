@@ -3,8 +3,8 @@
 #include <QMessageBox>
 
 
-CameraPage::CameraPage(QWidget *parent) :
-    PageWidget(parent)
+CameraPage::CameraPage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     //setTitleLabelText(tr("Camera Capture Test"));
     setTitleLabelText(tr("摄像头捕获测试"));

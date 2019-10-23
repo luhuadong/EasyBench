@@ -13,7 +13,7 @@ class VersionPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit VersionPage(QWidget *parent = 0);
+    explicit VersionPage(GytOptions *options, QWidget *parent = 0);
 
 public slots:
 

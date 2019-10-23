@@ -2,6 +2,7 @@
 #define TOUCHPAGE_H
 
 #include "custom_widget/pagewidget.h"
+#include "gyt_options.h"
 
 #include <QString>
 #include <QPushButton>
@@ -10,7 +11,7 @@ class TouchPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit TouchPage(QWidget *parent = 0);
+    explicit TouchPage(GytOptions *options, QWidget *parent = 0);
 
 public slots:
 

@@ -30,7 +30,7 @@ class SeatPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit SeatPage(QWidget *parent = 0);
+    explicit SeatPage(GytOptions *options, QWidget *parent = 0);
     ~SeatPage();
 
     void tcpClientSend(char msg);

@@ -43,8 +43,9 @@
 #endif
 
 typedef enum TouchType{
-    TOUCH_CAPACITIVE = 0,
+    TOUCH_NONE = 0,
     TOUCH_RESISTIVE,
+    TOUCH_CAPACITIVE,
     TOUCH_OTHER
 }TouchType;
 

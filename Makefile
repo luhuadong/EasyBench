@@ -71,7 +71,8 @@ SOURCES       = main.cpp \
 		sub_page/networkpage.cpp \
 		sub_page/systempage.cpp \
 		sub_page/seatpage.cpp \
-		module/sunriset/sunriset.cpp qrc_images.cpp \
+		module/sunriset/sunriset.cpp \
+		gyt_options.cpp qrc_images.cpp \
 		qrc_stylesheet.cpp \
 		moc_gytboxwidget.cpp \
 		moc_operationbar.cpp \
@@ -114,6 +115,7 @@ OBJECTS       = main.o \
 		systempage.o \
 		seatpage.o \
 		sunriset.o \
+		gyt_options.o \
 		qrc_images.o \
 		qrc_stylesheet.o \
 		moc_gytboxwidget.o \
@@ -344,7 +346,8 @@ DIST          = ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/sp
 		sub_page/networkpage.h \
 		sub_page/systempage.h \
 		sub_page/seatpage.h \
-		module/sunriset/sunriset.h main.cpp \
+		module/sunriset/sunriset.h \
+		gyt_options.h main.cpp \
 		gytboxwidget.cpp \
 		gyt_common.c \
 		custom_widget/operationbar.cpp \
@@ -365,7 +368,8 @@ DIST          = ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/sp
 		sub_page/networkpage.cpp \
 		sub_page/systempage.cpp \
 		sub_page/seatpage.cpp \
-		module/sunriset/sunriset.cpp
+		module/sunriset/sunriset.cpp \
+		gyt_options.cpp
 QMAKE_TARGET  = gyt_box
 DESTDIR       = 
 TARGET        = gyt_box
@@ -792,8 +796,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resource/images.qrc resource/stylesheet.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../applications/Qt5.11.0/5.11.0/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents gytboxwidget.h gyt_common.h custom_widget/operationbar.h custom_widget/pagewidget.h sub_page/lcdpage.h sub_page/camerapage.h sub_page/datetimepage.h sub_page/monitorpage.h sub_page/realtimepage.h sub_page/touchpage.h sub_page/versionpage.h module/camera/processimage.h module/camera/videodevice.h module/lcd/grayscalewidget.h module/monitor/basepcbthread.h module/monitor/cpustatthread.h custom_widget/inputlineedit.h sub_page/networkpage.h sub_page/systempage.h sub_page/seatpage.h module/sunriset/sunriset.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp gytboxwidget.cpp gyt_common.c custom_widget/operationbar.cpp custom_widget/pagewidget.cpp sub_page/lcdpage.cpp sub_page/camerapage.cpp sub_page/datetimepage.cpp sub_page/monitorpage.cpp sub_page/realtimepage.cpp sub_page/touchpage.cpp sub_page/versionpage.cpp module/camera/processimage.cpp module/camera/videodevice.cpp module/lcd/grayscalewidget.cpp module/monitor/basepcbthread.cpp module/monitor/cpustatthread.cpp custom_widget/inputlineedit.cpp sub_page/networkpage.cpp sub_page/systempage.cpp sub_page/seatpage.cpp module/sunriset/sunriset.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents gytboxwidget.h gyt_common.h custom_widget/operationbar.h custom_widget/pagewidget.h sub_page/lcdpage.h sub_page/camerapage.h sub_page/datetimepage.h sub_page/monitorpage.h sub_page/realtimepage.h sub_page/touchpage.h sub_page/versionpage.h module/camera/processimage.h module/camera/videodevice.h module/lcd/grayscalewidget.h module/monitor/basepcbthread.h module/monitor/cpustatthread.h custom_widget/inputlineedit.h sub_page/networkpage.h sub_page/systempage.h sub_page/seatpage.h module/sunriset/sunriset.h gyt_options.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp gytboxwidget.cpp gyt_common.c custom_widget/operationbar.cpp custom_widget/pagewidget.cpp sub_page/lcdpage.cpp sub_page/camerapage.cpp sub_page/datetimepage.cpp sub_page/monitorpage.cpp sub_page/realtimepage.cpp sub_page/touchpage.cpp sub_page/versionpage.cpp module/camera/processimage.cpp module/camera/videodevice.cpp module/lcd/grayscalewidget.cpp module/monitor/basepcbthread.cpp module/monitor/cpustatthread.cpp custom_widget/inputlineedit.cpp sub_page/networkpage.cpp sub_page/systempage.cpp sub_page/seatpage.cpp module/sunriset/sunriset.cpp gyt_options.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -6164,6 +6168,75 @@ seatpage.o: sub_page/seatpage.cpp sub_page/seatpage.h \
 
 sunriset.o: module/sunriset/sunriset.cpp module/sunriset/sunriset.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sunriset.o module/sunriset/sunriset.cpp
+
+gyt_options.o: gyt_options.cpp gyt_options.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/QString \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qstring.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qchar.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qglobal.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qconfig-bootstrapped.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qconfig.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qtcore-config.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qsystemdetection.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qprocessordetection.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qcompilerdetection.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qtypeinfo.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qsysinfo.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qlogging.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qflags.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qatomic.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qbasicatomic.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qgenericatomic.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qatomic_cxx11.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qglobalstatic.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qmutex.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qnumeric.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qversiontagging.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qbytearray.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qrefcount.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qnamespace.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qarraydata.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qstringliteral.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qstringalgorithms.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qstringview.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qstringbuilder.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/QSettings \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qsettings.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qobject.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qobjectdefs.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qlist.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qalgorithms.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qiterator.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qhashfunctions.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qpair.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qbytearraylist.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qstringlist.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qregexp.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qstringmatcher.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qcoreevent.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qscopedpointer.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qmetatype.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qvarlengtharray.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qcontainerfwd.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qobject_impl.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qvariant.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qmap.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qdebug.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qhash.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qtextstream.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qiodevice.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qlocale.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qshareddata.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qvector.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qpoint.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qset.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qcontiguouscache.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qsharedpointer.h \
+		../../../applications/Qt5.11.0/5.11.0/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		gyt_common.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o gyt_options.o gyt_options.cpp
 
 qrc_images.o: qrc_images.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_images.o qrc_images.cpp

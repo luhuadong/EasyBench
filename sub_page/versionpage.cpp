@@ -9,8 +9,8 @@
 
 #define TAB_ITEM_HEIGHT 48
 
-VersionPage::VersionPage(QWidget *parent) :
-    PageWidget(parent)
+VersionPage::VersionPage(GytOptions *options, QWidget *parent) :
+    PageWidget(options, parent)
 {
     //setTitleLabelText(tr("Version Information"));
     setTitleLabelText(tr("设备版本信息"));

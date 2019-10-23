@@ -3,8 +3,10 @@
 #include <QPalette>
 #include <QLabel>
 
-PageWidget::PageWidget(QWidget *parent) : QWidget(parent)
+PageWidget::PageWidget(GytOptions *options, QWidget *parent) : QWidget(parent)
 {
+    g_opt = options;
+
     //setFixedSize(720, 432);
     setFixedSize(900, 720);
     //setStyleSheet("border-top-left-radius: 4px; border-top-right-radius: 4px;");

@@ -35,7 +35,7 @@ class SystemPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit SystemPage(QWidget *parent = 0);
+    explicit SystemPage(GytOptions *options, QWidget *parent = 0);
 
 
 signals:
