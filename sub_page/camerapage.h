@@ -8,6 +8,7 @@
 #include <QString>
 #include <QWidget>
 #include <QLabel>
+#include <QComboBox>
 
 #if QT_VERSION_5
 #include <QCamera>
@@ -28,8 +29,10 @@ public slots:
 private slots:
 #if QT_VERSION_5
     void setCamera(const QCameraInfo &cameraInfo);
+    void videoDeviceBoxCurrentIndexChanged(int index);
     void openCamera();
     void closeCamera();
+    void toggleLock();
 
     void displayCameraError();
     void updateCameraState(QCamera::State);
@@ -41,15 +44,18 @@ private slots:
 #endif
 
 private:
+    void initVideoDeviceBox();
+
     //ProcessImage *processImage;
     //QLabel *displayArea;
 
-    struct resolution {
-        u_int32_t w;
-        u_int32_t h;
-    } showResolution;
+    QSize showResolution;
 
 #if QT_VERSION_5
+
+    QComboBox *videoDeviceBox;
+    QPushButton *lockBtn;
+
     QCamera             *camera;           // 读取摄像头
     QCameraViewfinder   *cameraViewfinder; // 渲染摄像头
     QCameraImageCapture *imageCapture;     // 获取摄像头当前帧

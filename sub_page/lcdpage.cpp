@@ -32,7 +32,7 @@ LcdPage::LcdPage(GytOptions *options, QWidget *parent) :
     connect(operationBar->secondButton(), SIGNAL(clicked()), this, SLOT(lcdBacklightDown()));
     connect(operationBar->thirdButton(), SIGNAL(clicked()), this, SLOT(lcdBacklightUp()));
 
-    backlightName = QString(BACKLIGHT_NAME);
+    backlightName = g_opt->getBacklightNode();
     QByteArray byteArray;
     QFile backlightFile(QString("/sys/class/backlight/%1/brightness").arg(backlightName));
     backlightFile.open(QFile::ReadOnly);
@@ -128,7 +128,7 @@ void LcdPage::pixelCheckBtnClicked()
     */
     colorBtn = new QPushButton;
     colorBtn->setObjectName("noneOutlineBtn");
-    colorBtn->setFixedSize(LCD_WIDTH, LCD_HEIGHT);
+    colorBtn->setFixedSize(g_opt->lcdSize().width(), g_opt->lcdSize().height());
     colorBtn->setWindowFlags(Qt::FramelessWindowHint);
     colorBtn->setStyleSheet("background-color: #0000FF");
     colorBtn->setCursor(Qt::BlankCursor);
@@ -139,7 +139,7 @@ void LcdPage::pixelCheckBtnClicked()
 
 void LcdPage::grayscaleTestBtnClicked()
 {
-    GrayscaleWidget *grayscaleWidget = new GrayscaleWidget;
+    GrayscaleWidget *grayscaleWidget = new GrayscaleWidget(g_opt->lcdSize());
     grayscaleWidget->show();
 }
 
@@ -172,7 +172,7 @@ void LcdPage::lcdBacklightUp()
         backlightValue++;
         backlightLabel->setText(tr("背光等级 : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
-        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, BACKLIGHT_NAME);
+        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, g_opt->getBacklightNode());
         system(cmd);
     }
 }
@@ -185,7 +185,7 @@ void LcdPage::lcdBacklightDown()
         backlightValue--;
         backlightLabel->setText(tr("背光等级 : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
-        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, BACKLIGHT_NAME);
+        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, g_opt->getBacklightNode());
         system(cmd);
     }
 }

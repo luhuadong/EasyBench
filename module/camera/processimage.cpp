@@ -20,7 +20,7 @@ ProcessImage::ProcessImage(QWidget *parent) :
     frame = new QImage(pp, 640, 480, QImage::Format_RGB888);
     // frame = new QPixmap(640,320);
     label = new QLabel(this);
-    vd = new VideoDevice(QString(gVideoInputStr));
+    //vd = new VideoDevice(QString(gVideoInputStr));
     timer = new QTimer(this);
 
     connect(vd, SIGNAL(display_error(QString)), this, SLOT(display_error(QString)));

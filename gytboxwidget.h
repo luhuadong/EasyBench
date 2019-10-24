@@ -44,8 +44,6 @@ public:
     }pageTypes;
 
 private slots:
-    /* obsoleting */
-    void parseIni(QString &filePath);
 
     void menuBtnGroupToggled(int);
     //void showHomePage(void);

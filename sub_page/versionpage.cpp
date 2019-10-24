@@ -65,54 +65,25 @@ VersionPage::VersionPage(GytOptions *options, QWidget *parent) :
     connect(operationBar->firstButton(), SIGNAL(clicked()), this, SLOT(shutdownSystem()));
     connect(operationBar->secondButton(), SIGNAL(clicked()), this, SLOT(rebootSystem()));
 
-
     getVersionData();
-
-
 }
 
 void VersionPage::getVersionData()
 {
-    gyVersionFile = QString("/etc/gy-version");
-    QSettings gyVersionRead(gyVersionFile, QSettings::IniFormat);
-    QString v_productName = gyVersionRead.value("/PLATFORM/Product", QString("GY33ASEAT")).toString();
-    //QString v_serialNumber = gyVersionRead.value("/PLATFORM/SN", QString("4401-2518-9763-AC08")).toString();
-
-    QString gyos = gyVersionRead.value("/LINUX/GYOS", QString("GYTLinux_GW-SV")).toString();
-    QString rootfs = gyVersionRead.value("/LINUX/Rootfs", QString("1.0.0")).toString();
-    QString v_gyos = gyos + QString("_") + rootfs;
-
-    QString v_yocto = gyVersionRead.value("/LINUX/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
-    QString v_kernel = gyVersionRead.value("/LINUX/Kernel", QString("3.14.52")).toString();
-    QString v_uboot = gyVersionRead.value("/LINUX/UBoot", QString("2015.04-g624b022")).toString();
-    QString v_gcc = gyVersionRead.value("/LINUX/GCC", QString("arm-poky-linux-gnueabi-gcc")).toString();
-    QString v_model = gyVersionRead.value("/PLATFORM/Vendor", QString("GYT")).toString() + QString(" ")
-                    + gyVersionRead.value("/PLATFORM/Model", QString("Advantech ROM-5420-B1")).toString();
-
-    QString v_baseBoard;
-    if(HAS_EEPROM) {
-        QFile eepromfile("/mnt/w25q80/version");
-        if(!eepromfile.open(QFile::ReadOnly | QFile::Text)) {
-            qDebug() << tr("(E) Open w25q80 failed");
-        }
-        //v_baseBoard = eepromfile.readLine();
-        v_baseBoard.prepend(eepromfile.readLine(32));
-        v_baseBoard.remove('\n');
-        eepromfile.close();
-    } else {
-        v_baseBoard = gyVersionRead.value("/PLATFORM/BaseBoard", QString("C019 v1.3")).toString();
-    }
-    qDebug() << tr("EEEEEEEEEEEE") << v_baseBoard;
-
-    QString v_developer = gyVersionRead.value("/PLATFORM/Developer", QString("广州广有通信设备有限公司")).toString();
-
-
     QStringList itemNameList;
-    itemNameList << tr("设备型号") << tr("系统版本") << tr("Yocto版本") << tr("内核版本") << tr("Uboot版本") << tr("GCC版本") << tr("核心模块") << tr("开发者") << tr("GYT Box");
+    itemNameList << tr("设备型号") << tr("系统版本") << tr("发行版本") << tr("内核版本") << tr("Uboot版本")
+                 << tr("GCC版本") << tr("核心模块") << tr("开发者") << tr("GYT Box");
 
     QStringList itemValueList;
-    itemValueList << v_productName << v_gyos << v_yocto << v_kernel << v_uboot << v_gcc << v_model << v_developer << GYTBOX_VERSION;
-
+    itemValueList << g_opt->getProductInfo()
+                  << g_opt->getGYOSInfo()
+                  << g_opt->getDistroInfo()
+                  << g_opt->getKernelInfo()
+                  << g_opt->getBootloaderInfo()
+                  << g_opt->getGCCInfo()
+                  << g_opt->getModelInfo()
+                  << g_opt->getDeveloperInfo()
+                  << g_opt->getAppVersion();
 
     for (int row = 0; row < itemNameList.count(); ++row) {
         for (int column = 0; column < 2; ++column) {

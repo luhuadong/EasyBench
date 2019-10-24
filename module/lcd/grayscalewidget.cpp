@@ -3,11 +3,11 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-GrayscaleWidget::GrayscaleWidget(QWidget *parent) :
+GrayscaleWidget::GrayscaleWidget(QSize size, QWidget *parent) :
     QWidget(parent)
 {
     setWindowFlags(Qt::FramelessWindowHint);
-    setFixedSize(LCD_WIDTH, LCD_HEIGHT);
+    setFixedSize(size.width(), size.height());
     setCursor(Qt::BlankCursor);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;

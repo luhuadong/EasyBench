@@ -3,7 +3,12 @@
 
 #include <stdbool.h>
 
-#define GYTBOX_VERSION "v1.0.0"
+//#define GYTBOX_VERSION "v1.0.0"
+
+#define MAJOR_VERSION 1
+#define MINOR_VERSION 1
+#define PATCH_VERSION 0
+
 #define DEFAULT_FILE "/var/run/gyt_box.pid"
 
 #define PCB_TCP_SERVER_IP   "192.168.3.188"
@@ -49,16 +54,16 @@ typedef enum TouchType{
     TOUCH_OTHER
 }TouchType;
 
-GY_GLOBAL_EXT TouchType TOUCH_TYPE;
-GY_GLOBAL_EXT bool HAS_EEPROM;
+//GY_GLOBAL_EXT TouchType TOUCH_TYPE;
+//GY_GLOBAL_EXT bool HAS_EEPROM;
 
-GY_GLOBAL_EXT char gMachineTypeStr[80];
+//GY_GLOBAL_EXT char gMachineTypeStr[80];
 GY_GLOBAL_EXT char gSerialPortStr[32];
-GY_GLOBAL_EXT char gVideoInputStr[32];
+//GY_GLOBAL_EXT char gVideoInputStr[32];
 
-GY_GLOBAL_EXT char BACKLIGHT_NAME[32];
-GY_GLOBAL_EXT unsigned int LCD_WIDTH;
-GY_GLOBAL_EXT unsigned int LCD_HEIGHT;
+//GY_GLOBAL_EXT char BACKLIGHT_NAME[32];
+//GY_GLOBAL_EXT unsigned int LCD_WIDTH;
+//GY_GLOBAL_EXT unsigned int LCD_HEIGHT;
 
 typedef struct Audio_Parameter {
     int frame_size;
@@ -133,11 +138,7 @@ extern "C"{
 #endif
 
 unsigned char calcCheckSum(unsigned char *data, unsigned int len);
-
-void detectDevices(void);
-
 bool is_singleton(void);
-
 int get_timezone(void);
 
 #ifdef __cplusplus

@@ -13,14 +13,8 @@ GytBoxWidget::GytBoxWidget(GytOptions *options, QWidget *parent)
     : QWidget(parent)
 {
     g_opt = options;
-    /* Parse gyt_box.conf file */
 
-    QString cfgFileName = QString(QDir::currentPath() +"/gyt_box.conf");
-#if 0
-    parseIni(cfgFileName);
-#endif
     /* Initialization interface */
-
     initMainUI();
     connect(menuBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(menuBtnGroupToggled(int)));
 }
@@ -143,27 +137,6 @@ void GytBoxWidget::initMainUI()
     mainLayout->addWidget(label);
     setLayout(mainLayout);
     */
-}
-
-/* obsoleting */
-void GytBoxWidget::parseIni(QString &filePath)
-{
-    QSettings configRead(filePath, QSettings::IniFormat);
-    int type = configRead.value("/LCD/Type").toInt();
-    if(0 == type) {
-        TOUCH_TYPE = TOUCH_RESISTIVE;
-    }else if(1 == type) {
-        TOUCH_TYPE = TOUCH_CAPACITIVE;
-    }else {
-        TOUCH_TYPE = TOUCH_OTHER;
-    }
-
-    strcpy(gMachineTypeStr, configRead.value("VERSION/Machine_type").toString().toLatin1().data());
-    strcpy(gSerialPortStr, configRead.value("DEVICE/Serial_port").toString().toLatin1().data());
-    strcpy(gVideoInputStr, configRead.value("DEVICE/Video_input").toString().toLatin1().data());
-    strcpy(BACKLIGHT_NAME, configRead.value("LCD/Backlight_name").toString().toLatin1().data());
-
-    HAS_EEPROM = configRead.value("DEVICE/EEPROM").toBool();
 }
 
 

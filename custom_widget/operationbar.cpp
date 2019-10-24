@@ -11,10 +11,8 @@ OperationBar::OperationBar(QWidget *parent) :
 
     mainWidget = new QWidget;
     //mainWidget->setObjectName("operatingBar");
-    /*mainWidget->setStyleSheet("background-color: Gray;\
-                              border: 2px solid transparent;\
-                              border-top-color: Black;");*/
-    mainWidget->setStyleSheet("background-color:#404040;");
+
+    //mainWidget->setStyleSheet("background-color:#404040;");
 
     //mainWidget->setWindowOpacity(0.5); // 调节透明度
 

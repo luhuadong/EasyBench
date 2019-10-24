@@ -65,8 +65,6 @@ int main(int argc, char *argv[])
 #endif
 
     //calcCheckSum("1234567890", 10);
-    detectDevices();
-
     GytOptions g_opt;
 
     GytBoxWidget w(&g_opt);

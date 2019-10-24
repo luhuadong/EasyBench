@@ -61,30 +61,6 @@ int getScreenInfo(struct fb_var_screeninfo *vinfo)
     return 0;
 }
 
-void detectDevices(void)
-{
-    struct fb_var_screeninfo vinfo;
-    if(0 == getScreenInfo(&vinfo)) {
-        LCD_WIDTH = vinfo.xres;
-        LCD_HEIGHT = vinfo.yres;
-    }else {
-        LCD_WIDTH = 800;
-        LCD_HEIGHT = 600;
-    }
-
-
-    memset(BACKLIGHT_NAME, 0, sizeof(BACKLIGHT_NAME));
-#if 0
-    strcpy(BACKLIGHT_NAME, getBacklightNodeName());
-#else
-    strcpy(BACKLIGHT_NAME, "backlight.22");
-#endif
-
-    TOUCH_TYPE = TOUCH_RESISTIVE;
-    strcpy(gSerialPortStr, "/dev/ttymxc1");
-    strcpy(gVideoInputStr, "/dev/video0");
-}
-
 unsigned char calcCheckSum(unsigned char *data, unsigned int len)
 {
     unsigned char sum = 0x00;

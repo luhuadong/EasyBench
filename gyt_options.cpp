@@ -18,13 +18,28 @@ GytOptions::GytOptions()
     configRead.setPath(QSettings::IniFormat, QSettings::SystemScope, verFile);
 
     product = configRead.value("/PLATFORM/Product", QString("GY33ASEAT")).toString();
+    developer = configRead.value("/PLATFORM/Developer", QString("广州广有通信设备有限公司")).toString();
     rootfs = configRead.value("/LINUX/Rootfs", QString("1.0.0")).toString();
     gyos = configRead.value("/LINUX/GYOS", QString("GYTLinux_GW-SV")).toString() + QString("_") + rootfs;
-    yocto = configRead.value("/LINUX/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
+    distro = configRead.value("/LINUX/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
     kernel = configRead.value("/LINUX/Kernel", QString("3.14.52")).toString();
-    uboot = configRead.value("/LINUX/UBoot", QString("2015.04-g624b022")).toString();
+    bootloader = configRead.value("/LINUX/UBoot", QString("2015.04-g624b022")).toString();
     gcc = configRead.value("/LINUX/GCC", QString("arm-poky-linux-gnueabi-gcc")).toString();
     model = configRead.value("/PLATFORM/Model", QString("Advantech ROM-5420-B1")).toString();
+#if 0
+    if(hasEeprom) {
+        QFile eepromfile("/mnt/w25q80/version");
+        if(!eepromfile.open(QFile::ReadOnly | QFile::Text)) {
+            baseBoard.prepend("unknown");
+        }
+        baseBoard.prepend(eepromfile.readLine(32));
+        baseBoard.remove('\n');
+        eepromfile.close();
+    } else {
+        baseBoard = configRead.value("/PLATFORM/BaseBoard", QString("C019 v1.3")).toString();
+    }
+#endif
+
 
     struct fb_var_screeninfo vinfo;
     if(0 == getScreenInfo(&vinfo)) {
@@ -37,6 +52,15 @@ GytOptions::GytOptions()
 
     fixedWidth = FIXED_WINDOWN_WIDTH;
     fixedHeight = FIXED_WINDOWN_HEIGHT;
+
+    cameraViewWidth = 640;
+    cameraViewHeight = 480;
+
+}
+
+GytOptions::~GytOptions()
+{
+
 }
 
 int GytOptions::getScreenInfo(struct fb_var_screeninfo *vinfo)
@@ -57,6 +81,25 @@ int GytOptions::getScreenInfo(struct fb_var_screeninfo *vinfo)
     return 0;
 }
 
+QString GytOptions::invokeShell(const char *cmd)
+{
+    FILE *fstream = NULL;
+    char buf[128];
+    memset(buf, 0, sizeof(buf));
+
+    if(NULL == (fstream = popen(cmd, "r"))) {
+        return NULL;
+    }
+
+    if(NULL == fgets(buf, sizeof(buf), fstream)) {
+        pclose(fstream);
+        return NULL;
+    }
+
+    pclose(fstream);
+    return QString(buf);
+}
+
 QSize GytOptions::fixedSize()
 {
     return QSize(fixedWidth, fixedHeight);
@@ -67,12 +110,87 @@ QSize GytOptions::lcdSize()
     return QSize(lcdWidth, lcdHeight);
 }
 
+QSize GytOptions::cameraViewSize()
+{
+    return QSize(cameraViewWidth, cameraViewHeight);
+}
+
 TouchType GytOptions::getTouchType()
 {
     return touchType;
 }
 
+QString GytOptions::getBacklightNode()
+{
+    return backlightNode;
+}
+
 QString GytOptions::getSeatRoot()
 {
     return seatRoot;
+}
+
+QString GytOptions::getProductInfo()
+{
+    return product;
+}
+
+QString GytOptions::getDeveloperInfo()
+{
+    return developer;
+}
+
+QString GytOptions::getGYOSInfo()
+{
+    return gyos;
+}
+
+QString GytOptions::getDistroInfo()
+{
+    QString info = invokeShell("cat /etc/issue");
+
+    if(NULL == info) {
+        return distro;
+    }
+    else {
+        info = info.replace(QString("\\n"), QString("")).replace(QString("\\l"), QString(""));
+        return info;
+    }
+}
+
+QString GytOptions::getKernelInfo()
+{
+    QString info = invokeShell("uname -r");
+
+    if(NULL == info) {
+        return kernel;
+    }
+    else {
+        return info;
+    }
+}
+
+QString GytOptions::getBootloaderInfo()
+{
+    return bootloader;
+}
+
+QString GytOptions::getGCCInfo()
+{
+    return gcc;
+}
+
+QString GytOptions::getModelInfo()
+{
+    return model;
+}
+
+QString GytOptions::getRootfsInfo()
+{
+    return rootfs;
+}
+
+QString GytOptions::getAppVersion()
+{
+    return QString("%1.%2.%3").arg(MAJOR_VERSION).arg(MINOR_VERSION).arg(PATCH_VERSION);
 }

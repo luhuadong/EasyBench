@@ -43,7 +43,7 @@ void SerialRecvThread::run()
 
             int len = strlen(buf);
             buf[len-1] = '\0';
-            qDebug() << tr(gSerialPortStr) << tr(" : %1 ").arg(len) << tr(buf);
+            //qDebug() << tr(gSerialPortStr) << tr(" : %1 ").arg(len) << tr(buf);
             //((SystemPage *)parent())->showRecvData(buf);
             //qobject_cast<SystemPage *>(this->parent())->showRecvData(buf);
             QString msg(buf);

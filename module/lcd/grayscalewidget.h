@@ -12,7 +12,7 @@ class GrayscaleWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GrayscaleWidget(QWidget *parent = 0);
+    explicit GrayscaleWidget(QSize size, QWidget *parent = 0);
     ~GrayscaleWidget();
 
 signals:

@@ -33,31 +33,48 @@ class GytOptions
 {
 public:
     GytOptions();
+    ~GytOptions();
 
     QSize fixedSize();
     QSize lcdSize();
+    QSize cameraViewSize();
 
     TouchType getTouchType();
+    QString getBacklightNode();
 
     QString getSeatRoot();
 
+    QString getProductInfo();
+    QString getDeveloperInfo();
+    QString getGYOSInfo();
+    QString getDistroInfo();
+    QString getKernelInfo();
+    QString getBootloaderInfo();
+    QString getGCCInfo();
+    QString getModelInfo();
+    QString getRootfsInfo();
+
+    QString getAppVersion();
+
 private:
     int getScreenInfo(struct fb_var_screeninfo *vinfo);
+    QString invokeShell(const char * cmd);
 
 private:
     QString product; /* eg. GY71L */
+    QString developer; /* GYT */
     QString vendor; /* eg. Advantech */
     QString model; /* ROM-5420-B1 */
     QString processor;
     QString OS;   /* Linux */
     QString baseBoard; /* C019 v1.3 */
 
-    QString uboot;
+    QString bootloader;
     QString gcc;
     QString binutils;
     QString kernel;
     QString issue;
-    QString yocto;
+    QString distro;
     QString qt;
     QString rootfs;
     QString gyos;
@@ -67,6 +84,8 @@ private:
     uint lcdHeight;
     uint fixedWidth;
     uint fixedHeight;
+    uint cameraViewWidth;
+    uint cameraViewHeight;
 
     TouchType touchType; /* should be enum */
 
