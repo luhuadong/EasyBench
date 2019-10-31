@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=GYT Box
 Comment=system test & monitor
-Exec=/home/root/tools/gyt_box
+Exec=/home/root/tools/gbox/gyt_box.sh
 Terminal=true
 Type=Application
 Icon=gyt_box

@@ -3,3 +3,8 @@ gyt_box
 *.o
 moc_*
 qrc_*
+
+.qmake.stash
+*.run
+*.zip
+md5sum.txt

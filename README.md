@@ -12,6 +12,15 @@ GYT-Box 是一个运行于广有 ARM Linux 平台，集系统监控、设备测�
 
 
 
+### 安装依赖
+
+```shell
+sudo apt install libpulse-dev
+sudo apt install libgl1-mesa-dev
+```
+
+
+
 ### 编译步骤
 
 1. 进入工程目录，配置编译环境
