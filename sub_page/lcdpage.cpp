@@ -172,7 +172,7 @@ void LcdPage::lcdBacklightUp()
         backlightValue++;
         backlightLabel->setText(tr("背光等级 : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
-        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, g_opt->getBacklightNode());
+        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, g_opt->getBacklightNode().toLatin1().data());
         system(cmd);
     }
 }
@@ -185,7 +185,7 @@ void LcdPage::lcdBacklightDown()
         backlightValue--;
         backlightLabel->setText(tr("背光等级 : ") + QString::number(backlightValue));
         backlightBar->setValue(backlightValue);
-        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, g_opt->getBacklightNode());
+        sprintf(cmd, "echo %d > /sys/class/backlight/%s/brightness", backlightValue, g_opt->getBacklightNode().toLatin1().data());
         system(cmd);
     }
 }
