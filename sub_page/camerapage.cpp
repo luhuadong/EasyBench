@@ -7,14 +7,20 @@
 #include <QAction>
 #include <QVariant>
 
+#if QT_VERSION_5
 /* QVaiant 不能识别自定义类型和其他非 QMetaType 内置类型， 而 QCameraInfo 是非 QMetaType 内置类型，因此需要进行声明 */
 Q_DECLARE_METATYPE(QCameraInfo)
+
 
 CameraPage::CameraPage(GytOptions *options, QWidget *parent) :
     PageWidget(options, parent),
     camera(0),
     imageCapture(0),
     isCapturingImage(false)
+#else
+CameraPage::CameraPage(GytOptions *options, QWidget *parent) :
+      PageWidget(options, parent)
+#endif
 {
     //setTitleLabelText(tr("Camera Capture Test"));
     setTitleLabelText(tr("摄像头捕获测试"));
