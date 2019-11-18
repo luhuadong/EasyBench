@@ -3,7 +3,7 @@
 GytOptions::GytOptions()
 {
     /* Read gyt_box.conf */
-    QString cfgFile = QString(QDir::currentPath() +"/gyt_box.conf");
+    QString cfgFile = QString("/etc/gbox/gyt_box.conf");
     QSettings configRead(cfgFile, QSettings::IniFormat);
 
     touchType = (TouchType)configRead.value("/LCD/Type", 0).toUInt();

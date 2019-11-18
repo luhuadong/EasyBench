@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 #endif
 
-    int index = QFontDatabase::addApplicationFont("/home/root/seat_imx/LiHeiPro.ttf");
+    int index = QFontDatabase::addApplicationFont("/usr/share/fonts/ttf/LiHeiPro.ttf");
     if(index != -1) {
         QStringList fontList(QFontDatabase::applicationFontFamilies(index));
 

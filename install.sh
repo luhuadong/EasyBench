@@ -1,12 +1,11 @@
 #!/bin/sh
 
-LINES=74  # The number of file lines + 1, be careful after modified !!!
+LINES=77  # The number of file lines + 1, be careful after modified !!!
 
-GBOX_DIR="/home/root/tools/gbox"
 BIN_DIR="/usr/bin"
 TMP_DIR="/tmp"
 ICON_DIR="/usr/share/pixmaps"
-CONFIG_DIR="/etc"
+CONFIG_DIR="/etc/gbox"
 DESKTOP_DIR="/usr/share/applications"
 
 APP_DIR="gbox"
@@ -42,23 +41,27 @@ Unpack() {
 }
 
 Install() {
-	
-	if [ ! -d ${GBOX_DIR} ]; then
-		echo mkdir -p ${GBOX_DIR}
-		mkdir -p ${GBOX_DIR}
-	fi
 
-	echo cp ${TMP_DIR}/${APP_DIR}/${APP} ${GBOX_DIR}
-	cp ${TMP_DIR}/${APP_DIR}/${APP} ${GBOX_DIR}
-	echo cp ${TMP_DIR}/${APP_DIR}/${APP}.sh ${GBOX_DIR}
-	cp ${TMP_DIR}/${APP_DIR}/${APP}.sh ${GBOX_DIR}
-	echo cp ${TMP_DIR}/${APP_DIR}/${CONFIG} ${GBOX_DIR}
-	cp ${TMP_DIR}/${APP_DIR}/${CONFIG} ${GBOX_DIR}
-	echo cp ${TMP_DIR}/${APP_DIR}/eepromARMtool ${GBOX_DIR}
-	cp ${TMP_DIR}/${APP_DIR}/eepromARMtool ${GBOX_DIR}
+	if [ ! -d ${CONFIG_DIR} ]; then
+		echo mkdir -p ${CONFIG_DIR}
+		mkdir -p ${CONFIG_DIR}
+	fi
+	
+	echo cp ${TMP_DIR}/${APP_DIR}/${APP} ${BIN_DIR}
+	cp ${TMP_DIR}/${APP_DIR}/${APP} ${BIN_DIR}
+	
+	echo cp ${TMP_DIR}/${APP_DIR}/${APP}.sh ${BIN_DIR}
+	cp ${TMP_DIR}/${APP_DIR}/${APP}.sh ${BIN_DIR}
+
+	echo cp ${TMP_DIR}/${APP_DIR}/${CONFIG} /etc/gbox/
+	cp ${TMP_DIR}/${APP_DIR}/${CONFIG} /etc/gbox/
+
+	echo cp ${TMP_DIR}/${APP_DIR}/eepromARMtool ${BIN_DIR}
+	cp ${TMP_DIR}/${APP_DIR}/eepromARMtool ${BIN_DIR}
 
 	echo cp ${TMP_DIR}/${APP_DIR}/${ICON} ${ICON_DIR}
 	cp ${TMP_DIR}/${APP_DIR}/${ICON} ${ICON_DIR}
+
 	echo cp ${TMP_DIR}/${APP_DIR}/${DESKTOP} ${DESKTOP_DIR}
 	cp ${TMP_DIR}/${APP_DIR}/${DESKTOP} ${DESKTOP_DIR}
 
