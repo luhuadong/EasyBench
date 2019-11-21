@@ -16,16 +16,17 @@ GytOptions::GytOptions()
     /* Read /etc/gy-version */
     QString verFile = QString("/etc/gy-version");
     configRead.setPath(QSettings::IniFormat, QSettings::SystemScope, verFile);
+    QSettings configRead2(verFile, QSettings::IniFormat);
 
-    product = configRead.value("/PLATFORM/Product", QString("GY33ASEAT")).toString();
-    developer = configRead.value("/PLATFORM/Developer", QString("广州广有通信设备有限公司")).toString();
-    rootfs = configRead.value("/LINUX/Rootfs", QString("1.0.0")).toString();
-    gyos = configRead.value("/LINUX/GYOS", QString("GYTLinux_GW-SV")).toString() + QString("_") + rootfs;
-    distro = configRead.value("/LINUX/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
-    kernel = configRead.value("/LINUX/Kernel", QString("3.14.52")).toString();
-    bootloader = configRead.value("/LINUX/UBoot", QString("2015.04-g624b022")).toString();
-    gcc = configRead.value("/LINUX/GCC", QString("arm-poky-linux-gnueabi-gcc")).toString();
-    model = configRead.value("/PLATFORM/Model", QString("Advantech ROM-5420-B1")).toString();
+    product = configRead2.value("/PLATFORM/Product", QString("GY33ASEAT")).toString();
+    developer = configRead2.value("/PLATFORM/Developer", QString("广州广有通信设备有限公司")).toString();
+    rootfs = configRead2.value("/LINUX/Rootfs", QString("1.0.0")).toString();
+    gyos = configRead2.value("/LINUX/GYOS", QString("GYTLinux_GW-SV")).toString() + QString("_") + rootfs;
+    distro = configRead2.value("/LINUX/YOCTO", QString("Freescale i.MX Release Distro Yocto 1.8")).toString();
+    kernel = configRead2.value("/LINUX/Kernel", QString("3.14.52")).toString();
+    bootloader = configRead2.value("/LINUX/UBoot", QString("2015.04-g624b022")).toString();
+    gcc = configRead2.value("/LINUX/GCC", QString("arm-poky-linux-gnueabi-gcc")).toString();
+    model = configRead2.value("/PLATFORM/Model", QString("Advantech ROM-5420-B1")).toString();
 #if 0
     if(hasEeprom) {
         QFile eepromfile("/mnt/w25q80/version");
