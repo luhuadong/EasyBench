@@ -17,8 +17,8 @@ ZIP=${APP}_${DATE}.zip
 
 SCRIPT="install.sh"
 
-PREFIX="arm-none-eabi-"
-#PREFIX=""
+#PREFIX="arm-none-eabi-"
+PREFIX=""
 CC=${PREFIX}gcc
 STRIP=${PREFIX}strip
 

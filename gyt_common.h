@@ -15,8 +15,7 @@
 #define PCB_TCP_SERVER_PORT 8000
 
 
-//#define SYS_ADVANTECH
-//#define SYS_KONTRON
+#define SINGLETON        0
 
 #define QT_VERSION_4     0  /* Recommend to use Qt5 strongly */
 #define QT_VERSION_5     1

@@ -16,6 +16,7 @@ extern "C"
 
 int main(int argc, char *argv[])
 {
+#if SINGLETON
     // Ensure only one process is running at the same time.
 #if 0
     QFile lockFile;
@@ -31,6 +32,7 @@ int main(int argc, char *argv[])
         printf("(W) The program is already running.\n");
         return -1;
     }
+#endif
 #endif
 
     QApplication a(argc, argv);
