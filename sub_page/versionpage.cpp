@@ -7,6 +7,8 @@
 #include <QFontDatabase>
 #include <QDebug>
 
+#include "custom_widget/updatedialog.h"
+
 #define TAB_ITEM_HEIGHT 48
 
 VersionPage::VersionPage(GytOptions *options, QWidget *parent) :
@@ -55,15 +57,17 @@ VersionPage::VersionPage(GytOptions *options, QWidget *parent) :
 #if LANGUAGE_CHINESE
     operationBar->firstButton()->setText(tr("关机"));
     operationBar->secondButton()->setText(tr("重启"));
+    operationBar->thirdButton()->setText(tr("升级"));
 #else
     operationBar->firstButton()->setText(tr("Shutdown"));
     operationBar->secondButton()->setText(tr("Reboot"));
+    operationBar->thirdButton()->setText(tr("Update"));
 #endif
-    operationBar->thirdButton()->setEnabled(false);
     operationBar->fourthButton()->setEnabled(false);
 
     connect(operationBar->firstButton(), SIGNAL(clicked()), this, SLOT(shutdownSystem()));
     connect(operationBar->secondButton(), SIGNAL(clicked()), this, SLOT(rebootSystem()));
+    connect(operationBar->thirdButton(), SIGNAL(clicked()), this, SLOT(updatePackage()));
 
     getVersionData();
 }
@@ -110,4 +114,11 @@ void VersionPage::shutdownSystem()
 void VersionPage::rebootSystem()
 {
     system("reboot");
+}
+
+void VersionPage::updatePackage()
+{
+    UpdateDialog updateDialog;
+
+    updateDialog.exec();
 }

@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     sub_page/systempage.cpp \
     sub_page/seatpage.cpp \
     module/sunriset/sunriset.cpp \
-    gyt_options.cpp
+    gyt_options.cpp \
+    custom_widget/updatedialog.cpp
 
 HEADERS  += gytboxwidget.h \
     gyt_common.h \
@@ -63,7 +64,8 @@ HEADERS  += gytboxwidget.h \
     sub_page/systempage.h \
     sub_page/seatpage.h \
     module/sunriset/sunriset.h \
-    gyt_options.h
+    gyt_options.h \
+    custom_widget/updatedialog.h
 
 RESOURCES += \
     resource/images.qrc \

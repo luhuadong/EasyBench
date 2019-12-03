@@ -20,6 +20,7 @@ public slots:
 private slots:
     void shutdownSystem();
     void rebootSystem();
+    void updatePackage();
 
 private:
     QTableView *tabView;
