@@ -1,8 +1,6 @@
-## GYT BOX
+## DeviceCab
 
-![](gyt_box.png)
-
-GYT-Box 是一个运行于广有 ARM Linux 平台，集系统监控、设备测试和席位功能配置于一体的软件工具。GYT-Box 基于 Qt5 图形界面库进行开发，采用 C++ 编程语言。
+DeviceCab 是一个运行于嵌入式 Linux 平台，集系统监控、设备测试和席位功能配置于一体的软件工具。DeviceCab 基于 Qt 图形界面库进行开发，采用 C++ 编程语言。
 
 通过模块化的设计思想对功能进行划分，主要包括：
 
@@ -59,7 +57,7 @@ sudo apt install libgl1-mesa-dev
 
 ### 注意事项
 
-默认使用 Qt5，如果您使用 Qt4，需要在 gyt_common.h 文件中做修改。将如下内容
+默认使用 Qt5，如果你使用 Qt4，需要在 gyt_common.h 文件中做修改。将如下内容
 
 ```c
 #define QT_VERSION_4     0  /* Recommend to use Qt5 strongly */
