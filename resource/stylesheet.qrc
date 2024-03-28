@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qss/easybench.qss</file>
+    </qresource>
+</RCC>

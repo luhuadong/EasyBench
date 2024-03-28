@@ -1,0 +1,19 @@
+[Desktop Entry]
+Name=Easy Bench
+Name[zh_CN]=Easy Bench
+GenericName=GBox
+GenericName[zh_CN]=GBox
+Comment=System test & monitor
+Comment[zh_CN]=系统测试与监控
+TryExec=easybench
+Exec=/usr/bin/easybench
+Icon=easybench
+Type=Application
+X-MATE-DocPath=mate-terminal/index.html
+X-MATE-Bugzilla-Bugzilla=MATE
+X-MATE-Bugzilla-Product=mate-terminal
+X-MATE-Bugzilla-Component=BugBuddyBugs
+X-MATE-Bugzilla-Version=1.12.1
+Categories=System;GTK;Utility;TerminalEmulator;
+StartupNotify=true
+Keywords=MATE;terminal;shell;prompt;command;commandline;

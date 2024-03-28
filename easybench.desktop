@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Easy Bench
+Comment=system test & monitor
+Exec=easybench
+Terminal=true
+Type=Application
+Icon=easybench
+X-MB-SingleInstance=false
+StartupNotify=true
+Categories=System;Settings;

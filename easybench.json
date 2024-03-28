@@ -1,0 +1,39 @@
+{
+	"Platform": {
+		"Vendor": "EasyBench Team",
+		"Model": "Raspberry Pi Compute Module 4",
+		"CPU": "Broadcom BCM2711 quad-core ARM Cortex-A72 processor",
+		"BaseBoard": "C019 v1.3",
+		"Product": "reTerminal",
+		"SerialNum": "SN-4A767374-466F72-596F75"
+	},
+	"Linux": {
+		"UBoot": "2015.04-g624b022-dirty",
+		"GCC": "arm-poky-linux-gnueabi-gcc 4.9.2",
+		"Binutils": "2.24",
+		"Kernel": "3.14.52-1.1.0_ga",
+		"Issue": "Broadcom Release Distro 3.14.52-1.1.0",
+		"Qt": "5.5.1",
+		"Rootfs": "MyLinux_1.0.0",
+		"Date": "2018-12-21"
+	},
+	"Devices": {
+		"SerialPort": [
+			"/dev/ttymxc0",
+			"/dev/ttymxc1",
+			"/dev/ttymxc2",
+			"/dev/ttymxc3",
+			"/dev/ttymxc4"
+		],
+		"VideoInput": "/dev/video0",
+		"TouchScreen": {
+			"Type": 0,
+			"Comment": "0:Resistive, 1:Capacitive"
+		},
+		"Backlight": {
+			"Path": "/sys/class/backlight/backlight.27",
+			"Range": [1, 32]
+		}
+	},
+	"Connect2Mcu": false,
+}

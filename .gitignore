@@ -1,0 +1,13 @@
+Makefile
+easybench
+*.user*
+*.o
+moc_*
+qrc_*
+
+.qmake.stash
+*.run
+*.zip
+md5sum.txt
+
+.vscode
