@@ -1,4 +1,5 @@
 #include "mainwidget.h"
+#include "eb_branding.h"
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QFont>
@@ -13,6 +14,8 @@ MainWidget::MainWidget(EbOptions *options, QWidget *parent)
     : QWidget(parent)
 {
     g_opt = options;
+
+    setWindowIcon(EbBranding::applicationIcon());
 
     /* Initialization interface */
     initMainUI();

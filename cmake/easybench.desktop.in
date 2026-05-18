@@ -13,4 +13,5 @@ Icon=easybench
 Terminal=false
 Categories=System;Utility;
 StartupNotify=true
+# Match QApplication::setDesktopFileName() — helps GNOME/Ubuntu dock pin & group windows
 StartupWMClass=easybench

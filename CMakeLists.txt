@@ -42,6 +42,7 @@ set(EASYBENCH_SOURCES
     eb_common.c
     eb_options.cpp
     eb_startup.cpp
+    eb_branding.cpp
     custom_widget/operationbar.cpp
     custom_widget/pagewidget.cpp
     custom_widget/inputlineedit.cpp
@@ -69,6 +70,7 @@ set(EASYBENCH_HEADERS
     eb_common.h
     eb_options.h
     eb_startup.h
+    eb_branding.h
     custom_widget/operationbar.h
     custom_widget/pagewidget.h
     custom_widget/inputlineedit.h
@@ -144,4 +146,43 @@ pkg_check_modules(ALSA REQUIRED alsa)
 target_include_directories(easybench PRIVATE ${ALSA_INCLUDE_DIRS})
 target_link_libraries(easybench PRIVATE ${ALSA_LIBRARIES})
 
-install(TARGETS easybench RUNTIME DESTINATION bin)
+include(GNUInstallDirs)
+
+install(TARGETS easybench RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Freedesktop: launcher + icon theme (GNOME/KDE/Ubuntu dock, etc.)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/easybench.desktop.in
+    ${CMAKE_CURRENT_BINARY_DIR}/easybench.desktop
+    @ONLY
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/easybench.desktop
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+
+set(_EB_ICON_SIZES 16 32 48 64 128 256 512)
+foreach(_size IN LISTS _EB_ICON_SIZES)
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/resource/logo.png
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/${_size}x${_size}/apps
+        RENAME easybench.png
+    )
+endforeach()
+
+# Legacy path still used by some installers and older desktop environments
+install(
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/resource/logo.png
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps
+    RENAME easybench.png
+)
+
+# Optional: refresh GTK icon cache on Ubuntu/Debian when available
+install(CODE "
+    find_program(_EB_UPDATE_ICON_CACHE gtk-update-icon-cache)
+    if(_EB_UPDATE_ICON_CACHE)
+        execute_process(
+            COMMAND \${_EB_UPDATE_ICON_CACHE} -f -t
+                \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons/hicolor\"
+            RESULT_VARIABLE _EB_ICON_CACHE_RESULT
+        )
+    endif()
+")

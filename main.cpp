@@ -2,6 +2,7 @@
 #include "eb_common.h"
 #include "eb_options.h"
 #include "eb_startup.h"
+#include "eb_branding.h"
 #include <QApplication>
 #include <QFile>
 #include <QMessageBox>
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication a(argc, argv);
+    EbBranding::applyApplicationIdentity(a);
 
     QFile qssFile(":/qss/easybench.qss");
     qssFile.open(QFile::ReadOnly);

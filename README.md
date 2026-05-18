@@ -48,9 +48,24 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 
 3. 可执行文件位于 `build/easybench`。
 
-4. 交叉编译时，在 `cmake -B build` 前加载目标平台的 SDK 环境（例如 Yocto 的 `environment-setup-*`），并确保 `CMAKE_PREFIX_PATH` 指向目标 Qt 安装路径。
+4. 安装程序、桌面启动项与图标（Freedesktop 通用方式，适用于 GNOME/KDE/Ubuntu dock 等）：
 
-5. 裁剪体积（嵌入式部署可选）：
+   ```shell
+   sudo cmake --install build
+   ```
+
+   将安装 `easybench` 可执行文件、`share/applications/easybench.desktop`，以及 `share/icons/hicolor/*/apps/easybench.png`（源图：`resource/logo.png`）。Ubuntu 上若 dock 未刷新，可注销后重新登录，或执行 `gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor`（用户级安装时）。
+
+5. 仅在当前用户目录安装启动器（无需 root，便于 Ubuntu 桌面调试）：
+
+   ```shell
+   chmod +x scripts/install-desktop-local.sh
+   ./scripts/install-desktop-local.sh
+   ```
+
+6. 交叉编译时，在 `cmake -B build` 前加载目标平台的 SDK 环境（例如 Yocto 的 `environment-setup-*`），并确保 `CMAKE_PREFIX_PATH` 指向目标 Qt 安装路径。
+
+7. 裁剪体积（嵌入式部署可选）：
 
    ```shell
    arm-poky-linux-gnueabi-strip build/easybench
@@ -74,3 +89,4 @@ make
 - 默认通过 CMake 检测 Qt 版本；摄像头页面在 Qt 5 与 Qt 6 下使用各自的多媒体 API。
 - Qt 6 构建依赖 `Qt6::Core5Compat`，以兼容代码中的 `QTextCodec` 与 `QRegExp`。
 - 中文字体路径默认为 `/usr/share/fonts/ttf/LiHeiPro.ttf`，可按目标系统调整 `main.cpp`。
+- 应用窗口与任务栏图标来自内嵌资源 `:/images/logo.png`；系统菜单/dock 图标名称为 `easybench`，需通过 `cmake --install` 或 `scripts/install-desktop-local.sh` 安装到图标主题路径。`StartupWMClass=easybench` 与 `QApplication::setDesktopFileName()` 配合，便于 Ubuntu dock 正确分组与固定。
