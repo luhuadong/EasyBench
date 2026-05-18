@@ -41,6 +41,7 @@ set(EASYBENCH_SOURCES
     mainwidget.cpp
     eb_common.c
     eb_options.cpp
+    eb_startup.cpp
     custom_widget/operationbar.cpp
     custom_widget/pagewidget.cpp
     custom_widget/inputlineedit.cpp
@@ -67,6 +68,7 @@ set(EASYBENCH_HEADERS
     mainwidget.h
     eb_common.h
     eb_options.h
+    eb_startup.h
     custom_widget/operationbar.h
     custom_widget/pagewidget.h
     custom_widget/inputlineedit.h

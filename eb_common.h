@@ -133,6 +133,7 @@ typedef struct readVersionCMD {
 extern "C"{
 #endif
 
+char *getBacklightNodeName(void);
 unsigned char calcCheckSum(unsigned char *data, unsigned int len);
 bool is_singleton(void);
 int get_timezone(void);

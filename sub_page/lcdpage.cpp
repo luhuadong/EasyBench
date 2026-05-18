@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QSettings>
 #include <QApplication>
+#include <QDebug>
 
 
 LcdPage::LcdPage(EbOptions *options, QWidget *parent) :
@@ -33,21 +34,32 @@ LcdPage::LcdPage(EbOptions *options, QWidget *parent) :
     connect(operationBar->thirdButton(), SIGNAL(clicked()), this, SLOT(lcdBacklightUp()));
 
     backlightName = g_opt->getBacklightNode();
-    QByteArray byteArray;
-    QFile backlightFile(QString("/sys/class/backlight/%1/brightness").arg(backlightName));
-    backlightFile.open(QFile::ReadOnly);
-    byteArray = backlightFile.readAll();
-    //backlightValue = backlightFile.readAll().toInt();
-    backlightValue = QString(byteArray).toInt();
-    backlightFile.close();
-
     MinBacklightValue = 1;
     MaxBacklightValue = 100;
-    backlightFile.setFileName(QString("/sys/class/backlight/%1/max_brightness").arg(backlightName));
-    backlightFile.open(QFile::ReadOnly);
-    byteArray = backlightFile.readAll();
-    MaxBacklightValue = QString(byteArray).toInt();
-    backlightFile.close();
+    backlightValue = MinBacklightValue;
+
+    if (!backlightName.isEmpty()) {
+        QFile backlightFile(QString("/sys/class/backlight/%1/brightness").arg(backlightName));
+        if (backlightFile.open(QFile::ReadOnly)) {
+            backlightValue = QString::fromUtf8(backlightFile.readAll()).trimmed().toInt();
+            backlightFile.close();
+        } else {
+            qWarning() << tr("无法读取背光亮度：/sys/class/backlight/%1/brightness").arg(backlightName);
+        }
+
+        backlightFile.setFileName(QString("/sys/class/backlight/%1/max_brightness").arg(backlightName));
+        if (backlightFile.open(QFile::ReadOnly)) {
+            const int maxVal = QString::fromUtf8(backlightFile.readAll()).trimmed().toInt();
+            if (maxVal > 0) {
+                MaxBacklightValue = maxVal;
+            }
+            backlightFile.close();
+        }
+    } else {
+        qWarning() << tr("未配置背光设备，背光调节功能已禁用");
+        operationBar->secondButton()->setEnabled(false);
+        operationBar->thirdButton()->setEnabled(false);
+    }
 
     // Backlight Level
     backlightLabel = new QLabel(tr("背光等级 : ") + QString::number(backlightValue), this);
@@ -103,7 +115,7 @@ int LcdPage::getScreenInfo()
 {
     int fbfd = 0;
     fbfd = open("/dev/fb0", O_RDONLY);
-    if (!fbfd) {
+    if (fbfd < 0) {
         printf("Error: cannot open framebuffer device.\n");
         return -1;
     }

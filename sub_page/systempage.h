@@ -173,6 +173,7 @@ private:
     QPushButton *testBtn;
 
     void initSerialPortArea();
+    void applySerialPortStty();
 
 
     QTimer *updateTimer;

@@ -3,7 +3,9 @@ extern "C"{
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <string.h>
@@ -28,16 +30,16 @@ char *getBacklightNodeName(void)
     char *retName = NULL;
 
     dir = opendir("/sys/class/backlight/");
-    if(NULL == dir)
+    if (NULL == dir) {
         return NULL;
+    }
 
-    while((ent = readdir(dir)) != NULL) {
-        if((0 == strcmp(ent->d_name, ".")) || (0 == strcmp(ent->d_name, ".."))) {
+    while ((ent = readdir(dir)) != NULL) {
+        if ((0 == strcmp(ent->d_name, ".")) || (0 == strcmp(ent->d_name, ".."))) {
             continue;
-        }else {
-            retName = ent->d_name;
-            break;
         }
+        retName = strdup(ent->d_name);
+        break;
     }
     closedir(dir);
     return retName;
@@ -47,8 +49,7 @@ int getScreenInfo(struct fb_var_screeninfo *vinfo)
 {
     int fbfd = 0;
     fbfd = open("/dev/fb0", O_RDONLY);
-    if (!fbfd) {
-        //printf("Error: cannot open framebuffer device.\n");
+    if (fbfd < 0) {
         return -1;
     }
     //printf("The framebuffer device was opened successfully.\n");

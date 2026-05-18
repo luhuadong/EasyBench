@@ -35,30 +35,37 @@ public:
     EbOptions();
     ~EbOptions();
 
-    QSize fixedSize();
-    QSize lcdSize();
-    QSize cameraViewSize();
+    QSize fixedSize() const;
+    QSize lcdSize() const;
+    QSize cameraViewSize() const;
 
-    TouchType getTouchType();
-    QString getBacklightNode();
+    TouchType getTouchType() const;
+    QString getBacklightNode() const;
 
-    QString getSeatRoot();
+    QString getSeatRoot() const;
 
-    QString getProductInfo();
-    QString getDeveloperInfo();
-    QString getGYOSInfo();
-    QString getDistroInfo();
-    QString getKernelInfo();
-    QString getBootloaderInfo();
-    QString getGCCInfo();
-    QString getModelInfo();
-    QString getRootfsInfo();
+    QString getProductInfo() const;
+    QString getDeveloperInfo() const;
+    QString getGYOSInfo() const;
+    QString getDistroInfo() const;
+    QString getKernelInfo() const;
+    QString getBootloaderInfo() const;
+    QString getGCCInfo() const;
+    QString getModelInfo() const;
+    QString getRootfsInfo() const;
 
-    QString getAppVersion();
+    QString getAppVersion() const;
+
+    QString getSerialPort() const;
+    bool configLoaded() const;
+    QString configFilePath() const;
+
+    static QString resolveConfigPath();
+    static QString resolveSeatRoot(const QString &configuredRoot);
 
 private:
     int getScreenInfo(struct fb_var_screeninfo *vinfo);
-    QString invokeShell(const char * cmd);
+    QString invokeShell(const char *cmd) const;
 
 private:
     QString product;
@@ -95,6 +102,8 @@ private:
     bool hasEeprom;
 
     QString seatRoot;  /* path */
+    QString configPath;
+    bool configOk;
 };
 
 #endif // EB_OPTIONS_H

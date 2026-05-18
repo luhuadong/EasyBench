@@ -390,7 +390,8 @@ bool SeatPage::openXmlFile(const QString &filePath)
 bool SeatPage::readChnlCfgFile(const QString &filename)
 {
     QFile file(filename);
-    if(!file.open(QFile::ReadOnly | QFile::Text)) {
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        qWarning() << tr("无法打开席位通道配置：%1").arg(filename);
         return false;
     }
     xmlReader.setDevice(&file);
@@ -420,7 +421,7 @@ bool SeatPage::readChnlCfgFile(const QString &filename)
     }
 
     file.close();
-
+    return true;
 }
 
 void SeatPage::readChannelElement()
@@ -617,13 +618,13 @@ QString SeatPage::getVideoAttribute(const QString &attr)
     /* Open */
     if(!openXmlFile(settingFileName)) {
         qDebug() << tr("(E) Open %s failed") << settingFileName;
-        return NULL;
+        return QString();
     }
 
     /* Read */
     QDomElement root = settingDoc.documentElement();
     if(root.tagName() != "setting") {
-        return NULL;
+        return QString();
     }
 
     QDomNode node = root.firstChild();
@@ -637,11 +638,12 @@ QString SeatPage::getVideoAttribute(const QString &attr)
                 if(elem.hasAttribute(attr)) {
                     return elem.attribute(attr);
                 }
-                else return NULL;
+                else return QString();
             }
         }
         node = node.nextSibling();
     }
+    return QString();
 }
 
 bool SeatPage::readSettingsFile(const QString &filename)
@@ -649,7 +651,8 @@ bool SeatPage::readSettingsFile(const QString &filename)
     qDebug() << "############# Reading settings.xml";
 
     QFile file(filename);
-    if(!file.open(QFile::ReadOnly | QFile::Text)) {
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        qWarning() << tr("无法打开席位配置：%1").arg(filename);
         return false;
     }
     xmlReader.setDevice(&file);
@@ -679,6 +682,7 @@ bool SeatPage::readSettingsFile(const QString &filename)
     }
 
     file.close();
+    return true;
 }
 
 void SeatPage::readSettingsElement()

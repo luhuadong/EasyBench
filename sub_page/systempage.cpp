@@ -15,6 +15,7 @@
 #include <QVBoxLayout>
 #include <QFont>
 #include <QMessageBox>
+#include <QFile>
 
 SerialRecvThread::SerialRecvThread(QWidget *parent)
 {
@@ -330,9 +331,20 @@ void SystemPage::initSerialPortArea()
     }
     */
 
+    applySerialPortStty();
+}
+
+void SystemPage::applySerialPortStty()
+{
+    if (!QFile::exists(QString::fromUtf8(gSerialPortStr))) {
+        qWarning() << tr("串口设备不存在，跳过 stty 配置：") << gSerialPortStr;
+        return;
+    }
     char cmd[128];
-    sprintf(cmd, "stty -F %s speed 9600 cs8 -parenb -cstopb -echo", gSerialPortStr);
-    system(cmd);
+    snprintf(cmd, sizeof(cmd), "stty -F %s speed 9600 cs8 -parenb -cstopb -echo", gSerialPortStr);
+    if (system(cmd) != 0) {
+        qWarning() << tr("串口 stty 配置失败：") << gSerialPortStr;
+    }
 }
 
 void SystemPage::showRecvData(const QString msg)
@@ -402,9 +414,7 @@ void SystemPage::changeSerialPort(const QString &text)
 
 void SystemPage::applyParameters()
 {
-    char cmd[128];
-    sprintf(cmd, "stty -F %s speed 9600 cs8 -parenb -cstopb -echo", gSerialPortStr);
-    system(cmd);
+    applySerialPortStty();
 #if 0
     QMessageBox msgBox;
     msgBox.setText(tr("Configure parameters of %1 successfully.").arg(gSerialPortStr));
