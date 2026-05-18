@@ -1,0 +1,145 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(EasyBench VERSION 1.0.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+option(EASYBENCH_FORCE_QT6 "Force Qt 6 even when Qt 5 is available" OFF)
+option(EASYBENCH_FORCE_QT5 "Force Qt 5 even when Qt 6 is available" OFF)
+
+if(EASYBENCH_FORCE_QT6 AND EASYBENCH_FORCE_QT5)
+    message(FATAL_ERROR "EASYBENCH_FORCE_QT6 and EASYBENCH_FORCE_QT5 cannot both be ON.")
+endif()
+
+set(_EB_QT_COMPONENTS Core Gui Widgets Network Xml Multimedia MultimediaWidgets)
+
+if(EASYBENCH_FORCE_QT5)
+    find_package(Qt5 5.12 REQUIRED COMPONENTS ${_EB_QT_COMPONENTS})
+    set(EB_QT_VERSION_MAJOR 5)
+elseif(EASYBENCH_FORCE_QT6)
+    find_package(Qt6 6.2 REQUIRED COMPONENTS ${_EB_QT_COMPONENTS} Core5Compat)
+    set(EB_QT_VERSION_MAJOR 6)
+else()
+    find_package(Qt6 6.2 QUIET COMPONENTS ${_EB_QT_COMPONENTS} Core5Compat)
+    if(Qt6_FOUND)
+        set(EB_QT_VERSION_MAJOR 6)
+    else()
+        find_package(Qt5 5.12 REQUIRED COMPONENTS ${_EB_QT_COMPONENTS})
+        set(EB_QT_VERSION_MAJOR 5)
+    endif()
+endif()
+
+message(STATUS "EasyBench: building with Qt ${EB_QT_VERSION_MAJOR}")
+
+set(EASYBENCH_SOURCES
+    main.cpp
+    mainwidget.cpp
+    eb_common.c
+    eb_options.cpp
+    custom_widget/operationbar.cpp
+    custom_widget/pagewidget.cpp
+    custom_widget/inputlineedit.cpp
+    custom_widget/updatedialog.cpp
+    sub_page/lcdpage.cpp
+    sub_page/camerapage.cpp
+    sub_page/datetimepage.cpp
+    sub_page/monitorpage.cpp
+    sub_page/realtimepage.cpp
+    sub_page/touchpage.cpp
+    sub_page/versionpage.cpp
+    sub_page/networkpage.cpp
+    sub_page/systempage.cpp
+    sub_page/seatpage.cpp
+    module/camera/processimage.cpp
+    module/camera/videodevice.cpp
+    module/lcd/grayscalewidget.cpp
+    module/monitor/basepcbthread.cpp
+    module/monitor/cpustatthread.cpp
+    module/sunriset/sunriset.cpp
+)
+
+set(EASYBENCH_HEADERS
+    mainwidget.h
+    eb_common.h
+    eb_options.h
+    custom_widget/operationbar.h
+    custom_widget/pagewidget.h
+    custom_widget/inputlineedit.h
+    custom_widget/updatedialog.h
+    sub_page/lcdpage.h
+    sub_page/camerapage.h
+    sub_page/datetimepage.h
+    sub_page/monitorpage.h
+    sub_page/realtimepage.h
+    sub_page/touchpage.h
+    sub_page/versionpage.h
+    sub_page/networkpage.h
+    sub_page/systempage.h
+    sub_page/seatpage.h
+    module/camera/processimage.h
+    module/camera/videodevice.h
+    module/lcd/grayscalewidget.h
+    module/monitor/basepcbthread.h
+    module/monitor/cpustatthread.h
+    module/sunriset/sunriset.h
+)
+
+set(EASYBENCH_RESOURCES
+    resource/images.qrc
+    resource/stylesheet.qrc
+)
+
+add_executable(easybench
+    ${EASYBENCH_SOURCES}
+    ${EASYBENCH_HEADERS}
+    ${EASYBENCH_RESOURCES}
+)
+
+target_include_directories(easybench PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/custom_widget
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_page
+    ${CMAKE_CURRENT_SOURCE_DIR}/module/camera
+    ${CMAKE_CURRENT_SOURCE_DIR}/module/lcd
+    ${CMAKE_CURRENT_SOURCE_DIR}/module/monitor
+    ${CMAKE_CURRENT_SOURCE_DIR}/module/sunriset
+)
+
+target_compile_definitions(easybench PRIVATE
+    EB_QT_VERSION_MAJOR=${EB_QT_VERSION_MAJOR}
+)
+
+if(EB_QT_VERSION_MAJOR EQUAL 6)
+    target_link_libraries(easybench PRIVATE
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        Qt6::Network
+        Qt6::Xml
+        Qt6::Multimedia
+        Qt6::MultimediaWidgets
+        Qt6::Core5Compat
+    )
+else()
+    target_link_libraries(easybench PRIVATE
+        Qt5::Core
+        Qt5::Gui
+        Qt5::Widgets
+        Qt5::Network
+        Qt5::Xml
+        Qt5::Multimedia
+        Qt5::MultimediaWidgets
+    )
+endif()
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(ALSA REQUIRED alsa)
+target_include_directories(easybench PRIVATE ${ALSA_INCLUDE_DIRS})
+target_link_libraries(easybench PRIVATE ${ALSA_LIBRARIES})
+
+install(TARGETS easybench RUNTIME DESTINATION bin)

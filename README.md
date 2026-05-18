@@ -14,68 +14,63 @@ EasyBench 是一个面向嵌入式 Linux 设备的轻量级出厂测试、硬件
 
 ### 安装依赖
 
+Ubuntu / Debian：
+
 ```shell
-sudo apt install libpulse-dev
-sudo apt install libgl1-mesa-dev
+sudo apt install cmake pkg-config \
+    qtbase5-dev qtmultimedia5-dev \
+    libasound2-dev libgl1-mesa-dev
+```
+
+使用 Qt 6 时额外安装：
+
+```shell
+sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 ```
 
 
 
-### 编译步骤
+### 编译步骤（CMake）
 
-1. 进入工程目录，配置编译环境
-
-   ```shell
-   $ source <your-environment-setup>
-   ```
-
-2. 根据 easybench.pro 生成 Makefile 构建文件
+1. 配置并编译（自动优先选用已安装的 Qt 6，否则使用 Qt 5）：
 
    ```shell
-   $ qmake
+   cmake -B build
+   cmake --build build -j$(nproc)
    ```
 
-3. 编译可执行程序
+2. 指定 Qt 版本：
 
    ```shell
-   $ make
+   cmake -B build -DEASYBENCH_FORCE_QT5=ON   # 强制 Qt 5
+   cmake -B build -DEASYBENCH_FORCE_QT6=ON   # 强制 Qt 6（需 Qt 6.2+）
    ```
 
-4. 裁剪可执行程序的体积
+3. 可执行文件位于 `build/easybench`。
+
+4. 交叉编译时，在 `cmake -B build` 前加载目标平台的 SDK 环境（例如 Yocto 的 `environment-setup-*`），并确保 `CMAKE_PREFIX_PATH` 指向目标 Qt 安装路径。
+
+5. 裁剪体积（嵌入式部署可选）：
 
    ```shell
-   $ arm-poky-linux-gnueabi-strip easybench
+   arm-poky-linux-gnueabi-strip build/easybench
    ```
 
-5. 检查
 
-   ```shell
-   $ file easybench
-   easybench: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, for GNU/Linux 2.6.32, BuildID[sha1]=d6509b96c10dd2b9d837e6125d1e68dcf4b1cba0, stripped
-   ```
 
+### 遗留 qmake 构建
+
+仓库仍保留 `easybench.pro` 供参考，推荐使用 CMake。若继续使用 qmake：
+
+```shell
+qmake
+make
+```
 
 
 
 ### 注意事项
 
-默认使用 Qt5，如果你使用 Qt4，需要在 eb_common.h 文件中做修改。将如下内容
-
-```c
-#define QT_VERSION_4     0  /* Recommend to use Qt5 strongly */
-#define QT_VERSION_5     1
-```
-
-修改为
-
-```c
-#define QT_VERSION_4     1  /* Recommend to use Qt5 strongly */
-#define QT_VERSION_5     0
-```
-
-并在 easybench.pro 文件将下面这一行注释掉
-
-```shell
-QT += multimedia multimediawidgets
-```
-
+- 默认通过 CMake 检测 Qt 版本；摄像头页面在 Qt 5 与 Qt 6 下使用各自的多媒体 API。
+- Qt 6 构建依赖 `Qt6::Core5Compat`，以兼容代码中的 `QTextCodec` 与 `QRegExp`。
+- 中文字体路径默认为 `/usr/share/fonts/ttf/LiHeiPro.ttf`，可按目标系统调整 `main.cpp`。

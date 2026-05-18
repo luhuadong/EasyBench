@@ -2,20 +2,30 @@
 #define CAMERAPAGE_H
 
 #include "custom_widget/pagewidget.h"
-//#include "module/camera/processimage.h"
 #include "eb_common.h"
+#include "eb_qt_compat.h"
 
 #include <QString>
 #include <QWidget>
 #include <QLabel>
 #include <QComboBox>
+#include <QPushButton>
 
-#if QT_VERSION_5
+#if EB_QT5_MULTIMEDIA
 #include <QCamera>
 #include <QCameraInfo>
 #include <QCameraViewfinder>
 #include <QCameraImageCapture>
 #include <QCameraViewfinderSettings>
+#endif
+
+#if EB_QT6_MULTIMEDIA
+#include <QCamera>
+#include <QCameraDevice>
+#include <QImageCapture>
+#include <QMediaCaptureSession>
+#include <QMediaDevices>
+#include <QVideoWidget>
 #endif
 
 class CameraPage : public PageWidget
@@ -27,7 +37,7 @@ public:
 public slots:
 
 private slots:
-#if QT_VERSION_5
+#if EB_QT5_MULTIMEDIA
     void setCamera(const QCameraInfo &cameraInfo);
     void videoDeviceBoxCurrentIndexChanged(int index);
     void openCamera();
@@ -43,23 +53,40 @@ private slots:
     void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
 #endif
 
+#if EB_QT6_MULTIMEDIA
+    void setCameraDevice(const QCameraDevice &device);
+    void videoDeviceBoxCurrentIndexChanged(int index);
+    void openCamera();
+    void closeCamera();
+
+    void displayCameraError(QCamera::Error error, const QString &errorString);
+    void updateCameraState(bool active);
+    void displayCaptureError(int id, QImageCapture::Error error, const QString &errorString);
+#endif
+
 private:
     void initVideoDeviceBox();
 
-    //ProcessImage *processImage;
-    //QLabel *displayArea;
-
     QSize showResolution;
 
-#if QT_VERSION_5
-
+#if EB_QT5_MULTIMEDIA || EB_QT6_MULTIMEDIA
     QComboBox *videoDeviceBox;
     QPushButton *lockBtn;
-
-    QCamera             *camera;           // 读取摄像头
-    QCameraViewfinder   *cameraViewfinder; // 渲染摄像头
-    QCameraImageCapture *imageCapture;     // 获取摄像头当前帧
 #endif
+
+#if EB_QT5_MULTIMEDIA
+    QCamera             *camera;
+    QCameraViewfinder   *cameraViewfinder;
+    QCameraImageCapture *imageCapture;
+#endif
+
+#if EB_QT6_MULTIMEDIA
+    QCamera               *camera;
+    QMediaCaptureSession  *captureSession;
+    QVideoWidget          *videoWidget;
+    QImageCapture         *imageCapture;
+#endif
+
     bool isCapturingImage;
 
 };

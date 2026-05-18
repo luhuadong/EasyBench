@@ -4,7 +4,7 @@
 #include <QApplication>
 #include <QFile>
 #include <QMessageBox>
-#include <QTextCodec>
+#include "eb_qt_compat.h"
 #include <QFontDatabase>
 #include <QFont>
 
@@ -44,13 +44,7 @@ int main(int argc, char *argv[])
 
 #if LANGUAGE_CHINESE
 
-#if QT_VERSION_5
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-#else
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-#endif
+    eb_set_utf8_locale();
 
     int index = QFontDatabase::addApplicationFont("/usr/share/fonts/ttf/LiHeiPro.ttf");
     if(index != -1) {

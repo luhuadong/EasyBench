@@ -17,9 +17,6 @@
 
 #define SINGLETON        1
 
-#define QT_VERSION_4     0  /* Recommend to use Qt5 strongly */
-#define QT_VERSION_5     1
-
 #define SEAT_TEST        1  /* All of configuration files use test files */
 
 #define LANGUAGE_CHINESE 1  /* All the text show as Chinese, please always enable */
