@@ -1,6 +1,6 @@
 #include "camerapage.h"
 
-#include <QFormLayout>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMessageBox>
@@ -8,6 +8,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
+#include <QResizeEvent>
 #include <QStackedWidget>
 
 #if EB_QT5_MULTIMEDIA
@@ -23,13 +24,11 @@ CameraPage::CameraPage(EbOptions *options, QWidget *parent)
     , controlGroup(nullptr)
     , deviceBox(nullptr)
     , resolutionBox(nullptr)
-    , statusLabel(nullptr)
-    , deviceInfoLabel(nullptr)
     , refreshDevicesBtn(nullptr)
+    , previewHost(nullptr)
     , previewFrame(nullptr)
     , previewStack(nullptr)
     , previewPlaceholder(nullptr)
-    , previewInfoLabel(nullptr)
 #if EB_QT5_MULTIMEDIA
     , viewfinder(nullptr)
     , camera(nullptr)
@@ -62,22 +61,23 @@ CameraPage::CameraPage(EbOptions *options, QWidget *parent)
 
     refreshDeviceList();
     updateControlStates();
+    setStatusMessage(defaultStatusHint());
+}
+
+QString CameraPage::defaultStatusHint() const
+{
+    return tr("就绪");
 }
 
 void CameraPage::buildUi()
 {
     QWidget *content = contentArea();
 
-    controlGroup = new QGroupBox(tr("设备与参数"), content);
+    controlGroup = new QGroupBox(tr("设置"), content);
     deviceBox = new QComboBox(controlGroup);
-    deviceBox->setMinimumWidth(220);
+    deviceBox->setMinimumWidth(200);
     resolutionBox = new QComboBox(controlGroup);
-    resolutionBox->setMinimumWidth(220);
-    statusLabel = new QLabel(tr("状态：未打开"), controlGroup);
-    statusLabel->setWordWrap(true);
-    deviceInfoLabel = new QLabel(controlGroup);
-    deviceInfoLabel->setWordWrap(true);
-    deviceInfoLabel->setObjectName(QStringLiteral("displayLabel"));
+    resolutionBox->setMinimumWidth(140);
     refreshDevicesBtn = new QPushButton(tr("刷新设备列表"), controlGroup);
     refreshDevicesBtn->setObjectName(QStringLiteral("functionBtn_small"));
     cameraToggleBtn = new QPushButton(tr("打开"), controlGroup);
@@ -88,35 +88,27 @@ void CameraPage::buildUi()
     connect(cameraToggleBtn, &QPushButton::clicked, this, &CameraPage::toggleCamera);
     connect(cameraCaptureBtn, &QPushButton::clicked, this, &CameraPage::captureStillImage);
 
-    QHBoxLayout *actionRow = new QHBoxLayout;
-    actionRow->addWidget(cameraToggleBtn);
-    actionRow->addWidget(cameraCaptureBtn);
-    actionRow->addStretch();
-
-    QFormLayout *form = new QFormLayout;
-    form->setContentsMargins(12, 16, 12, 12);
-    form->setSpacing(10);
-    form->addRow(tr("摄像头"), deviceBox);
-    form->addRow(tr("分辨率"), resolutionBox);
-    form->addRow(tr("状态"), statusLabel);
-    form->addRow(tr("详情"), deviceInfoLabel);
-    form->addRow(QString(), refreshDevicesBtn);
-    form->addRow(QString(), actionRow);
-    controlGroup->setLayout(form);
-    controlGroup->setFixedWidth(280);
+    QGridLayout *controlGrid = new QGridLayout(controlGroup);
+    controlGrid->setContentsMargins(12, 14, 12, 12);
+    controlGrid->setHorizontalSpacing(10);
+    controlGrid->setVerticalSpacing(8);
+    controlGrid->addWidget(new QLabel(tr("摄像头"), controlGroup), 0, 0);
+    controlGrid->addWidget(deviceBox, 0, 1);
+    controlGrid->addWidget(new QLabel(tr("分辨率"), controlGroup), 0, 2);
+    controlGrid->addWidget(resolutionBox, 0, 3);
+    controlGrid->addWidget(refreshDevicesBtn, 0, 4);
+    controlGrid->addWidget(cameraToggleBtn, 0, 5);
+    controlGrid->addWidget(cameraCaptureBtn, 0, 6);
+    controlGrid->setColumnStretch(1, 1);
+    controlGrid->setColumnStretch(3, 0);
 
     previewFrame = new QFrame(content);
     previewFrame->setObjectName(QStringLiteral("cameraPreviewFrame"));
-    previewFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    previewFrame->setMinimumSize(400, 300);
+    previewFrame->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     previewPlaceholder = new QLabel(tr("预览区域\n\n选择设备后点击「打开」开始预览"), previewFrame);
     previewPlaceholder->setAlignment(Qt::AlignCenter);
     previewPlaceholder->setObjectName(QStringLiteral("cameraPreviewPlaceholder"));
-
-    previewInfoLabel = new QLabel(previewFrame);
-    previewInfoLabel->setAlignment(Qt::AlignCenter);
-    previewInfoLabel->setObjectName(QStringLiteral("displayLabel"));
 
 #if EB_QT5_MULTIMEDIA
     viewfinder = new QCameraViewfinder(previewFrame);
@@ -141,21 +133,107 @@ void CameraPage::buildUi()
 #endif
 
     QVBoxLayout *previewLayout = new QVBoxLayout(previewFrame);
-    previewLayout->setContentsMargins(8, 8, 8, 8);
-    previewLayout->setSpacing(8);
-    previewLayout->addWidget(previewStack, 1);
-    previewLayout->addWidget(previewInfoLabel);
+    previewLayout->setContentsMargins(0, 0, 0, 0);
+    previewLayout->addWidget(previewStack);
 
-    QHBoxLayout *pageLayout = new QHBoxLayout(content);
-    pageLayout->setContentsMargins(16, 12, 16, 12);
-    pageLayout->setSpacing(16);
+    previewHost = new QWidget(content);
+    previewHost->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QVBoxLayout *previewHostLayout = new QVBoxLayout(previewHost);
+    previewHostLayout->setContentsMargins(0, 0, 0, 0);
+    previewHostLayout->setSpacing(0);
+
+    QWidget *previewBannerRow = new QWidget(previewHost);
+    QHBoxLayout *bannerLayout = new QHBoxLayout(previewBannerRow);
+    bannerLayout->setContentsMargins(0, 0, 0, 0);
+    bannerLayout->addStretch();
+    bannerLayout->addWidget(previewFrame, 0, Qt::AlignCenter);
+    bannerLayout->addStretch();
+
+    previewHostLayout->addStretch(1);
+    previewHostLayout->addWidget(previewBannerRow, 0, Qt::AlignHCenter);
+    previewHostLayout->addStretch(1);
+
+    QVBoxLayout *pageLayout = new QVBoxLayout(content);
+    pageLayout->setContentsMargins(16, 8, 16, 8);
+    pageLayout->setSpacing(8);
+    pageLayout->addWidget(previewHost, 1);
     pageLayout->addWidget(controlGroup, 0);
-    pageLayout->addWidget(previewFrame, 1);
+
+    updatePreviewBannerSize();
+}
+
+void CameraPage::resizeEvent(QResizeEvent *event)
+{
+    PageWidget::resizeEvent(event);
+    updatePreviewBannerSize();
+}
+
+void CameraPage::updatePreviewBannerSize()
+{
+    if (!previewHost || !previewFrame) {
+        return;
+    }
+
+    const int margin = 8;
+    const int maxWidth = qMin(720, CONTENT_WIDTH - 48);
+    int availW = previewHost->width() - margin;
+    int availH = previewHost->height() - margin;
+    if (availW <= 0 || availH <= 0) {
+        return;
+    }
+
+    int w = qMin(availW, maxWidth);
+    int h = w * 3 / 4;
+    if (h > availH) {
+        h = availH;
+        w = h * 4 / 3;
+    }
+    w = qMax(w, 320);
+    h = qMax(h, 240);
+
+    previewFrame->setFixedSize(w, h);
 }
 
 void CameraPage::setStatusText(const QString &text)
 {
-    statusLabel->setText(tr("状态：%1").arg(text));
+    setStatusMessage(text);
+}
+
+void CameraPage::updateStatusBar()
+{
+    if (!multimediaAvailable) {
+        setStatusMessage(tr("当前构建未启用多媒体模块"));
+        return;
+    }
+
+    if (deviceBox->count() == 0) {
+        setStatusMessage(tr("未检测到摄像头设备"));
+        return;
+    }
+
+    QString msg;
+    if (cameraActive) {
+        const QSize res = resolutionBox->currentData().toSize();
+        if (res.isValid()) {
+            msg = tr("预览中 · %1 × %2").arg(res.width()).arg(res.height());
+        } else {
+            msg = tr("预览中");
+        }
+    } else if (resolutionBox->currentIndex() >= 0) {
+        const QSize res = resolutionBox->currentData().toSize();
+        if (res.isValid()) {
+            msg = tr("分辨率 %1 × %2，点击「打开」预览").arg(res.width()).arg(res.height());
+        } else {
+            msg = tr("点击「打开」开始预览");
+        }
+    } else {
+        msg = defaultStatusHint();
+    }
+
+    if (!selectedDeviceDetail.isEmpty()) {
+        msg = selectedDeviceDetail + QStringLiteral(" — ") + msg;
+    }
+    setStatusMessage(msg);
 }
 
 bool CameraPage::hasMultimediaSupport() const
@@ -253,11 +331,10 @@ void CameraPage::refreshDeviceList()
     deviceBox->blockSignals(false);
 
     if (deviceBox->count() == 0) {
-        deviceInfoLabel->setText(tr("未检测到摄像头设备"));
+        selectedDeviceDetail.clear();
         resolutionBox->clear();
-        previewInfoLabel->clear();
-        setStatusText(tr("无可用设备"));
         updateControlStates();
+        updateStatusBar();
         return;
     }
 
@@ -282,15 +359,14 @@ void CameraPage::onDeviceChanged(int index)
 
     setupCameraForCurrentDevice();
     updateControlStates();
+    updateStatusBar();
 }
 
 void CameraPage::onResolutionChanged(int index)
 {
     Q_UNUSED(index);
-    if (!cameraActive) {
-        return;
-    }
     applySelectedResolution();
+    updateStatusBar();
 }
 
 void CameraPage::populateResolutionList()
@@ -341,7 +417,6 @@ void CameraPage::applySelectedResolution()
     QCameraViewfinderSettings settings;
     settings.setResolution(res);
     camera->setViewfinderSettings(settings);
-    previewInfoLabel->setText(tr("预览分辨率：%1 x %2").arg(res.width()).arg(res.height()));
 #endif
 }
 
@@ -388,7 +463,8 @@ void CameraPage::attachCamera(const QCameraInfo &info)
     teardownCamera();
 
     if (info.isNull()) {
-        deviceInfoLabel->setText(tr("无效设备"));
+        selectedDeviceDetail.clear();
+        updateStatusBar();
         return;
     }
 
@@ -406,25 +482,22 @@ void CameraPage::attachCamera(const QCameraInfo &info)
     connect(imageCapture, SIGNAL(error(int,QCameraImageCapture::Error,QString)),
             this, SLOT(onCaptureError(int,QCameraImageCapture::Error,QString)));
 
-    deviceInfoLabel->setText(QStringLiteral("%1\n%2")
-        .arg(info.description(), info.deviceName()));
+    selectedDeviceDetail = info.description().isEmpty()
+        ? info.deviceName()
+        : QStringLiteral("%1 (%2)").arg(info.description(), info.deviceName());
 
     populateResolutionList();
     applySelectedResolution();
-    setStatusText(tr("已选择设备，点击「打开」预览"));
+    updateStatusBar();
 }
 
 void CameraPage::onCameraStateChanged(QCamera::State state)
 {
     switch (state) {
     case QCamera::ActiveState:
-        setStatusText(tr("预览中"));
-        break;
     case QCamera::LoadedState:
-        setStatusText(tr("已加载"));
-        break;
     case QCamera::UnloadedState:
-        setStatusText(tr("已卸载"));
+        updateStatusBar();
         break;
     default:
         break;
@@ -482,7 +555,8 @@ void CameraPage::attachCamera(const QCameraDevice &device)
     teardownCamera();
 
     if (device.isNull()) {
-        deviceInfoLabel->setText(tr("无效设备"));
+        selectedDeviceDetail.clear();
+        updateStatusBar();
         return;
     }
 
@@ -496,18 +570,19 @@ void CameraPage::attachCamera(const QCameraDevice &device)
     connect(camera, &QCamera::errorOccurred, this, &CameraPage::onCameraError);
     connect(imageCapture, &QImageCapture::errorOccurred, this, &CameraPage::onCaptureError);
 
-    deviceInfoLabel->setText(device.description());
+    selectedDeviceDetail = device.description();
+    if (selectedDeviceDetail.isEmpty()) {
+        selectedDeviceDetail = device.id();
+    }
     populateResolutionList();
-
-    const QSize preferred = g_opt->cameraViewSize();
-    previewInfoLabel->setText(tr("预览分辨率：%1 x %2").arg(preferred.width()).arg(preferred.height()));
-    setStatusText(tr("已选择设备，点击「打开」预览"));
+    updateStatusBar();
 }
 
 void CameraPage::onCameraActiveChanged(bool active)
 {
-    setStatusText(active ? tr("预览中") : tr("已停止"));
+    Q_UNUSED(active);
     updateControlStates();
+    updateStatusBar();
 }
 
 void CameraPage::onCameraError(QCamera::Error error, const QString &message)
@@ -546,7 +621,7 @@ void CameraPage::openCamera()
     camera->start();
     cameraActive = true;
     updateControlStates();
-    setStatusText(tr("正在启动预览…"));
+    setStatusMessage(tr("正在启动预览…"));
 #endif
 }
 
@@ -559,7 +634,7 @@ void CameraPage::closeCamera()
     camera->stop();
     cameraActive = false;
     updateControlStates();
-    setStatusText(tr("已关闭"));
+    updateStatusBar();
 #endif
 }
 

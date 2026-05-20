@@ -10,6 +10,8 @@
 #include <QFrame>
 #include <QGroupBox>
 
+class QResizeEvent;
+
 class QStackedWidget;
 
 #if EB_QT5_MULTIMEDIA
@@ -33,6 +35,8 @@ class CameraPage : public PageWidget
     Q_OBJECT
 public:
     explicit CameraPage(EbOptions *options, QWidget *parent = 0);
+
+    QString defaultStatusHint() const override;
 
     bool hasMultimediaSupport() const;
     bool isCameraActive() const { return cameraActive; }
@@ -67,7 +71,10 @@ private slots:
 
 private:
     void buildUi();
+    void resizeEvent(QResizeEvent *event) override;
+    void updatePreviewBannerSize();
     void setStatusText(const QString &text);
+    void updateStatusBar();
     void updateControlStates();
     void populateResolutionList();
     void applySelectedResolution();
@@ -87,16 +94,14 @@ private:
     QGroupBox *controlGroup;
     QComboBox *deviceBox;
     QComboBox *resolutionBox;
-    QLabel *statusLabel;
-    QLabel *deviceInfoLabel;
     QPushButton *refreshDevicesBtn;
     QPushButton *cameraToggleBtn = nullptr;
     QPushButton *cameraCaptureBtn = nullptr;
 
+    QWidget *previewHost;
     QFrame *previewFrame;
     QStackedWidget *previewStack;
     QLabel *previewPlaceholder;
-    QLabel *previewInfoLabel;
 
 #if EB_QT5_MULTIMEDIA
     QCameraViewfinder *viewfinder;
@@ -113,6 +118,7 @@ private:
 
     bool cameraActive;
     bool multimediaAvailable;
+    QString selectedDeviceDetail;
 };
 
 #endif // CAMERAPAGE_H

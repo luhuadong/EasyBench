@@ -311,11 +311,15 @@ QTextEdit:disabled {
     color: #888888;
 }
 
-/* ---- Camera preview ---- */
+/* ---- Camera preview (centered banner) ---- */
 QFrame#cameraPreviewFrame {
     background-color: #101010;
     border: 2px solid #3D3D3D;
     border-radius: 8px;
+    min-width: 400px;
+    max-width: 720px;
+    min-height: 300px;
+    max-height: 540px;
 }
 
 QLabel#cameraPreviewPlaceholder {
