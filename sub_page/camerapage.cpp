@@ -52,19 +52,6 @@ CameraPage::CameraPage(EbOptions *options, QWidget *parent)
 
     buildUi();
 
-    operationBar->firstButton()->setText(tr("刷新"));
-    operationBar->secondButton()->setText(tr("打开"));
-    operationBar->thirdButton()->setText(tr("关闭"));
-    operationBar->fourthButton()->setText(tr("拍照"));
-    operationBar->firstButton()->setEnabled(multimediaAvailable);
-    operationBar->secondButton()->setEnabled(multimediaAvailable);
-    operationBar->thirdButton()->setEnabled(false);
-    operationBar->fourthButton()->setEnabled(false);
-
-    connect(operationBar->firstButton(), SIGNAL(clicked()), this, SLOT(refreshDeviceList()));
-    connect(operationBar->secondButton(), SIGNAL(clicked()), this, SLOT(openCamera()));
-    connect(operationBar->thirdButton(), SIGNAL(clicked()), this, SLOT(closeCamera()));
-    connect(operationBar->fourthButton(), SIGNAL(clicked()), this, SLOT(captureStillImage()));
     connect(deviceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onDeviceChanged(int)));
     connect(resolutionBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onResolutionChanged(int)));
     connect(refreshDevicesBtn, SIGNAL(clicked()), this, SLOT(refreshDeviceList()));
@@ -93,6 +80,18 @@ void CameraPage::buildUi()
     deviceInfoLabel->setObjectName(QStringLiteral("displayLabel"));
     refreshDevicesBtn = new QPushButton(tr("刷新设备列表"), controlGroup);
     refreshDevicesBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    cameraToggleBtn = new QPushButton(tr("打开"), controlGroup);
+    cameraToggleBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    cameraCaptureBtn = new QPushButton(tr("拍照"), controlGroup);
+    cameraCaptureBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    cameraCaptureBtn->setEnabled(false);
+    connect(cameraToggleBtn, &QPushButton::clicked, this, &CameraPage::toggleCamera);
+    connect(cameraCaptureBtn, &QPushButton::clicked, this, &CameraPage::captureStillImage);
+
+    QHBoxLayout *actionRow = new QHBoxLayout;
+    actionRow->addWidget(cameraToggleBtn);
+    actionRow->addWidget(cameraCaptureBtn);
+    actionRow->addStretch();
 
     QFormLayout *form = new QFormLayout;
     form->setContentsMargins(12, 16, 12, 12);
@@ -102,6 +101,7 @@ void CameraPage::buildUi()
     form->addRow(tr("状态"), statusLabel);
     form->addRow(tr("详情"), deviceInfoLabel);
     form->addRow(QString(), refreshDevicesBtn);
+    form->addRow(QString(), actionRow);
     controlGroup->setLayout(form);
     controlGroup->setFixedWidth(280);
 
@@ -158,6 +158,39 @@ void CameraPage::setStatusText(const QString &text)
     statusLabel->setText(tr("状态：%1").arg(text));
 }
 
+bool CameraPage::hasMultimediaSupport() const
+{
+    return multimediaAvailable;
+}
+
+bool CameraPage::canOpenCamera() const
+{
+    return multimediaAvailable && deviceBox->count() > 0 && !cameraActive;
+}
+
+bool CameraPage::canCaptureStill() const
+{
+    if (!cameraActive) {
+        return false;
+    }
+#if EB_QT5_MULTIMEDIA
+    return imageCapture && imageCapture->isReadyForCapture();
+#elif EB_QT6_MULTIMEDIA
+    return imageCapture != nullptr;
+#else
+    return false;
+#endif
+}
+
+void CameraPage::toggleCamera()
+{
+    if (cameraActive) {
+        closeCamera();
+    } else {
+        openCamera();
+    }
+}
+
 void CameraPage::updateControlStates()
 {
     const bool hasDevice = deviceBox->count() > 0 && multimediaAvailable;
@@ -165,16 +198,23 @@ void CameraPage::updateControlStates()
     resolutionBox->setEnabled(hasDevice);
     refreshDevicesBtn->setEnabled(!cameraActive);
 
-    operationBar->secondButton()->setEnabled(hasDevice && !cameraActive);
-    operationBar->thirdButton()->setEnabled(cameraActive);
-    operationBar->fourthButton()->setEnabled(cameraActive
-#if EB_QT5_MULTIMEDIA
-        && imageCapture && imageCapture->isReadyForCapture()
-#endif
-    );
-
     if (previewStack) {
         previewStack->setCurrentIndex(cameraActive ? 1 : 0);
+    }
+
+    if (cameraToggleBtn && cameraCaptureBtn) {
+        if (!multimediaAvailable) {
+            cameraToggleBtn->setEnabled(false);
+            cameraCaptureBtn->setEnabled(false);
+        } else if (cameraActive) {
+            cameraToggleBtn->setText(tr("关闭"));
+            cameraToggleBtn->setEnabled(true);
+            cameraCaptureBtn->setEnabled(canCaptureStill());
+        } else {
+            cameraToggleBtn->setText(tr("打开"));
+            cameraToggleBtn->setEnabled(canOpenCamera());
+            cameraCaptureBtn->setEnabled(false);
+        }
     }
 }
 

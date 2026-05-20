@@ -15,13 +15,6 @@ class VersionPage : public PageWidget
 public:
     explicit VersionPage(EbOptions *options, QWidget *parent = 0);
 
-public slots:
-
-private slots:
-    void shutdownSystem();
-    void rebootSystem();
-    void updatePackage();
-
 private:
     QTableView *tabView;
     QStandardItemModel *tabModel;
@@ -29,7 +22,6 @@ private:
     QString gyVersionFile;
 
     void getVersionData(void);
-
 };
 
 #endif // VERSIONPAGE_H

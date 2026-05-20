@@ -59,7 +59,57 @@ QToolButton#menuBtn:checked {
     color: #1E1E1E;
 }
 
-/* ---- Bottom operation bar ---- */
+/* ---- Network tabs ---- */
+QTabWidget#networkTabs::pane {
+    border: 1px solid #D0D0D0;
+    border-radius: 0 0 8px 8px;
+    background-color: #F0F0F0;
+    top: -1px;
+}
+
+QTabWidget#networkTabs > QTabBar::tab {
+    background-color: #E8E8E8;
+    color: #2B2B2B;
+    padding: 8px 18px;
+    margin-right: 2px;
+    border: 1px solid #D0D0D0;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font: bold 13px;
+}
+
+QTabWidget#networkTabs > QTabBar::tab:selected {
+    background-color: #FFFFFF;
+    border-bottom: 2px solid #FFD54B;
+}
+
+QTabWidget#networkTabs > QTabBar::tab:disabled {
+    color: #9E9E9E;
+}
+
+QTextEdit#networkLogArea {
+    background-color: #FFFFFF;
+    border: 1px solid #D0D0D0;
+    border-radius: 6px;
+    font: 13px;
+    padding: 6px;
+}
+
+/* ---- Bottom status bar (message only) ---- */
+QWidget#statusBar {
+    background-color: #FFFFFF;
+    border-top: 1px solid #D0D0D0;
+}
+
+QLabel#statusBarMessage {
+    color: #424242;
+    font: 13px;
+    padding: 0;
+    min-height: 20px;
+}
+
+/* legacy operation bar (unused) */
 QWidget#operationBarPanel {
     background-color: #2B2B2B;
 }

@@ -36,6 +36,8 @@
 #endif
 #endif
 #define TITLE_HEIGHT 40
+#define STATUS_BAR_HEIGHT 32
+#define PAGE_BODY_HEIGHT FIXED_WINDOWN_HEIGHT
 
 #define CONNECT_STM32    0  /* Connect to base board (STM32) via ethernet */
 

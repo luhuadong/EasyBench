@@ -83,11 +83,6 @@ AudioPage::AudioPage(EbOptions *options, QWidget *parent)
     refreshOutputDevices();
     refreshInputDevices();
 
-    operationBar->firstButton()->setEnabled(false);
-    operationBar->secondButton()->setEnabled(false);
-    operationBar->thirdButton()->setEnabled(false);
-    operationBar->fourthButton()->setEnabled(false);
-
 #if EB_QT_VERSION_MAJOR >= 6
     audioSink = nullptr;
     audioSource = nullptr;

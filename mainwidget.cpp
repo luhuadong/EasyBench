@@ -1,12 +1,11 @@
 #include "mainwidget.h"
 #include "eb_branding.h"
 #include "eb_common.h"
-#include <QLabel>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+
 #include <QAbstractButton>
-#include <QToolButton>
+#include <QHBoxLayout>
 #include <QIcon>
+#include <QVBoxLayout>
 
 struct MenuItemDef {
     int pageId;
@@ -23,6 +22,7 @@ static const MenuItemDef kMenuItems[] = {
     { MainWidget::PAGE_STORAGE,  ":/icons/menu_storage.svg",  ":/icons/menu_storage_active.svg" },
     { MainWidget::PAGE_AUDIO,    ":/icons/menu_audio.svg",    ":/icons/menu_audio_active.svg" },
     { MainWidget::PAGE_VERSION,  ":/icons/menu_version.svg",  ":/icons/menu_version_active.svg" },
+    { MainWidget::PAGE_UPGRADE,  ":/icons/menu_update.svg",   ":/icons/menu_update_active.svg" },
 };
 
 MainWidget::MainWidget(EbOptions *options, QWidget *parent)
@@ -36,6 +36,7 @@ MainWidget::MainWidget(EbOptions *options, QWidget *parent)
     connect(menuBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(menuBtnGroupToggled(int)));
     connect(menuBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(updateMenuButtonIcons()));
     updateMenuButtonIcons();
+    applyPageDefaultStatus(PAGE_SYSTEM);
 }
 
 MainWidget::~MainWidget()
@@ -68,7 +69,7 @@ void MainWidget::initMainUI()
 
     const QStringList menuLabels = QStringList()
         << tr("系统") << tr("显示") << tr("相机") << tr("网络")
-        << tr("串口") << tr("存储") << tr("声音") << tr("版本");
+        << tr("串口") << tr("存储") << tr("声音") << tr("版本") << tr("升级");
 
     const int menuCount = sizeof(kMenuItems) / sizeof(kMenuItems[0]);
     for (int i = 0; i < menuCount; ++i) {
@@ -91,11 +92,21 @@ void MainWidget::initMainUI()
         menuLayout->addWidget(menuBtn, 1);
     }
 
-    centerPages = new QStackedWidget(this);
+    contentColumn = new QWidget(this);
+    QVBoxLayout *contentLayout = new QVBoxLayout(contentColumn);
+    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->setSpacing(0);
+
+    centerPages = new QStackedWidget(contentColumn);
     centerPages->setObjectName(QStringLiteral("centerPages"));
 
+    statusBar = new StatusBar(contentColumn);
+
+    contentLayout->addWidget(centerPages, 1);
+    contentLayout->addWidget(statusBar);
+
     rootLayout->addWidget(menuWidget);
-    rootLayout->addWidget(centerPages, 1);
+    rootLayout->addWidget(contentColumn, 1);
 
     systemPage = new SystemPage(g_opt, this);
     lcdPage = new LcdPage(g_opt, this);
@@ -105,6 +116,7 @@ void MainWidget::initMainUI()
     storagePage = new StoragePage(g_opt, this);
     audioPage = new AudioPage(g_opt, this);
     versionPage = new VersionPage(g_opt, this);
+    upgradePage = new UpgradePage(g_opt, this);
 
     centerPages->addWidget(systemPage);
     centerPages->addWidget(lcdPage);
@@ -114,6 +126,17 @@ void MainWidget::initMainUI()
     centerPages->addWidget(storagePage);
     centerPages->addWidget(audioPage);
     centerPages->addWidget(versionPage);
+    centerPages->addWidget(upgradePage);
+
+    bindPageStatus(systemPage);
+    bindPageStatus(lcdPage);
+    bindPageStatus(cameraPage);
+    bindPageStatus(networkPage);
+    bindPageStatus(serialPage);
+    bindPageStatus(storagePage);
+    bindPageStatus(audioPage);
+    bindPageStatus(versionPage);
+    bindPageStatus(upgradePage);
 
     centerPages->setCurrentWidget(systemPage);
 
@@ -121,10 +144,49 @@ void MainWidget::initMainUI()
     currPage = PAGE_SYSTEM;
 }
 
+void MainWidget::bindPageStatus(PageWidget *page)
+{
+    connect(page, &PageWidget::statusMessageChanged, statusBar, &StatusBar::setMessage);
+}
+
+void MainWidget::applyPageDefaultStatus(pageTypes page)
+{
+    PageWidget *widget = pageForType(page);
+    if (widget && statusBar) {
+        statusBar->setMessage(widget->defaultStatusHint());
+    }
+}
+
+PageWidget *MainWidget::pageForType(pageTypes page) const
+{
+    switch (page) {
+    case PAGE_SYSTEM:
+        return systemPage;
+    case PAGE_LCD:
+        return lcdPage;
+    case PAGE_CAMERA:
+        return cameraPage;
+    case PAGE_NETWORK:
+        return networkPage;
+    case PAGE_SERIAL:
+        return serialPage;
+    case PAGE_STORAGE:
+        return storagePage;
+    case PAGE_AUDIO:
+        return audioPage;
+    case PAGE_VERSION:
+        return versionPage;
+    case PAGE_UPGRADE:
+        return upgradePage;
+    }
+    return nullptr;
+}
+
 void MainWidget::menuBtnGroupToggled(int id)
 {
     centerPages->setCurrentIndex(id);
     currPage = static_cast<pageTypes>(id);
+    applyPageDefaultStatus(currPage);
 }
 
 void MainWidget::updateMenuButtonIcons()

@@ -50,11 +50,6 @@ SerialPage::SerialPage(EbOptions *options, QWidget *parent)
     buildUi();
     refreshPortList();
 
-    operationBar->firstButton()->setEnabled(false);
-    operationBar->secondButton()->setEnabled(false);
-    operationBar->thirdButton()->setEnabled(false);
-    operationBar->fourthButton()->setEnabled(false);
-
     recvThread = new SerialRecvThread(this);
     connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::showRecvData);
 }

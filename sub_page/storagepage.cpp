@@ -256,10 +256,6 @@ StoragePage::StoragePage(EbOptions *options, QWidget *parent)
     buildUi();
     refreshTargets();
 
-    operationBar->firstButton()->setEnabled(false);
-    operationBar->secondButton()->setEnabled(false);
-    operationBar->thirdButton()->setEnabled(false);
-    operationBar->fourthButton()->setEnabled(false);
 }
 
 StoragePage::~StoragePage()

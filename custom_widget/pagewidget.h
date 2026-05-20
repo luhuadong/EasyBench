@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QLabel>
-#include "operationbar.h"
 #include "eb_common.h"
 #include "eb_options.h"
 
@@ -15,15 +14,15 @@ public:
 
     void setBackgroundPicture(const QString &path);
     void setTitleLabelText(const QString &text);
+    virtual QString defaultStatusHint() const;
 
-    OperationBar *operationBar;
+    void setStatusMessage(const QString &text);
+
+signals:
+    void statusMessageChanged(const QString &text);
 
 protected:
     QWidget *contentArea() const;
-
-signals:
-
-public slots:
 
 protected:
     EbOptions *g_opt;
@@ -31,8 +30,6 @@ protected:
 private:
     QLabel *titleLabel;
     QWidget *contentWidget;
-
-
 };
 
 #endif // PAGEWIDGET_H

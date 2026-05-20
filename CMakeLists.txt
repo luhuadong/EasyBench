@@ -43,10 +43,9 @@ set(EASYBENCH_SOURCES
     eb_options.cpp
     eb_startup.cpp
     eb_branding.cpp
-    custom_widget/operationbar.cpp
+    custom_widget/statusbar.cpp
     custom_widget/pagewidget.cpp
     custom_widget/inputlineedit.cpp
-    custom_widget/updatedialog.cpp
     sub_page/lcdpage.cpp
     sub_page/camerapage.cpp
     sub_page/datetimepage.cpp
@@ -54,6 +53,7 @@ set(EASYBENCH_SOURCES
     sub_page/serialpage.cpp
     sub_page/storagepage.cpp
     sub_page/versionpage.cpp
+    sub_page/upgradepage.cpp
     sub_page/networkpage.cpp
     sub_page/systempage.cpp
     sub_page/audiopage.cpp
@@ -65,6 +65,8 @@ set(EASYBENCH_SOURCES
     module/monitor/basepcbthread.cpp
     module/monitor/cpustatthread.cpp
     module/monitor/eb_sysstats.cpp
+    module/network/eb_net_util.cpp
+    module/update/eb_update_util.cpp
 )
 
 set(EASYBENCH_HEADERS
@@ -73,10 +75,9 @@ set(EASYBENCH_HEADERS
     eb_options.h
     eb_startup.h
     eb_branding.h
-    custom_widget/operationbar.h
+    custom_widget/statusbar.h
     custom_widget/pagewidget.h
     custom_widget/inputlineedit.h
-    custom_widget/updatedialog.h
     sub_page/lcdpage.h
     sub_page/camerapage.h
     sub_page/datetimepage.h
@@ -84,6 +85,7 @@ set(EASYBENCH_HEADERS
     sub_page/serialpage.h
     sub_page/storagepage.h
     sub_page/versionpage.h
+    sub_page/upgradepage.h
     sub_page/networkpage.h
     sub_page/systempage.h
     sub_page/audiopage.h
@@ -95,6 +97,8 @@ set(EASYBENCH_HEADERS
     module/monitor/basepcbthread.h
     module/monitor/cpustatthread.h
     module/monitor/eb_sysstats.h
+    module/network/eb_net_util.h
+    module/update/eb_update_util.h
 )
 
 set(EASYBENCH_RESOURCES
@@ -116,6 +120,8 @@ target_include_directories(easybench PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/module/lcd
     ${CMAKE_CURRENT_SOURCE_DIR}/module/monitor
     ${CMAKE_CURRENT_SOURCE_DIR}/module/audio
+    ${CMAKE_CURRENT_SOURCE_DIR}/module/network
+    ${CMAKE_CURRENT_SOURCE_DIR}/module/update
 )
 
 target_compile_definitions(easybench PRIVATE

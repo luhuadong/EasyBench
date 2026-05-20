@@ -54,12 +54,6 @@ LcdPage::LcdPage(EbOptions *options, QWidget *parent)
     detectBacklight();
     applyBacklightPercent(uiPercent);
 
-    operationBar->firstButton()->setEnabled(false);
-    operationBar->fourthButton()->setEnabled(false);
-    operationBar->secondButton()->setText(tr("亮度减"));
-    operationBar->thirdButton()->setText(tr("亮度加"));
-    connect(operationBar->secondButton(), &QPushButton::clicked, this, &LcdPage::lcdBacklightDown);
-    connect(operationBar->thirdButton(), &QPushButton::clicked, this, &LcdPage::lcdBacklightUp);
 }
 
 void LcdPage::buildUi()

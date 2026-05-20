@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QProgressBar>
+#include <QPushButton>
 #include <QTimer>
 
 #define MAXBUF 256
@@ -35,13 +36,11 @@ public:
 
 private slots:
     void onUpdateTimer();
-    void onSshBtnClicked();
     void fanModeBtnClicked();
     void changeFanSpeedBtnClicked();
 
 private:
     void buildUi();
-    void initOperationBar();
     void updateSysParam();
     void createSocketWithBasePcb();
     void sendBasePcbCmd(BASEPCB_CMD which, const QString &arg);
@@ -77,6 +76,8 @@ private:
     QLabel *fanSpeedLabel = nullptr;
     QLabel *fwVerLabel = nullptr;
     QLabel *hwVerLabel = nullptr;
+    QPushButton *fanModeBtn = nullptr;
+    QPushButton *fanChangeBtn = nullptr;
 
     EbSysStats::CpuInfo cpuInfo;
     float cpuTotalDuty = 0.0f;

@@ -1,14 +1,17 @@
 #include "pagewidget.h"
-#include <QPixmap>
+
+#include <QBrush>
 #include <QPalette>
-#include <QLabel>
+#include <QPixmap>
 #include <QVBoxLayout>
 
-PageWidget::PageWidget(EbOptions *options, QWidget *parent) : QWidget(parent)
+PageWidget::PageWidget(EbOptions *options, QWidget *parent)
+    : QWidget(parent)
 {
     g_opt = options;
 
-    setFixedSize(CONTENT_WIDTH, FIXED_WINDOWN_HEIGHT);
+    setMinimumWidth(CONTENT_WIDTH);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     titleLabel = new QLabel(this);
     titleLabel->setObjectName(QStringLiteral("pageTitle"));
@@ -16,25 +19,28 @@ PageWidget::PageWidget(EbOptions *options, QWidget *parent) : QWidget(parent)
 
     contentWidget = new QWidget(this);
     contentWidget->setObjectName(QStringLiteral("pageContent"));
-
-    operationBar = new OperationBar(this);
-    operationBar->fifthButton()->setText(tr("Return"));
-
-#if LANGUAGE_CHINESE
-    operationBar->fifthButton()->setText(tr("返回"));
-#endif
+    contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QVBoxLayout *rootLayout = new QVBoxLayout(this);
     rootLayout->setContentsMargins(0, 0, 0, 0);
     rootLayout->setSpacing(0);
     rootLayout->addWidget(titleLabel);
     rootLayout->addWidget(contentWidget, 1);
-    rootLayout->addWidget(operationBar);
 }
 
 QWidget *PageWidget::contentArea() const
 {
     return contentWidget;
+}
+
+QString PageWidget::defaultStatusHint() const
+{
+    return tr("就绪");
+}
+
+void PageWidget::setStatusMessage(const QString &text)
+{
+    emit statusMessageChanged(text);
 }
 
 void PageWidget::setBackgroundPicture(const QString &path)

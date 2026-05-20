@@ -2,57 +2,110 @@
 #define NETWORKPAGE_H
 
 #include "custom_widget/pagewidget.h"
-#include "eb_common.h"
 
-#include <QNetworkInterface>
-#include <QList>
+#include "module/network/eb_net_util.h"
+
+#include <QComboBox>
+#include <QFile>
+#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QRadioButton>
+#include <QSpinBox>
+#include <QTabWidget>
 #include <QTextEdit>
-#include <QGroupBox>
-#include <QString>
-#include <QStringList>
-#include <QFile>
 
 class NetworkPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit NetworkPage(EbOptions *options, QWidget *parent = 0);
+    explicit NetworkPage(EbOptions *options, QWidget *parent = nullptr);
 
-signals:
+    QString defaultStatusHint() const override;
 
-public slots:
+    void toggleInterfaceLink();
+    void syncLinkToggleButton();
 
 private slots:
-    void editBtnOnClicked(void);
-    void checkBtnOnClicked(void);
-    void dumpBtnOnClicked(void);
-    void writeBtnOnClicked(void);
+    void refreshInterfaces();
+    void onInterfaceChanged(int index);
+    void applyMacRuntime();
+    void saveMacPersistent();
+    void applyIpv4Runtime();
+    void saveIpv4Persistent();
+    void setInterfaceUp();
+    void setInterfaceDown();
+    void startPing();
+    void stopPing();
+    void onPingLine(const QString &line);
+    void onPingFinished(int exitCode);
+
+    void i210EditClicked();
+    void i210CheckClicked();
+    void i210DumpClicked();
+    void i210WriteClicked();
 
 private:
-    QList<QNetworkInterface> ifList;
-
-    bool hasI210OnBoard();
-    QString getMacAddrFromEditLine();
+    void buildUi();
+    void buildI210Tab(QWidget *tabPage);
     bool generateI210File();
+    QString parseI210MacLine();
+    void appendMacLog(const QString &text);
+    void appendIpv4Log(const QString &text);
+    void appendPingLog(const QString &text);
+    void applyPrivilegeUi();
+    bool confirmNetworkChange(const QString &title, const QString &detail);
+    QString currentInterfaceName() const;
+    void updateStatusLabels();
+    void fillConfigFields(const EbNet::InterfaceInfo &info);
+    bool checkPrivilegeForApply();
 
-    QGroupBox *i210Group;
-    QLabel *macAddrLabel;
-    QLineEdit *macAddrLine;
-    QPushButton *editBtn;
-    QPushButton *checkBtn;
-    QPushButton *dumpBtn;
-    QPushButton *writeBtn;
-    QTextEdit *showArea;
+    EbNet::PingRunner *pingRunner = nullptr;
+    QTabWidget *tabWidget = nullptr;
+    int i210TabIndex = -1;
 
-    char MACAddr[6];
-    QString MACAddrStr;
-    QStringList MACAddrList;
+    QComboBox *ifaceBox = nullptr;
+    QPushButton *linkToggleBtn = nullptr;
 
-    QFile tmpFile;
+    QLabel *statusMacLabel = nullptr;
+    QLabel *statusIpLabel = nullptr;
+    QLabel *statusGwLabel = nullptr;
+    QLabel *statusDnsLabel = nullptr;
+    QLabel *statusLinkLabel = nullptr;
+    QLabel *statusBackendLabel = nullptr;
 
+    QLineEdit *macEdit = nullptr;
+    QPushButton *macApplyBtn = nullptr;
+    QPushButton *macSaveBtn = nullptr;
+    QTextEdit *macLogArea = nullptr;
+
+    QRadioButton *dhcpRadio = nullptr;
+    QRadioButton *staticRadio = nullptr;
+    QLineEdit *ipEdit = nullptr;
+    QLineEdit *maskEdit = nullptr;
+    QLineEdit *gatewayEdit = nullptr;
+    QLineEdit *dnsEdit = nullptr;
+    QSpinBox *prefixSpin = nullptr;
+    QPushButton *ipApplyBtn = nullptr;
+    QPushButton *ipSaveBtn = nullptr;
+    QTextEdit *ipv4LogArea = nullptr;
+
+    QLineEdit *pingHostEdit = nullptr;
+    QSpinBox *pingCountSpin = nullptr;
+    QPushButton *pingBtn = nullptr;
+    QPushButton *pingStopBtn = nullptr;
+    QLabel *pingSummaryLabel = nullptr;
+    QTextEdit *pingLogArea = nullptr;
+
+    QLineEdit *i210MacLine = nullptr;
+    QTextEdit *i210LogArea = nullptr;
+
+    QList<EbNet::InterfaceInfo> interfaces;
+
+    char i210MacBytes[6] = {};
+    QStringList i210MacParts;
+    QFile i210TmpFile;
 };
 
-#endif // NETWORKPAGE_H
+#endif /* NETWORKPAGE_H */

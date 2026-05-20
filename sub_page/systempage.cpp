@@ -2,7 +2,6 @@
 #include "module/monitor/basepcbthread.h"
 #include "module/monitor/cpustatthread.h"
 
-#include <QFormLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -17,12 +16,20 @@ extern "C" {
 #include <unistd.h>
 }
 
+namespace {
+
+void stretchGroupBox(QGroupBox *box)
+{
+    box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+} // namespace
+
 SystemPage::SystemPage(EbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
 {
     setTitleLabelText(tr("系统信息"));
     buildUi();
-    initOperationBar();
     updateSysParam();
 
     updateTimer = new QTimer(this);
@@ -40,16 +47,13 @@ SystemPage::SystemPage(EbOptions *options, QWidget *parent)
         sendBasePcbCmd(CMD_GET_VERSION, QString());
         sendBasePcbCmd(CMD_CONTROL, QString());
     }
-    operationBar->secondButton()->setText(tr("Standard"));
-    operationBar->thirdButton()->setText(tr("Change"));
-    operationBar->thirdButton()->setEnabled(false);
-    connect(operationBar->secondButton(), &QPushButton::clicked, this, &SystemPage::fanModeBtnClicked);
-    connect(operationBar->thirdButton(), &QPushButton::clicked, this, &SystemPage::changeFanSpeedBtnClicked);
-#else
-    operationBar->secondButton()->setEnabled(false);
-    operationBar->thirdButton()->setEnabled(false);
+    if (fanModeBtn && fanChangeBtn) {
+        fanModeBtn->setText(tr("Standard"));
+        fanChangeBtn->setEnabled(false);
+        connect(fanModeBtn, &QPushButton::clicked, this, &SystemPage::fanModeBtnClicked);
+        connect(fanChangeBtn, &QPushButton::clicked, this, &SystemPage::changeFanSpeedBtnClicked);
+    }
 #endif
-    operationBar->fourthButton()->setEnabled(false);
 }
 
 void SystemPage::buildUi()
@@ -73,6 +77,7 @@ void SystemPage::buildUi()
     cpuLayout->addWidget(cpuCoreLabel);
     cpuLayout->addWidget(cpuDutyLabel);
     cpuLayout->addWidget(cpuBar);
+    cpuLayout->addStretch();
 
     memGroup = new QGroupBox(tr("内存"), content);
     memTotalLabel = new QLabel(memGroup);
@@ -87,6 +92,7 @@ void SystemPage::buildUi()
     memLayout->addWidget(memUsedLabel);
     memLayout->addWidget(memFreeLabel);
     memLayout->addWidget(memBar);
+    memLayout->addStretch();
 
     diskGroup = new QGroupBox(tr("存储"), content);
     diskTotalLabel = new QLabel(diskGroup);
@@ -101,24 +107,26 @@ void SystemPage::buildUi()
     diskLayout->addWidget(diskUsedLabel);
     diskLayout->addWidget(diskFreeLabel);
     diskLayout->addWidget(diskBar);
+    diskLayout->addStretch();
 
     rtcGroup = new QGroupBox(tr("实时时钟"), content);
-    rtcNameLabel = new QLabel(tr("设备型号 : —"), rtcGroup);
-    rtcDateTimeLabel = new QLabel(tr("RTC 时间 : —"), rtcGroup);
-    sysDateTimeLabel = new QLabel(tr("系统时间 : —"), rtcGroup);
+    rtcNameLabel = new QLabel(tr("设备型号：—"), rtcGroup);
+    rtcDateTimeLabel = new QLabel(tr("RTC 时间：—"), rtcGroup);
+    sysDateTimeLabel = new QLabel(tr("系统时间：—"), rtcGroup);
     QVBoxLayout *rtcLayout = new QVBoxLayout(rtcGroup);
     rtcLayout->setContentsMargins(12, 16, 12, 12);
     rtcLayout->addWidget(rtcNameLabel);
     rtcLayout->addWidget(rtcDateTimeLabel);
     rtcLayout->addWidget(sysDateTimeLabel);
+    rtcLayout->addStretch();
 
     tempGroup = new QGroupBox(tr("温度 / 底板"), content);
     armTempLabel = new QLabel(tempGroup);
     adspTempLabel = new QLabel(tempGroup);
     pcbTempLabel = new QLabel(tempGroup);
     fanSpeedLabel = new QLabel(tempGroup);
-    fwVerLabel = new QLabel(tr("固件 : —"), tempGroup);
-    hwVerLabel = new QLabel(tr("硬件 : —"), tempGroup);
+    fwVerLabel = new QLabel(tr("固件：—"), tempGroup);
+    hwVerLabel = new QLabel(tr("硬件：—"), tempGroup);
     QVBoxLayout *tempLayout = new QVBoxLayout(tempGroup);
     tempLayout->setContentsMargins(12, 16, 12, 12);
     tempLayout->addWidget(armTempLabel);
@@ -128,7 +136,26 @@ void SystemPage::buildUi()
     tempLayout->addWidget(fwVerLabel);
     tempLayout->addWidget(hwVerLabel);
 
-    QGridLayout *grid = new QGridLayout(content);
+#if CONNECT_STM32
+    fanModeBtn = new QPushButton(tr("Standard"), tempGroup);
+    fanModeBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    fanChangeBtn = new QPushButton(tr("Change"), tempGroup);
+    fanChangeBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    fanChangeBtn->setEnabled(false);
+    QHBoxLayout *fanBtnRow = new QHBoxLayout;
+    fanBtnRow->addWidget(fanModeBtn);
+    fanBtnRow->addWidget(fanChangeBtn);
+    fanBtnRow->addStretch();
+    tempLayout->addLayout(fanBtnRow);
+#endif
+    tempLayout->addStretch();
+
+    stretchGroupBox(memGroup);
+    stretchGroupBox(diskGroup);
+    stretchGroupBox(rtcGroup);
+    stretchGroupBox(tempGroup);
+
+    QGridLayout *grid = new QGridLayout;
     grid->setContentsMargins(16, 12, 16, 12);
     grid->setHorizontalSpacing(16);
     grid->setVerticalSpacing(12);
@@ -137,16 +164,15 @@ void SystemPage::buildUi()
     grid->addWidget(diskGroup, 1, 1);
     grid->addWidget(rtcGroup, 2, 0);
     grid->addWidget(tempGroup, 2, 1);
-}
+    grid->setRowStretch(0, 0);
+    grid->setRowStretch(1, 1);
+    grid->setRowStretch(2, 1);
+    grid->setColumnStretch(0, 1);
+    grid->setColumnStretch(1, 1);
 
-void SystemPage::initOperationBar()
-{
-    if (system("netstat -nult | grep -w 22") == 0) {
-        operationBar->firstButton()->setText(tr("SSH已开启"));
-    } else {
-        operationBar->firstButton()->setText(tr("SSH已关闭"));
-    }
-    connect(operationBar->firstButton(), &QPushButton::clicked, this, &SystemPage::onSshBtnClicked);
+    QVBoxLayout *pageLayout = new QVBoxLayout(content);
+    pageLayout->setContentsMargins(0, 0, 0, 0);
+    pageLayout->addLayout(grid, 1);
 }
 
 void SystemPage::updateSysParam()
@@ -218,17 +244,6 @@ void SystemPage::onUpdateTimer()
         adspTempLabel->setText(tr("ADSP 温度：— (未连接底板)"));
         pcbTempLabel->setText(tr("PCB 温度：—"));
         fanSpeedLabel->setText(tr("风扇转速：—"));
-    }
-}
-
-void SystemPage::onSshBtnClicked()
-{
-    if (operationBar->firstButton()->text() == tr("SSH已关闭")) {
-        system("/etc/init.d/sshd start");
-        operationBar->firstButton()->setText(tr("SSH已开启"));
-    } else if (operationBar->firstButton()->text() == tr("SSH已开启")) {
-        system("/etc/init.d/sshd stop");
-        operationBar->firstButton()->setText(tr("SSH已关闭"));
     }
 }
 
@@ -326,13 +341,13 @@ void SystemPage::fanModeBtnClicked()
     }
     if (fanMode == 0) {
         fanMode = 1;
-        operationBar->secondButton()->setText(tr("Debug"));
-        operationBar->thirdButton()->setEnabled(true);
+        fanModeBtn->setText(tr("Debug"));
+        fanChangeBtn->setEnabled(true);
     } else {
         fanMode = 0;
         sendBasePcbCmd(CMD_CONTROL, QString());
-        operationBar->secondButton()->setText(tr("Standard"));
-        operationBar->thirdButton()->setEnabled(false);
+        fanModeBtn->setText(tr("Standard"));
+        fanChangeBtn->setEnabled(false);
     }
 }
 

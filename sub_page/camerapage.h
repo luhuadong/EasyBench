@@ -34,13 +34,21 @@ class CameraPage : public PageWidget
 public:
     explicit CameraPage(EbOptions *options, QWidget *parent = 0);
 
+    bool hasMultimediaSupport() const;
+    bool isCameraActive() const { return cameraActive; }
+    bool canOpenCamera() const;
+    bool canCaptureStill() const;
+
+public slots:
+    void toggleCamera();
+    void captureStillImage();
+
 private slots:
     void refreshDeviceList();
     void onDeviceChanged(int index);
     void onResolutionChanged(int index);
     void openCamera();
     void closeCamera();
-    void captureStillImage();
 
 #if EB_QT5_MULTIMEDIA
     void onCameraStateChanged(QCamera::State state);
@@ -82,6 +90,8 @@ private:
     QLabel *statusLabel;
     QLabel *deviceInfoLabel;
     QPushButton *refreshDevicesBtn;
+    QPushButton *cameraToggleBtn = nullptr;
+    QPushButton *cameraCaptureBtn = nullptr;
 
     QFrame *previewFrame;
     QStackedWidget *previewStack;
