@@ -18,6 +18,9 @@ public:
 
     OperationBar *operationBar;
 
+protected:
+    QWidget *contentArea() const;
+
 signals:
 
 public slots:
@@ -26,10 +29,8 @@ protected:
     EbOptions *g_opt;
 
 private:
-    //QWidget *tipsWidget;
     QLabel *titleLabel;
-
-    //QWidget *operationBar;
+    QWidget *contentWidget;
 
 
 };

@@ -2,44 +2,47 @@
 #include <QPixmap>
 #include <QPalette>
 #include <QLabel>
+#include <QVBoxLayout>
 
 PageWidget::PageWidget(EbOptions *options, QWidget *parent) : QWidget(parent)
 {
     g_opt = options;
 
-    //setFixedSize(720, 432);
-    setFixedSize(900, 720);
-    //setStyleSheet("border-top-left-radius: 4px; border-top-right-radius: 4px;");
+    setFixedSize(CONTENT_WIDTH, FIXED_WINDOWN_HEIGHT);
 
     titleLabel = new QLabel(this);
-    //titleLabel->setText(tr("###### Hello World ######"));
+    titleLabel->setObjectName(QStringLiteral("pageTitle"));
     titleLabel->setAlignment(Qt::AlignCenter);
-    //titleLabel->setGeometry(0, 0, 720, 96);
-    titleLabel->setGeometry(0, 0, 900, 96);
-    titleLabel->setStyleSheet("border: 2px solid #202020; \
-                         border-left-style: transparent; border-right-style: transparent;\
-                         border-top-left-radius: 8px; border-top-right-radius: 8px;\
-                         background-color: rgba(255, 255, 224, 50%);\
-                         font: bold 36px; color: #202020;");
 
+    contentWidget = new QWidget(this);
+    contentWidget->setObjectName(QStringLiteral("pageContent"));
 
     operationBar = new OperationBar(this);
-    //operationBar->setGeometry(0, 432-48, operationBar->width(), operationBar->height());
-    operationBar->setGeometry(0, 720-operationBar->height(), operationBar->width(), operationBar->height());
     operationBar->fifthButton()->setText(tr("Return"));
 
 #if LANGUAGE_CHINESE
     operationBar->fifthButton()->setText(tr("返回"));
 #endif
 
+    QVBoxLayout *rootLayout = new QVBoxLayout(this);
+    rootLayout->setContentsMargins(0, 0, 0, 0);
+    rootLayout->setSpacing(0);
+    rootLayout->addWidget(titleLabel);
+    rootLayout->addWidget(contentWidget, 1);
+    rootLayout->addWidget(operationBar);
+}
+
+QWidget *PageWidget::contentArea() const
+{
+    return contentWidget;
 }
 
 void PageWidget::setBackgroundPicture(const QString &path)
 {
-    this->setAutoFillBackground(true);
+    contentWidget->setAutoFillBackground(true);
     QPalette palette;
     palette.setBrush(QPalette::Background, QBrush(QPixmap(path)));
-    this->setPalette(palette);
+    contentWidget->setPalette(palette);
 }
 
 void PageWidget::setTitleLabelText(const QString &text)

@@ -16,7 +16,7 @@ if(EASYBENCH_FORCE_QT6 AND EASYBENCH_FORCE_QT5)
     message(FATAL_ERROR "EASYBENCH_FORCE_QT6 and EASYBENCH_FORCE_QT5 cannot both be ON.")
 endif()
 
-set(_EB_QT_COMPONENTS Core Gui Widgets Network Xml Multimedia MultimediaWidgets)
+set(_EB_QT_COMPONENTS Core Gui Widgets Network Xml Multimedia MultimediaWidgets Svg)
 
 if(EASYBENCH_FORCE_QT5)
     find_package(Qt5 5.12 REQUIRED COMPONENTS ${_EB_QT_COMPONENTS})
@@ -50,19 +50,21 @@ set(EASYBENCH_SOURCES
     sub_page/lcdpage.cpp
     sub_page/camerapage.cpp
     sub_page/datetimepage.cpp
-    sub_page/monitorpage.cpp
     sub_page/realtimepage.cpp
-    sub_page/touchpage.cpp
+    sub_page/serialpage.cpp
+    sub_page/storagepage.cpp
     sub_page/versionpage.cpp
     sub_page/networkpage.cpp
     sub_page/systempage.cpp
-    sub_page/seatpage.cpp
+    sub_page/audiopage.cpp
+    module/audio/eb_pcm_util.cpp
+    module/audio/pcm_memory_device.cpp
     module/camera/processimage.cpp
     module/camera/videodevice.cpp
     module/lcd/grayscalewidget.cpp
     module/monitor/basepcbthread.cpp
     module/monitor/cpustatthread.cpp
-    module/sunriset/sunriset.cpp
+    module/monitor/eb_sysstats.cpp
 )
 
 set(EASYBENCH_HEADERS
@@ -78,19 +80,21 @@ set(EASYBENCH_HEADERS
     sub_page/lcdpage.h
     sub_page/camerapage.h
     sub_page/datetimepage.h
-    sub_page/monitorpage.h
     sub_page/realtimepage.h
-    sub_page/touchpage.h
+    sub_page/serialpage.h
+    sub_page/storagepage.h
     sub_page/versionpage.h
     sub_page/networkpage.h
     sub_page/systempage.h
-    sub_page/seatpage.h
+    sub_page/audiopage.h
+    module/audio/eb_pcm_util.h
+    module/audio/pcm_memory_device.h
     module/camera/processimage.h
     module/camera/videodevice.h
     module/lcd/grayscalewidget.h
     module/monitor/basepcbthread.h
     module/monitor/cpustatthread.h
-    module/sunriset/sunriset.h
+    module/monitor/eb_sysstats.h
 )
 
 set(EASYBENCH_RESOURCES
@@ -111,7 +115,7 @@ target_include_directories(easybench PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/module/camera
     ${CMAKE_CURRENT_SOURCE_DIR}/module/lcd
     ${CMAKE_CURRENT_SOURCE_DIR}/module/monitor
-    ${CMAKE_CURRENT_SOURCE_DIR}/module/sunriset
+    ${CMAKE_CURRENT_SOURCE_DIR}/module/audio
 )
 
 target_compile_definitions(easybench PRIVATE
@@ -127,6 +131,7 @@ if(EB_QT_VERSION_MAJOR EQUAL 6)
         Qt6::Xml
         Qt6::Multimedia
         Qt6::MultimediaWidgets
+        Qt6::Svg
         Qt6::Core5Compat
     )
 else()
@@ -138,6 +143,7 @@ else()
         Qt5::Xml
         Qt5::Multimedia
         Qt5::MultimediaWidgets
+        Qt5::Svg
     )
 endif()
 

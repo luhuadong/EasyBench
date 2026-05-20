@@ -47,14 +47,6 @@ EbStartupReport eb_check_runtime(const EbOptions &opt)
             "未找到 easybench.conf（已搜索 /etc/gbox/、程序目录与当前工作目录）");
     }
 
-    const QString seatRoot = opt.getSeatRoot();
-    if (!seatRoot.isEmpty()) {
-        checkPathReadable(seatRoot + QStringLiteral("conf/chnlCfg.xml"),
-                          QStringLiteral("席位通道配置"), &report);
-        checkPathReadable(seatRoot + QStringLiteral("conf/settings.xml"),
-                          QStringLiteral("席位 settings 配置"), &report);
-    }
-
     const QString backlight = opt.getBacklightNode();
     if (backlight.isEmpty()) {
         report.warnings << QStringLiteral("未检测到背光设备（/sys/class/backlight）");

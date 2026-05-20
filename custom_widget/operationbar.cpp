@@ -1,18 +1,17 @@
 #include "operationbar.h"
+#include "eb_common.h"
 #include <QHBoxLayout>
 
 OperationBar::OperationBar(QWidget *parent) :
     QWidget(parent)
 {
     //this->setFixedSize(720, 48);
-    this->setFixedSize(900, 72);
+    this->setFixedSize(CONTENT_WIDTH, 72);
     //this->setStyleSheet("background-color: yellow; opacity: 200;");
 
 
     mainWidget = new QWidget;
-    //mainWidget->setObjectName("operatingBar");
-
-    //mainWidget->setStyleSheet("background-color:#404040;");
+    mainWidget->setObjectName(QStringLiteral("operationBarPanel"));
 
     //mainWidget->setWindowOpacity(0.5); // 调节透明度
 
@@ -29,7 +28,7 @@ OperationBar::OperationBar(QWidget *parent) :
 void OperationBar::createButtons()
 {
     //int btnWidth = 144;
-    int btnWidth = 180;
+    const int btnWidth = CONTENT_WIDTH / 5;
 
     // 为了界面简洁和操作方便，规定操作栏最多五个按钮，可以将其中一个按钮设为“更多”来包含额外的操作。
     for(int i=0; i<5; i++)

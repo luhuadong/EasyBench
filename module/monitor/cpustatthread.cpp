@@ -1,7 +1,9 @@
 #include "cpustatthread.h"
-#include "sub_page/monitorpage.h"
+#include "sub_page/systempage.h"
 #include <QString>
 #include <QFile>
+
+static const char kProcStatPath[] = "/proc/stat";
 
 extern "C"
 {
@@ -18,7 +20,7 @@ CpuStatThread::CpuStatThread(QObject *parent) :
 void CpuStatThread::run()
 {
     float cpuTotalDuty;
-    MonitorPage *page = (MonitorPage *)parent();
+    SystemPage *page = static_cast<SystemPage *>(parent());
     QString tmpStr;
     QStringList tmpStrList;
     QFile tmpFile;
@@ -34,7 +36,7 @@ void CpuStatThread::run()
     {
 //        index = 0;
 //        while(index < 2) {
-//            tmpFile.setFileName(CPU_FILE);
+//            tmpFile.setFileName(QLatin1String(kProcStatPath));
 //            if(tmpFile.open(QIODevice::ReadOnly)) {
 
 //                tmpStr = tmpFile.readLine();
@@ -63,11 +65,11 @@ void CpuStatThread::run()
         cpuTotal[1][0] = 0;
         cpuTotal[1][1] = 0;
 
-        //tmpFile.setFileName(CPU_FILE);
+        //tmpFile.setFileName(QLatin1String(kProcStatPath));
         while(tt) {
 
             //printf("open %s\n", CPU_FILE);
-            tmpFile.setFileName(CPU_FILE);
+            tmpFile.setFileName(QLatin1String(kProcStatPath));
             if(tmpFile.open(QIODevice::ReadOnly)) {
                 tmpStr = tmpFile.readLine();
                 for(int i=0; i<7; i++) {
@@ -100,7 +102,7 @@ void CpuStatThread::run()
         //cpuBar->setValue(a*100/b);
 
         /*
-        //tmpFile.setFileName(CPU_FILE);
+        //tmpFile.setFileName(QLatin1String(kProcStatPath));
         if(tmpFile.open(QIODevice::ReadOnly)) {
             tmpStr = tmpFile.readLine();
             a0 = a1;

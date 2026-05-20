@@ -1,576 +1,349 @@
 #include "systempage.h"
-#include "eb_common.h"
+#include "module/monitor/basepcbthread.h"
+#include "module/monitor/cpustatthread.h"
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
-#include <QDebug>
+#include <QFormLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QFont>
-#include <QMessageBox>
 #include <QFile>
 
-SerialRecvThread::SerialRecvThread(QWidget *parent)
-{
-
+extern "C" {
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
 }
 
-void SerialRecvThread::setSerialPortFd(int fd)
+SystemPage::SystemPage(EbOptions *options, QWidget *parent)
+    : PageWidget(options, parent)
 {
-    serialFd = fd;
-}
-
-void SerialRecvThread::run()
-{
-    char buf[128];
-    int ret;
-
-    while(1)
-    {
-        memset(buf, 0, sizeof(buf));
-        ret = read(serialFd, buf, sizeof(buf));
-        if(ret > 0) {
-
-            if(buf[0] == '\n' || buf[0] == '\r') {
-                continue;
-            }
-
-            int len = strlen(buf);
-            buf[len-1] = '\0';
-            //qDebug() << tr(gSerialPortStr) << tr(" : %1 ").arg(len) << tr(buf);
-            //((SystemPage *)parent())->showRecvData(buf);
-            //qobject_cast<SystemPage *>(this->parent())->showRecvData(buf);
-            QString msg(buf);
-            emit msgReceived(msg);
-        }
-        else
-            continue;
-    }
-}
-
-SystemPage::SystemPage(EbOptions *options, QWidget *parent) :
-    PageWidget(options, parent)
-{
-    //setTitleLabelText(tr("Serial Port Test"));
-    setTitleLabelText(tr("系统功能测试"));
-
-    /* Select Serial Port Box */
-    this->initSerialPortArea();
-
-
-    /* RTC Group */
-
-    rtcGroup = new QGroupBox(tr("实时时钟"), this);
-    rtcGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
-
-    rtcName = new QLabel(tr("设备型号 : None"), rtcGroup);
-    rtcName->setFont(QFont("Courier", 10, QFont::Normal));
-    rtcDateTime = new QLabel(tr("RTC时间 : None"), rtcGroup);
-    rtcDateTime->setFont(QFont("Courier", 10, QFont::Normal));
-    sysDateTime = new QLabel(tr("系统时间 : None"), rtcGroup);
-    sysDateTime->setFont(QFont("Courier", 10, QFont::Normal));
-
-    QVBoxLayout *rtcLayout = new QVBoxLayout;
-    rtcLayout->setMargin(10);
-    rtcLayout->setSpacing(10);
-    rtcLayout->addWidget(rtcName);
-    rtcLayout->addWidget(rtcDateTime);
-    rtcLayout->addWidget(sysDateTime);
-    rtcGroup->setLayout(rtcLayout);
-
-    rtcGroup->setGeometry(40+380+40, 96+30, 400, 200);
-
-    char buf[32];
-    memset(buf, 0, sizeof(buf));
-
-    FILE *fstream = NULL;
-
-    if(NULL == (fstream = popen("cat /sys/class/rtc/rtc0/name", "r"))) {
-
-        rtcName->setText("设备型号 : None");
-    }else {
-        fgets(buf, sizeof(buf), fstream);
-        rtcName->setText(QString("设备型号 : %1").arg(QString(buf)));
-    }
-    pclose(fstream);
-
-
-
-    /* SATA Group */
-
-    sdiskGroup = new QGroupBox(tr("SATA读写测试"), this);
-    sdiskGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
-    sdiskGroup->setGeometry(40+380+40, 96+30+200+30, 400, 270);
-
-    sdiskArea = new QTextEdit(sdiskGroup);
-    sdiskArea->setReadOnly(true);
-
-    readTestBtn = new QPushButton(tr("读取"), sdiskGroup);
-    writeTestBtn = new QPushButton(tr("写入"), sdiskGroup);
-    readTestBtn->setObjectName("functionBtn_small");
-    readTestBtn->setFixedSize(120, 30);
-    writeTestBtn->setObjectName("functionBtn_small");
-    writeTestBtn->setFixedSize(120, 30);
-
-    QHBoxLayout *sdiskBtnLayout = new QHBoxLayout;
-    sdiskBtnLayout->setSpacing(10);
-    sdiskBtnLayout->addWidget(readTestBtn);
-    sdiskBtnLayout->addWidget(writeTestBtn);
-
-    QVBoxLayout *sdiskLayout = new QVBoxLayout;
-    sdiskLayout->setMargin(10);
-    sdiskLayout->setSpacing(10);
-    sdiskLayout->addWidget(sdiskArea);
-    sdiskLayout->addLayout(sdiskBtnLayout);
-    sdiskGroup->setLayout(sdiskLayout);
-
-    connect(readTestBtn, SIGNAL(clicked()), this, SLOT(readTestBtnOnClicked()));
-    connect(writeTestBtn, SIGNAL(clicked()), this, SLOT(writeTestBtnOnClicked()));
-
+    setTitleLabelText(tr("系统信息"));
+    buildUi();
+    initOperationBar();
+    updateSysParam();
 
     updateTimer = new QTimer(this);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_timeout()));
+    connect(updateTimer, &QTimer::timeout, this, &SystemPage::onUpdateTimer);
     updateTimer->start(1000);
 
-    initOperationBar();
+    CpuStatThread *cpuStatThread = new CpuStatThread(this);
+    cpuStatThread->start();
+
+#if CONNECT_STM32
+    createSocketWithBasePcb();
+    if (sockToBasdPcbIsOk) {
+        BasePcbThread *pcbThread = new BasePcbThread(sockfd, this);
+        pcbThread->start();
+        sendBasePcbCmd(CMD_GET_VERSION, QString());
+        sendBasePcbCmd(CMD_CONTROL, QString());
+    }
+    operationBar->secondButton()->setText(tr("Standard"));
+    operationBar->thirdButton()->setText(tr("Change"));
+    operationBar->thirdButton()->setEnabled(false);
+    connect(operationBar->secondButton(), &QPushButton::clicked, this, &SystemPage::fanModeBtnClicked);
+    connect(operationBar->thirdButton(), &QPushButton::clicked, this, &SystemPage::changeFanSpeedBtnClicked);
+#else
+    operationBar->secondButton()->setEnabled(false);
+    operationBar->thirdButton()->setEnabled(false);
+#endif
+    operationBar->fourthButton()->setEnabled(false);
 }
 
+void SystemPage::buildUi()
+{
+    QWidget *content = contentArea();
+
+    cpuGroup = new QGroupBox(tr("处理器"), content);
+    cpuNameLabel = new QLabel(cpuGroup);
+    cpuNameLabel->setWordWrap(true);
+    cpuVendorLabel = new QLabel(cpuGroup);
+    cpuVendorLabel->setWordWrap(true);
+    cpuCoreLabel = new QLabel(cpuGroup);
+    cpuDutyLabel = new QLabel(cpuGroup);
+    cpuBar = new QProgressBar(cpuGroup);
+    cpuBar->setRange(0, 100);
+
+    QVBoxLayout *cpuLayout = new QVBoxLayout(cpuGroup);
+    cpuLayout->setContentsMargins(12, 16, 12, 12);
+    cpuLayout->addWidget(cpuNameLabel);
+    cpuLayout->addWidget(cpuVendorLabel);
+    cpuLayout->addWidget(cpuCoreLabel);
+    cpuLayout->addWidget(cpuDutyLabel);
+    cpuLayout->addWidget(cpuBar);
+
+    memGroup = new QGroupBox(tr("内存"), content);
+    memTotalLabel = new QLabel(memGroup);
+    memUsedLabel = new QLabel(memGroup);
+    memFreeLabel = new QLabel(memGroup);
+    memBar = new QProgressBar(memGroup);
+    memBar->setRange(0, 100);
+
+    QVBoxLayout *memLayout = new QVBoxLayout(memGroup);
+    memLayout->setContentsMargins(12, 16, 12, 12);
+    memLayout->addWidget(memTotalLabel);
+    memLayout->addWidget(memUsedLabel);
+    memLayout->addWidget(memFreeLabel);
+    memLayout->addWidget(memBar);
+
+    diskGroup = new QGroupBox(tr("存储"), content);
+    diskTotalLabel = new QLabel(diskGroup);
+    diskUsedLabel = new QLabel(diskGroup);
+    diskFreeLabel = new QLabel(diskGroup);
+    diskBar = new QProgressBar(diskGroup);
+    diskBar->setRange(0, 100);
+
+    QVBoxLayout *diskLayout = new QVBoxLayout(diskGroup);
+    diskLayout->setContentsMargins(12, 16, 12, 12);
+    diskLayout->addWidget(diskTotalLabel);
+    diskLayout->addWidget(diskUsedLabel);
+    diskLayout->addWidget(diskFreeLabel);
+    diskLayout->addWidget(diskBar);
+
+    rtcGroup = new QGroupBox(tr("实时时钟"), content);
+    rtcNameLabel = new QLabel(tr("设备型号 : —"), rtcGroup);
+    rtcDateTimeLabel = new QLabel(tr("RTC 时间 : —"), rtcGroup);
+    sysDateTimeLabel = new QLabel(tr("系统时间 : —"), rtcGroup);
+    QVBoxLayout *rtcLayout = new QVBoxLayout(rtcGroup);
+    rtcLayout->setContentsMargins(12, 16, 12, 12);
+    rtcLayout->addWidget(rtcNameLabel);
+    rtcLayout->addWidget(rtcDateTimeLabel);
+    rtcLayout->addWidget(sysDateTimeLabel);
+
+    tempGroup = new QGroupBox(tr("温度 / 底板"), content);
+    armTempLabel = new QLabel(tempGroup);
+    adspTempLabel = new QLabel(tempGroup);
+    pcbTempLabel = new QLabel(tempGroup);
+    fanSpeedLabel = new QLabel(tempGroup);
+    fwVerLabel = new QLabel(tr("固件 : —"), tempGroup);
+    hwVerLabel = new QLabel(tr("硬件 : —"), tempGroup);
+    QVBoxLayout *tempLayout = new QVBoxLayout(tempGroup);
+    tempLayout->setContentsMargins(12, 16, 12, 12);
+    tempLayout->addWidget(armTempLabel);
+    tempLayout->addWidget(adspTempLabel);
+    tempLayout->addWidget(pcbTempLabel);
+    tempLayout->addWidget(fanSpeedLabel);
+    tempLayout->addWidget(fwVerLabel);
+    tempLayout->addWidget(hwVerLabel);
+
+    QGridLayout *grid = new QGridLayout(content);
+    grid->setContentsMargins(16, 12, 16, 12);
+    grid->setHorizontalSpacing(16);
+    grid->setVerticalSpacing(12);
+    grid->addWidget(cpuGroup, 0, 0, 1, 2);
+    grid->addWidget(memGroup, 1, 0);
+    grid->addWidget(diskGroup, 1, 1);
+    grid->addWidget(rtcGroup, 2, 0);
+    grid->addWidget(tempGroup, 2, 1);
+}
 
 void SystemPage::initOperationBar()
 {
-    // 开启关闭
-    if(0 == system("netstat -nult | grep -w 22")) {
+    if (system("netstat -nult | grep -w 22") == 0) {
         operationBar->firstButton()->setText(tr("SSH已开启"));
     } else {
         operationBar->firstButton()->setText(tr("SSH已关闭"));
     }
-
-    connect(operationBar->firstButton(), SIGNAL(clicked()), this, SLOT(on_sshBtn_clicked()));
+    connect(operationBar->firstButton(), &QPushButton::clicked, this, &SystemPage::onSshBtnClicked);
 }
 
-
-void SystemPage::initSerialPortArea()
+void SystemPage::updateSysParam()
 {
-    serialPortGroup = new QGroupBox(tr("串口设置"), this);
-    serialPortGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+    EbSysStats::readCpuInfo(&cpuInfo);
+    EbSysStats::readMemInfo(&memInfo);
+    EbSysStats::readDiskInfo(QStringLiteral("/"), &diskInfo);
+    EbSysStats::readArmTemperature(&armTemp);
 
-    serialPortLabel = new QLabel(tr("当前串口 : "), serialPortGroup);
-    serialPortLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    serialPortBox = new QComboBox(serialPortGroup);
-    //serialPortBox->addItem(QString(gSerialPortStr));
-    serialPortBox->addItem(tr("/dev/ttymxc0"));
-    serialPortBox->addItem(tr("/dev/ttymxc1"));
-    serialPortBox->addItem(tr("/dev/ttymxc2"));
-    serialPortBox->addItem(tr("/dev/ttymxc3"));
-    serialPortBox->addItem(tr("/dev/ttymxc4"));
-    serialPortBox->setCurrentIndex(1);
-    strcpy(gSerialPortStr, serialPortBox->currentText().toLatin1().data());
+    cpuNameLabel->setText(tr("型号：%1").arg(cpuInfo.modelName));
+    cpuVendorLabel->setText(tr("平台：%1").arg(cpuInfo.hardware.isEmpty() ? tr("—") : cpuInfo.hardware));
+    cpuCoreLabel->setText(tr("核心：共 %1，在线 %2")
+                             .arg(cpuInfo.totalCores)
+                             .arg(cpuInfo.onlineCores));
 
-    baudRateLabel = new QLabel(tr("波特率 : "), serialPortGroup);
-    baudRateLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    baudRateBox = new QComboBox(serialPortGroup);
-    baudRateBox->addItem(tr("9600"), Baud9600);
-    baudRateBox->addItem(tr("19200"), Baud19200);
-    baudRateBox->addItem(tr("38400"), Baud38400);
-    baudRateBox->addItem(tr("115200"), Baud115200);
+    memTotalLabel->setText(tr("总量：%1 MB").arg(memInfo.totalMb));
+    memUsedLabel->setText(tr("已用：%1 MB").arg(memInfo.usedMb));
+    memFreeLabel->setText(tr("可用：%1 MB").arg(memInfo.freeMb));
+    memBar->setMaximum(static_cast<int>(memInfo.totalMb > 0 ? memInfo.totalMb : 100));
+    memBar->setValue(static_cast<int>(memInfo.usedMb));
 
-    /*
-    dataBitsLabel = new QLabel(tr("数据位 : "), serialPortGroup);
-    dataBitsLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    dataBitsBox = new QComboBox(serialPortGroup);
-    dataBitsBox->addItem(tr("5"), Data5);
-    dataBitsBox->addItem(tr("6"), Data6);
-    dataBitsBox->addItem(tr("7"), Data7);
-    dataBitsBox->addItem(tr("8"), Data8);
-    //dataBitsBox->setCurrentIndex(Data8);
-    dataBitsBox->setCurrentIndex(3);
+    diskTotalLabel->setText(tr("根分区总量：%1 MB").arg(diskInfo.totalMb));
+    diskUsedLabel->setText(tr("已用：%1 MB").arg(diskInfo.usedMb));
+    diskFreeLabel->setText(tr("可用：%1 MB").arg(diskInfo.freeMb));
+    diskBar->setMaximum(static_cast<int>(diskInfo.totalMb > 0 ? diskInfo.totalMb : 100));
+    diskBar->setValue(static_cast<int>(diskInfo.usedMb));
 
+    armTempLabel->setText(tr("SoC 温度：%1 °C").arg(armTemp, 0, 'f', 1));
 
-    parityLabel = new QLabel(tr("奇偶校验 : "), serialPortGroup);
-    parityLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    parityBox = new QComboBox(serialPortGroup);
-    parityBox->addItem(tr("None"), NoParity);
-    parityBox->addItem(tr("Even"), EvenParity);
-    parityBox->addItem(tr("Odd"), OddParity);
-    parityBox->addItem(tr("Mark"), MarkParity);
-    parityBox->addItem(tr("Space"), SpaceParity);
+    QFile rtcNameFile(QStringLiteral("/sys/class/rtc/rtc0/name"));
+    if (rtcNameFile.open(QIODevice::ReadOnly)) {
+        rtcNameLabel->setText(tr("设备型号：%1").arg(QString::fromUtf8(rtcNameFile.readAll()).trimmed()));
+    }
 
-    stopBitsLabel = new QLabel(tr("停止位 : "), serialPortGroup);
-    stopBitsLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    stopBitsBox = new QComboBox(serialPortGroup);
-    stopBitsBox->addItem(tr("1"), OneStop);
-    stopBitsBox->addItem(tr("2"), TwoStop);
+    const QString rtcTime = EbSysStats::readRtcDateTime();
+    if (!rtcTime.isEmpty()) {
+        rtcDateTimeLabel->setText(tr("RTC 时间：%1").arg(rtcTime));
+    } else {
+        rtcDateTimeLabel->setText(tr("RTC 时间：不可用（无硬件 RTC 或权限不足）"));
+    }
 
+    FILE *dateStream = popen("date 2>/dev/null", "r");
+    if (dateStream) {
+        char buf[128] = {0};
+        if (fgets(buf, sizeof(buf), dateStream)) {
+            sysDateTimeLabel->setText(tr("系统时间：%1").arg(QString::fromUtf8(buf).trimmed()));
+        }
+        pclose(dateStream);
+    }
+}
 
-    flowControlLabel = new QLabel(tr("流控 : "), serialPortGroup);
-    flowControlLabel->setFont(QFont("Helvetica", 12, QFont::Normal));
-    flowControlBox = new QComboBox(serialPortGroup);
-    flowControlBox->addItem(tr("None"), NoFlowControl);
-    flowControlBox->addItem(tr("RTS/CTS"), HardwareControl);
-    flowControlBox->addItem(tr("XON/XOFF"), SoftwareControl);
-    */
-
-    applyBtn = new QPushButton(tr("应用"), serialPortGroup);
-    applyBtn->setObjectName("functionBtn_small");
-    applyBtn->setFixedSize(80, 30);
-    applyBtn->setVisible(false); // 自动设置串口参数，这样就可以去掉Apply按钮
-
-    openBtn = new QPushButton(tr("打开"), serialPortGroup);
-    openBtn->setObjectName("functionBtn_small");
-    openBtn->setFixedSize(80, 30);
-
-
-
-    QGridLayout *serialPortLayout = new QGridLayout;
-    //serialPortLayout->setMargin(10);
-    serialPortLayout->addWidget(serialPortLabel, 0, 0);
-    serialPortLayout->addWidget(serialPortBox, 0, 1);
-    serialPortLayout->addWidget(baudRateLabel, 1, 0);
-    serialPortLayout->addWidget(baudRateBox, 1, 1);
-    //serialPortLayout->addWidget(dataBitsLabel, 2, 0);
-    //serialPortLayout->addWidget(dataBitsBox, 2, 1);
-    //serialPortLayout->addWidget(parityLabel, 3, 0);
-    //serialPortLayout->addWidget(parityBox, 3, 1);
-    //serialPortLayout->addWidget(stopBitsLabel, 4, 0);
-    //serialPortLayout->addWidget(stopBitsBox, 4, 1);
-    //serialPortLayout->addWidget(flowControlLabel, 5, 0);
-    //serialPortLayout->addWidget(flowControlBox, 5, 1);
-    serialPortLayout->addWidget(applyBtn, 5, 0, Qt::AlignRight);
-    serialPortLayout->addWidget(openBtn, 5, 1, Qt::AlignRight);
-    serialPortGroup->setLayout(serialPortLayout);
-
-    /* Select Parameters Box */
-
-#if 0
-    parametersGroup = new QGroupBox(tr("Select Parameters"), this);
-    parametersGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
-
-
-
-
-
-    QGridLayout *parametersLayout = new QGridLayout;
-    parametersLayout->setMargin(20);
-    parametersLayout->addWidget(baudRateLabel, 0, 0);
-    parametersLayout->addWidget(baudRateBox, 0, 1);
-    parametersLayout->addWidget(dataBitsLabel, 1, 0);
-    parametersLayout->addWidget(dataBitsBox, 1, 1);
-    parametersLayout->addWidget(parityLabel, 2, 0);
-    parametersLayout->addWidget(parityBox, 2, 1);
-    parametersLayout->addWidget(stopBitsLabel, 3, 0);
-    parametersLayout->addWidget(stopBitsBox, 3, 1);
-    parametersLayout->addWidget(flowControlLabel, 4, 0);
-    parametersLayout->addWidget(flowControlBox, 4, 1);
-    parametersLayout->addWidget(applyBtn, 5, 1, Qt::AlignRight);
-    parametersGroup->setLayout(parametersLayout);
+void SystemPage::onUpdateTimer()
+{
+#if CONNECT_STM32
+    if (sockToBasdPcbIsOk) {
+        sendBasePcbCmd(CMD_GET_STATUS, QString());
+    }
 #endif
+    updateSysParam();
 
-    /* Serial Port Echo Test */
-    echoTestGroup = new QGroupBox(tr("串口环回测试"), this);
-    echoTestGroup->setFont(QFont("Helvetica", 12, QFont::Bold));
+    cpuDutyLabel->setText(tr("总占用率：%1 %").arg(cpuTotalDuty, 0, 'f', 1));
+    cpuBar->setValue(static_cast<int>(cpuTotalDuty));
 
-    sendArea = new QTextEdit(echoTestGroup);
-    sendArea->setMinimumWidth(280);
-    sendArea->setText(tr("Hello World from EasyBench."));
-
-    recvArea = new QTextEdit(echoTestGroup);
-    recvArea->setMinimumWidth(280);
-    recvArea->setReadOnly(true);
-
-    sendClearBtn = new QPushButton(tr("清除"), echoTestGroup);
-    sendClearBtn->setObjectName("functionBtn_small");
-    sendClearBtn->setFixedSize(80, 30);
-
-    recvClearBtn = new QPushButton(tr("清除"), echoTestGroup);
-    recvClearBtn->setObjectName("functionBtn_small");
-    recvClearBtn->setFixedSize(80, 30);
-
-    testBtn = new QPushButton(tr("发送"), echoTestGroup);
-    testBtn->setObjectName("functionBtn_small");
-    testBtn->setFixedSize(80, 30);
-
-    QGridLayout *echoTestLayout = new QGridLayout;
-    echoTestLayout->setMargin(20);
-    echoTestLayout->addWidget(sendArea, 0, 0, 1, 2);
-    echoTestLayout->addWidget(sendClearBtn, 1, 0, 1, 1);
-    echoTestLayout->addWidget(testBtn, 1, 1, 1, 1);
-    echoTestLayout->addWidget(recvArea, 2, 0, 1, 2);
-    echoTestLayout->addWidget(recvClearBtn, 3, 0, 1, 1);
-    echoTestGroup->setLayout(echoTestLayout);
-
-    serialPortGroup->setGeometry(40, 96+30, 360, 160);
-    //parametersGroup->setGeometry(40, 96+200, 360, 320);
-    echoTestGroup->setGeometry(40, 96+30+140+30, 360, 330);
-    echoTestGroup->setEnabled(false);
-
-    connect(openBtn, SIGNAL(clicked()), this, SLOT(openSerialPort()));
-    connect(applyBtn, SIGNAL(clicked()), this, SLOT(applyParameters()));
-    connect(sendClearBtn, SIGNAL(clicked()), this, SLOT(clearSendArea()));
-    connect(recvClearBtn, SIGNAL(clicked()), this, SLOT(clearRecvArea()));
-    connect(testBtn, SIGNAL(clicked()), this, SLOT(sendSerialData()));
-    connect(serialPortBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeSerialPort(QString)));
-
-    thread = new SerialRecvThread(this);
-    connect(thread, SIGNAL(msgReceived(QString)), this, SLOT(showRecvData(QString)));
-
-    /*
-    if(NoError == openSerialPort())
-    {
-        qDebug() << tr("open success");
-        thread = new SerialRecvThread(serialFd, this);
-        //connect(thread, SIGNAL(msgReceived(const char*)), this, SLOT(showRecvData(const char*)));
-        connect(thread, SIGNAL(msgReceived(QString)), this, SLOT(showRecvData(QString)));
-        thread->start();
-    }
-    */
-
-    applySerialPortStty();
-}
-
-void SystemPage::applySerialPortStty()
-{
-    if (!QFile::exists(QString::fromUtf8(gSerialPortStr))) {
-        qWarning() << tr("串口设备不存在，跳过 stty 配置：") << gSerialPortStr;
-        return;
-    }
-    char cmd[128];
-    snprintf(cmd, sizeof(cmd), "stty -F %s speed 9600 cs8 -parenb -cstopb -echo", gSerialPortStr);
-    if (system(cmd) != 0) {
-        qWarning() << tr("串口 stty 配置失败：") << gSerialPortStr;
+    if (sockToBasdPcbIsOk) {
+        adspTempLabel->setText(tr("ADSP 温度：%1 °C").arg(adspTemp, 0, 'f', 1));
+        pcbTempLabel->setText(tr("PCB 温度：%1 °C").arg(pcbTemp, 0, 'f', 1));
+        fanSpeedLabel->setText(tr("风扇转速：%1 rpm").arg(fanSpeed, 0, 'f', 0));
+    } else {
+        adspTempLabel->setText(tr("ADSP 温度：— (未连接底板)"));
+        pcbTempLabel->setText(tr("PCB 温度：—"));
+        fanSpeedLabel->setText(tr("风扇转速：—"));
     }
 }
 
-void SystemPage::showRecvData(const QString msg)
+void SystemPage::onSshBtnClicked()
 {
-
-    //QString text(msg);
-    recvArea->setText(msg);
-    qDebug() << tr("showRecvData : ") << msg;
-}
-
-void SystemPage::openSerialPort()
-{
-    qDebug() << tr("openBtn clicked");
-
-    if(openBtn->text() == QString("打开"))
-    {
-        qDebug() << tr("open");
-        this->applyParameters(); // 自动设置串口参数，这样就可以去掉Apply按钮
-
-        serialFd = open(gSerialPortStr, O_RDWR | O_NOCTTY | O_NDELAY);
-        if(serialFd == -1) {
-
-            QMessageBox msgBox;
-            msgBox.setText(tr("Open %1 failed.").arg(gSerialPortStr));
-            msgBox.exec();
-            //return OpenError;
-        }
-        else
-        {
-            thread->setSerialPortFd(serialFd);
-            thread->start();
-            echoTestGroup->setEnabled(true);
-            applyBtn->setEnabled(false);
-            openBtn->setText(tr("关闭"));
-
-            /*
-            QMessageBox msgBox;
-            msgBox.setText(tr("Open %1 successfully.").arg(gSerialPortStr));
-            msgBox.exec();
-            */
-        }
-
-
-        //return NoError;
-    }
-    else if(openBtn->text() == QString("关闭"))
-    {
-        qDebug() << tr("close");
-
-        thread->quit();
-
-        //close(serialFd);
-        //::close(serialFd);
-
-        echoTestGroup->setEnabled(false);
-        applyBtn->setEnabled(true);
-        openBtn->setText(tr("打开"));
-    }
-}
-
-void SystemPage::changeSerialPort(const QString &text)
-{
-    qDebug() << tr("changeSerialPort: ") << text;
-    strcpy(gSerialPortStr, text.toLatin1().data());
-    qDebug() << tr("change Serial Port ") << QString(gSerialPortStr);
-}
-
-void SystemPage::applyParameters()
-{
-    applySerialPortStty();
-#if 0
-    QMessageBox msgBox;
-    msgBox.setText(tr("Configure parameters of %1 successfully.").arg(gSerialPortStr));
-    msgBox.exec();
-#endif
-}
-
-void SystemPage::clearSendArea()
-{
-    sendArea->clear();
-    sendArea->setFocus();
-}
-
-void SystemPage::clearRecvArea()
-{
-    recvArea->clear();
-}
-
-void SystemPage::sendSerialData()
-{
-    char cmd[128];
-    QString sendStr = sendArea->toPlainText();
-    // echo string should be add option '-e'
-    sprintf(cmd, "echo -e \"%s\" > %s", sendStr.toLatin1().data(), gSerialPortStr);
-    system(cmd);
-
-}
-
-
-void SystemPage::on_updateTimer_timeout()
-{
-    static char buf[128];
-    memset(buf, 0, sizeof(buf));
-
-    FILE *fstream1 = NULL;
-    FILE *fstream2 = NULL;
-
-    if(NULL == (fstream1 = popen("hwclock -u", "r"))) {
-
-        rtcDateTime->setText("RTC时间 : None");
-    }else {
-        fgets(buf, sizeof(buf), fstream1);
-        rtcDateTime->setText(QString("RTC时间 : %1").arg(QString(buf)));
-    }
-
-    memset(buf, 0, sizeof(buf));
-
-
-    if(NULL == (fstream2 = popen("date", "r"))) {
-
-        sysDateTime->setText("系统时间 : None");
-    }else {
-        fgets(buf, sizeof(buf), fstream2);
-        sysDateTime->setText(QString("系统时间 : %1").arg(QString(buf)));
-    }
-
-    pclose(fstream1);
-    pclose(fstream2);
-}
-
-void SystemPage::readTestBtnOnClicked()
-{
-    //sdiskArea->setText("SATA disk read testing...");
-    sdiskArea->append(QString("SATA disk read testing..."));
-    qDebug("SATA disk read testing...");
-
-    char cmd[128];
-    char buf[256];
-
-    memset(cmd, 0, sizeof(cmd));
-    memset(buf, 0, sizeof(buf));
-
-    sprintf(cmd, "dd if=/dev/sda of=/dev/null bs=1M count=100");
-
-
-    FILE *fstream = NULL;
-    if(NULL == (fstream = popen(cmd, "r")))
-    {
-        sprintf(buf, "Execute command failed: %s", strerror(errno));
-        sdiskArea->setText(QString(buf));
-        return ;
-    }
-
-    fread(buf, sizeof(buf), 1, fstream);
-    qDebug(buf);
-
-    //sdiskArea->clear();
-    /*
-    while(NULL != fgets(buf, sizeof(buf), fstream))
-    {
-        qDebug("====== content ======");
-        qDebug(buf);
-        int len = strlen(buf);
-        if(buf[len-1] == '\n' || buf[len-1] == '\r')
-        {
-            buf[len-1] = '\0';
-        }
-        sdiskArea->append(QString(buf));
-    }
-    */
-    pclose(fstream);
-    sdiskArea->moveCursor(QTextCursor::Start);
-}
-
-void SystemPage::writeTestBtnOnClicked()
-{
-    //sdiskArea->setText("SATA disk write testing...");
-    sdiskArea->append(QString("SATA disk write testing..."));
-    qDebug("SATA disk write testing...");
-
-    char cmd[128];
-    char buf[256];
-
-    memset(cmd, 0, sizeof(cmd));
-    memset(buf, 0, sizeof(buf));
-
-    sprintf(cmd, "dd if=/dev/zero of=/dev/sda bs=1M count=100");
-
-
-    FILE *fstream = NULL;
-    if(NULL == (fstream = popen(cmd, "r")))
-    {
-        sprintf(buf, "Execute command failed: %s", strerror(errno));
-        sdiskArea->setText(QString(buf));
-        return ;
-    }
-
-    //sdiskArea->clear();
-    while(NULL != fgets(buf, sizeof(buf), fstream))
-    {
-        qDebug("====== content ======");
-        qDebug(buf);
-        int len = strlen(buf);
-        if(buf[len-1] == '\n' || buf[len-1] == '\r')
-        {
-            buf[len-1] = '\0';
-        }
-        sdiskArea->append(QString(buf));
-    }
-    pclose(fstream);
-    sdiskArea->moveCursor(QTextCursor::Start);
-}
-
-void SystemPage::on_sshBtn_clicked()
-{
-    if(operationBar->firstButton()->text() == QString::fromLocal8Bit("SSH已关闭")) {
-        qDebug() << tr("Open SSH");
+    if (operationBar->firstButton()->text() == tr("SSH已关闭")) {
         system("/etc/init.d/sshd start");
         operationBar->firstButton()->setText(tr("SSH已开启"));
-    }
-    else if(operationBar->firstButton()->text() == QString::fromLocal8Bit("SSH已开启")) {
-        qDebug() << tr("Close SSH");
+    } else if (operationBar->firstButton()->text() == tr("SSH已开启")) {
         system("/etc/init.d/sshd stop");
         operationBar->firstButton()->setText(tr("SSH已关闭"));
     }
-    else {
-        qDebug() << tr("Don't change SSH");
+}
+
+void SystemPage::setCpuDuty(float value)
+{
+    cpuTotalDuty = value;
+}
+
+void SystemPage::setBasePcbTemp1Text(float value)
+{
+    adspTemp = value;
+}
+
+void SystemPage::setBasePcbTemp2Text(float value)
+{
+    pcbTemp = value;
+}
+
+void SystemPage::setFanSpeedText(float value)
+{
+    fanSpeed = value;
+}
+
+void SystemPage::setFwVerText(const QString &text)
+{
+    fwVerLabel->setText(text);
+}
+
+void SystemPage::setHwVerText(const QString &text)
+{
+    hwVerLabel->setText(text);
+}
+
+void SystemPage::createSocketWithBasePcb()
+{
+    struct sockaddr_in dest;
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd == -1) {
+        sockToBasdPcbIsOk = false;
+        return;
     }
+    memset(&dest, 0, sizeof(dest));
+    dest.sin_family = AF_INET;
+    dest.sin_port = htons(8080);
+    if (inet_aton("192.168.3.188", &dest.sin_addr) == 0) {
+        sockToBasdPcbIsOk = false;
+        return;
+    }
+    if (::connect(sockfd, reinterpret_cast<struct sockaddr *>(&dest), sizeof(dest)) == -1) {
+        sockToBasdPcbIsOk = false;
+        return;
+    }
+    sockToBasdPcbIsOk = true;
+}
+
+void SystemPage::sendBasePcbCmd(BASEPCB_CMD which, const QString &arg)
+{
+    if (!sockToBasdPcbIsOk) {
+        return;
+    }
+
+    unsigned char buffer[MAXBUF + 1];
+    memset(buffer, 0, sizeof(buffer));
+
+    if (which == CMD_GET_STATUS) {
+        applyCMD cmd = {0xAA, 0x07, 0xA0, 0x00, 0xA0, 0x00, 0xEE};
+        cmd.csum = calcCheckSum(reinterpret_cast<unsigned char *>(&cmd), sizeof(cmd) - 2);
+        memcpy(buffer, &cmd, sizeof(applyCMD));
+        send(sockfd, buffer, buffer[1], 0);
+    } else if (which == CMD_GET_VERSION) {
+        applyCMD cmd = {0xAA, 0x07, 0xA0, 0x00, 0xA1, 0x00, 0xEE};
+        cmd.csum = calcCheckSum(reinterpret_cast<unsigned char *>(&cmd), sizeof(cmd) - 2);
+        memcpy(buffer, &cmd, sizeof(applyCMD));
+        send(sockfd, buffer, buffer[1], 0);
+    } else if (which == CMD_CONTROL) {
+        controlCMD cmd = {};
+        cmd.head = 0xAA;
+        cmd.size = sizeof(cmd);
+        cmd.type = 0xA0;
+        cmd.snum = 0x00;
+        cmd.cmdw = 0xA2;
+        cmd.mode = arg.isEmpty() ? 0x00 : 0x01;
+        cmd.fanSpeed = arg.isEmpty() ? 0.0f : arg.toFloat();
+        cmd.csum = calcCheckSum(reinterpret_cast<unsigned char *>(&cmd), sizeof(cmd) - 2);
+        cmd.tail = 0xEE;
+        memcpy(buffer, &cmd, sizeof(controlCMD));
+        send(sockfd, buffer, buffer[1], 0);
+    }
+}
+
+void SystemPage::fanModeBtnClicked()
+{
+    if (!sockToBasdPcbIsOk) {
+        return;
+    }
+    if (fanMode == 0) {
+        fanMode = 1;
+        operationBar->secondButton()->setText(tr("Debug"));
+        operationBar->thirdButton()->setEnabled(true);
+    } else {
+        fanMode = 0;
+        sendBasePcbCmd(CMD_CONTROL, QString());
+        operationBar->secondButton()->setText(tr("Standard"));
+        operationBar->thirdButton()->setEnabled(false);
+    }
+}
+
+void SystemPage::changeFanSpeedBtnClicked()
+{
+    static int step = 0;
+    if (!sockToBasdPcbIsOk) {
+        return;
+    }
+    const QString speeds[] = {QStringLiteral("1500.00"), QStringLiteral("2500.00"),
+                              QStringLiteral("3500.00"), QStringLiteral("4500.00")};
+    sendBasePcbCmd(CMD_CONTROL, speeds[step % 4]);
+    step = (step + 1) % 4;
 }

@@ -20,7 +20,7 @@ VersionPage::VersionPage(EbOptions *options, QWidget *parent) :
     //-------------- table ----------------
     tabView = new QTableView(this);
 
-    tabView->setGeometry(0+80, 96+36+24, 900-160, 9 * TAB_ITEM_HEIGHT + 2);
+    tabView->setGeometry(80, 96 + 36 + 24, CONTENT_WIDTH - 160, 9 * TAB_ITEM_HEIGHT + 2);
     tabModel = new QStandardItemModel;
     //itemCntLabel->setProperty("h", 6);
 
@@ -39,7 +39,8 @@ VersionPage::VersionPage(EbOptions *options, QWidget *parent) :
     tabView->setSelectionBehavior(QAbstractItemView::SelectRows);    // 设置每次点击选中一整行
     tabView->setSelectionMode(QAbstractItemView::SingleSelection);   // 设置每次只能选中一行
     tabView->setEditTriggers(QAbstractItemView::NoEditTriggers); // 设置为不可编辑
-    tabView->setShowGrid(true); // 设置显示网格线
+    tabView->setShowGrid(true);
+    tabView->setAlternatingRowColors(true);
 //    tabView->setFrameShape(QFrame::Box);
     QFont font = tabView->horizontalHeader()->font();    // 设置水平表头字体加粗
     font.setBold(true);

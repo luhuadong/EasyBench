@@ -26,20 +26,22 @@ SOURCES += main.cpp\
     sub_page/lcdpage.cpp \
     sub_page/camerapage.cpp \
     sub_page/datetimepage.cpp \
-    sub_page/monitorpage.cpp \
     sub_page/realtimepage.cpp \
-    sub_page/touchpage.cpp \
+    sub_page/serialpage.cpp \
+    sub_page/storagepage.cpp \
     sub_page/versionpage.cpp \
     module/camera/processimage.cpp \
     module/camera/videodevice.cpp \
     module/lcd/grayscalewidget.cpp \
     module/monitor/basepcbthread.cpp \
     module/monitor/cpustatthread.cpp \
+    module/monitor/eb_sysstats.cpp \
     custom_widget/inputlineedit.cpp \
     sub_page/networkpage.cpp \
     sub_page/systempage.cpp \
-    sub_page/seatpage.cpp \
-    module/sunriset/sunriset.cpp \
+    sub_page/audiopage.cpp \
+    module/audio/eb_pcm_util.cpp \
+    module/audio/pcm_memory_device.cpp \
     eb_options.cpp \
     custom_widget/updatedialog.cpp
 
@@ -50,20 +52,22 @@ HEADERS  += mainwidget.h \
     sub_page/lcdpage.h \
     sub_page/camerapage.h \
     sub_page/datetimepage.h \
-    sub_page/monitorpage.h \
     sub_page/realtimepage.h \
-    sub_page/touchpage.h \
+    sub_page/serialpage.h \
+    sub_page/storagepage.h \
     sub_page/versionpage.h \
     module/camera/processimage.h \
     module/camera/videodevice.h \
     module/lcd/grayscalewidget.h \
     module/monitor/basepcbthread.h \
     module/monitor/cpustatthread.h \
+    module/monitor/eb_sysstats.h \
     custom_widget/inputlineedit.h \
     sub_page/networkpage.h \
     sub_page/systempage.h \
-    sub_page/seatpage.h \
-    module/sunriset/sunriset.h \
+    sub_page/audiopage.h \
+    module/audio/eb_pcm_util.h \
+    module/audio/pcm_memory_device.h \
     eb_options.h \
     custom_widget/updatedialog.h
 

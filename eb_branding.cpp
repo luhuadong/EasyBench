@@ -50,7 +50,8 @@ QIcon applicationIcon()
 void applyApplicationIdentity(QApplication &app)
 {
     app.setApplicationName(applicationName());
-    app.setApplicationDisplayName(applicationName());
+    /* Leave display name empty so the window title is not prefixed (e.g. "EasyBench - …"). */
+    app.setApplicationDisplayName(QString());
     app.setOrganizationName(QStringLiteral("EasyBench"));
     app.setOrganizationDomain(QStringLiteral("easybench.local"));
 

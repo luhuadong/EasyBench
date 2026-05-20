@@ -1,0 +1,3 @@
+<RCC>
+    <!-- 在此添加 <file>sounds/your_tone.wav</file>，并在 AudioPage 中扩展加载逻辑 -->
+</RCC>

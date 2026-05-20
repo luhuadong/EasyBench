@@ -2,21 +2,21 @@
 #define CAMERAPAGE_H
 
 #include "custom_widget/pagewidget.h"
-#include "eb_common.h"
 #include "eb_qt_compat.h"
 
-#include <QString>
-#include <QWidget>
 #include <QLabel>
 #include <QComboBox>
 #include <QPushButton>
+#include <QFrame>
+#include <QGroupBox>
+
+class QStackedWidget;
 
 #if EB_QT5_MULTIMEDIA
 #include <QCamera>
 #include <QCameraInfo>
 #include <QCameraViewfinder>
 #include <QCameraImageCapture>
-#include <QCameraViewfinderSettings>
 #endif
 
 #if EB_QT6_MULTIMEDIA
@@ -34,61 +34,75 @@ class CameraPage : public PageWidget
 public:
     explicit CameraPage(EbOptions *options, QWidget *parent = 0);
 
-public slots:
-
 private slots:
-#if EB_QT5_MULTIMEDIA
-    void setCamera(const QCameraInfo &cameraInfo);
-    void videoDeviceBoxCurrentIndexChanged(int index);
+    void refreshDeviceList();
+    void onDeviceChanged(int index);
+    void onResolutionChanged(int index);
     void openCamera();
     void closeCamera();
-    void toggleLock();
+    void captureStillImage();
 
-    void displayCameraError();
-    void updateCameraState(QCamera::State);
-
-    void readyForCapture(bool ready);
-    void processCapturedImage(int requestId, const QImage &img);
-    void imageSaved(int id, const QString &fileName);
-    void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
+#if EB_QT5_MULTIMEDIA
+    void onCameraStateChanged(QCamera::State state);
+    void onCameraError();
+    void onCaptureReadyChanged(bool ready);
+    void onImageCaptured(int id, const QImage &image);
+    void onImageSaved(int id, const QString &path);
+    void onCaptureError(int id, QCameraImageCapture::Error error, const QString &message);
 #endif
 
 #if EB_QT6_MULTIMEDIA
-    void setCameraDevice(const QCameraDevice &device);
-    void videoDeviceBoxCurrentIndexChanged(int index);
-    void openCamera();
-    void closeCamera();
-
-    void displayCameraError(QCamera::Error error, const QString &errorString);
-    void updateCameraState(bool active);
-    void displayCaptureError(int id, QImageCapture::Error error, const QString &errorString);
+    void onCameraActiveChanged(bool active);
+    void onCameraError(QCamera::Error error, const QString &message);
+    void onCaptureError(int id, QImageCapture::Error error, const QString &message);
 #endif
 
 private:
-    void initVideoDeviceBox();
-
-    QSize showResolution;
-
-#if EB_QT5_MULTIMEDIA || EB_QT6_MULTIMEDIA
-    QComboBox *videoDeviceBox;
-    QPushButton *lockBtn;
-#endif
+    void buildUi();
+    void setStatusText(const QString &text);
+    void updateControlStates();
+    void populateResolutionList();
+    void applySelectedResolution();
+    void teardownCamera();
+    void setupCameraForCurrentDevice();
 
 #if EB_QT5_MULTIMEDIA
-    QCamera             *camera;
-    QCameraViewfinder   *cameraViewfinder;
+    QCameraInfo currentCameraInfo() const;
+    void attachCamera(const QCameraInfo &info);
+#endif
+
+#if EB_QT6_MULTIMEDIA
+    QCameraDevice currentCameraDevice() const;
+    void attachCamera(const QCameraDevice &device);
+#endif
+
+    QGroupBox *controlGroup;
+    QComboBox *deviceBox;
+    QComboBox *resolutionBox;
+    QLabel *statusLabel;
+    QLabel *deviceInfoLabel;
+    QPushButton *refreshDevicesBtn;
+
+    QFrame *previewFrame;
+    QStackedWidget *previewStack;
+    QLabel *previewPlaceholder;
+    QLabel *previewInfoLabel;
+
+#if EB_QT5_MULTIMEDIA
+    QCameraViewfinder *viewfinder;
+    QCamera *camera;
     QCameraImageCapture *imageCapture;
 #endif
 
 #if EB_QT6_MULTIMEDIA
-    QCamera               *camera;
-    QMediaCaptureSession  *captureSession;
-    QVideoWidget          *videoWidget;
-    QImageCapture         *imageCapture;
+    QVideoWidget *videoWidget;
+    QCamera *camera;
+    QMediaCaptureSession *captureSession;
+    QImageCapture *imageCapture;
 #endif
 
-    bool isCapturingImage;
-
+    bool cameraActive;
+    bool multimediaAvailable;
 };
 
 #endif // CAMERAPAGE_H

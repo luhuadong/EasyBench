@@ -3,191 +3,93 @@
 
 #include "custom_widget/pagewidget.h"
 #include "eb_common.h"
+#include "module/monitor/eb_sysstats.h"
 
-#include <QString>
 #include <QLabel>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QThread>
 #include <QGroupBox>
-#include <QPushButton>
-#include <QTextEdit>
+#include <QProgressBar>
 #include <QTimer>
 
-class SerialRecvThread : public QThread
-{
-    Q_OBJECT
-public:
-    explicit SerialRecvThread(QWidget *parent=0);
-    void setSerialPortFd(int fd);
+#define MAXBUF 256
 
-signals:
-    void msgReceived(const QString msg);
-
-private:
-    int serialFd;
-
-protected:
-    void run();
-};
+typedef enum {
+    CMD_GET_STATUS,
+    CMD_GET_VERSION,
+    CMD_CONTROL
+} BASEPCB_CMD;
 
 class SystemPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit SystemPage(EbOptions *options, QWidget *parent = 0);
+    explicit SystemPage(EbOptions *options, QWidget *parent = nullptr);
 
+    void setBasePcbTemp1Text(float value);
+    void setBasePcbTemp2Text(float value);
+    void setFanSpeedText(float value);
+    void setFwVerText(const QString &text);
+    void setHwVerText(const QString &text);
+    void setCpuDuty(float value);
 
-signals:
+    bool sockToBasdPcbIsOk = false;
 
 private slots:
-    void showRecvData(const QString msg);
-    void openSerialPort();
-    void applyParameters();
-    void clearSendArea();
-    void clearRecvArea();
-    void sendSerialData();
-    void changeSerialPort(const QString &text);
-
-    void on_updateTimer_timeout(void);
-    void readTestBtnOnClicked(void);
-    void writeTestBtnOnClicked(void);
-
-    void on_sshBtn_clicked(void);
+    void onUpdateTimer();
+    void onSshBtnClicked();
+    void fanModeBtnClicked();
+    void changeFanSpeedBtnClicked();
 
 private:
+    void buildUi();
+    void initOperationBar();
+    void updateSysParam();
+    void createSocketWithBasePcb();
+    void sendBasePcbCmd(BASEPCB_CMD which, const QString &arg);
 
-    void initOperationBar(void);
+    QGroupBox *cpuGroup = nullptr;
+    QLabel *cpuNameLabel = nullptr;
+    QLabel *cpuVendorLabel = nullptr;
+    QLabel *cpuCoreLabel = nullptr;
+    QLabel *cpuDutyLabel = nullptr;
+    QProgressBar *cpuBar = nullptr;
 
-    typedef enum BaudRate
-    {
-        Baud1200    = 1200,
-        Baud2400    = 2400,
-        Baud4800    = 4800,
-        Baud9600    = 9600,
-        Baud19200   = 19200,
-        Baud38400   = 38400,
-        Baud57600   = 57600,
-        Baud115200  = 115200,
-        UnknownBaud = -1
+    QGroupBox *memGroup = nullptr;
+    QLabel *memTotalLabel = nullptr;
+    QLabel *memUsedLabel = nullptr;
+    QLabel *memFreeLabel = nullptr;
+    QProgressBar *memBar = nullptr;
 
-    } BaudRate;
+    QGroupBox *diskGroup = nullptr;
+    QLabel *diskTotalLabel = nullptr;
+    QLabel *diskUsedLabel = nullptr;
+    QLabel *diskFreeLabel = nullptr;
+    QProgressBar *diskBar = nullptr;
 
-    typedef enum DataBits
-    {
-        Data5 = 5,
-        Data6 = 6,
-        Data7 = 7,
-        Data8 = 8,
-        UnknownDataBits = -1
+    QGroupBox *rtcGroup = nullptr;
+    QLabel *rtcNameLabel = nullptr;
+    QLabel *rtcDateTimeLabel = nullptr;
+    QLabel *sysDateTimeLabel = nullptr;
 
-    } Databits;
+    QGroupBox *tempGroup = nullptr;
+    QLabel *armTempLabel = nullptr;
+    QLabel *adspTempLabel = nullptr;
+    QLabel *pcbTempLabel = nullptr;
+    QLabel *fanSpeedLabel = nullptr;
+    QLabel *fwVerLabel = nullptr;
+    QLabel *hwVerLabel = nullptr;
 
-    typedef enum Direction
-    {
-        Input  = 1,
-        Output = 2,
-        AllDirections = Input | Output
+    EbSysStats::CpuInfo cpuInfo;
+    float cpuTotalDuty = 0.0f;
+    float armTemp = 0.0f;
+    float adspTemp = 0.0f;
+    float pcbTemp = 0.0f;
+    float fanSpeed = 0.0f;
+    EbSysStats::MemInfo memInfo;
+    EbSysStats::DiskInfo diskInfo;
 
-    } Direction;
-
-    typedef enum FlowControl
-    {
-        NoFlowControl   = 0,
-        HardwareControl = 1,
-        SoftwareControl = 2,
-        UnknownFlowControl = -1
-
-    } FlowControl;
-
-    typedef enum Parity
-    {
-        NoParity     = 0,
-        EvenParity   = 2,
-        OddParity    = 3,
-        SpaceParity  = 4,
-        MarkParity   = 5,
-        UnknowParity = -1
-
-    } Parity;
-
-    typedef enum StopBits
-    {
-        OneStop         = 1,
-        OneAndHalfStop  = 3,
-        TwoStop         = 2,
-        UnknownStopBits = -1
-
-    } StopBits;
-
-    typedef enum SerialPortError
-    {
-        NoError                   = 0,
-        DeviceNotFoundError       = 1,
-        PermissionError           = 2,
-        OpenError                 = 3,
-        NotOpenError              = 13,
-        ParityError               = 4,
-        FramingError              = 5,
-        BreakConditionError       = 6,
-        WriteError                = 7,
-        ReadError                 = 8,
-        ResourceError             = 9,
-        UnsupportedOperationError = 10,
-        TimeoutError              = 12,
-        UnknownError              = 11
-
-    } SerialPortError;
-
-    int serialFd;
-    SerialRecvThread *thread;
-
-
-    QLabel *label;
-
-    QGroupBox *serialPortGroup;
-    QLabel    *serialPortLabel;
-    QComboBox *serialPortBox;
-    QPushButton *openBtn;
-
-    //QGroupBox *parametersGroup;
-    QLabel    *baudRateLabel;
-    QComboBox *baudRateBox;
-    /*
-    QLabel    *dataBitsLabel;
-    QComboBox *dataBitsBox;
-    QLabel    *parityLabel;
-    QComboBox *parityBox;
-    QLabel    *stopBitsLabel;
-    QComboBox *stopBitsBox;
-    QLabel    *flowControlLabel;
-    QComboBox *flowControlBox;
-    */
-    QPushButton *applyBtn;
-
-    QGroupBox *echoTestGroup;
-    QTextEdit *sendArea;
-    QTextEdit *recvArea;
-    QPushButton *sendClearBtn;
-    QPushButton *recvClearBtn;
-    QPushButton *testBtn;
-
-    void initSerialPortArea();
-    void applySerialPortStty();
-
-
-    QTimer *updateTimer;
-
-    QGroupBox *rtcGroup;
-    QLabel *rtcName;
-    QLabel *rtcDateTime;
-    QLabel *sysDateTime;
-
-    QGroupBox *sdiskGroup; // SATA interface disk
-    QTextEdit *sdiskArea;
-    QPushButton *readTestBtn;
-    QPushButton *writeTestBtn;
-
+    QTimer *updateTimer = nullptr;
+    int sockfd = -1;
+    int fanMode = 0;
 };
 
-#endif // SYSTEMPAGE_H
+#endif /* SYSTEMPAGE_H */

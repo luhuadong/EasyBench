@@ -1,4 +1,4 @@
-## EasyBench
+# EasyBench
 
 ![](EasyBench_banner.png)
 
@@ -12,7 +12,7 @@ EasyBench 是一个面向嵌入式 Linux 设备的轻量级出厂测试、硬件
 
 
 
-### 安装依赖
+## 安装依赖
 
 Ubuntu / Debian：
 
@@ -30,7 +30,7 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 
 
 
-### 编译步骤（CMake）
+## 编译步骤（CMake）
 
 1. 配置并编译（自动优先选用已安装的 Qt 6，否则使用 Qt 5）：
 
@@ -73,7 +73,7 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 
 
 
-### 遗留 qmake 构建
+## 遗留 qmake 构建
 
 仓库仍保留 `easybench.pro` 供参考，推荐使用 CMake。若继续使用 qmake：
 
@@ -84,9 +84,39 @@ make
 
 
 
-### 注意事项
+## 注意事项
 
 - 默认通过 CMake 检测 Qt 版本；摄像头页面在 Qt 5 与 Qt 6 下使用各自的多媒体 API。
 - Qt 6 构建依赖 `Qt6::Core5Compat`，以兼容代码中的 `QTextCodec` 与 `QRegExp`。
 - 中文字体路径默认为 `/usr/share/fonts/ttf/LiHeiPro.ttf`，可按目标系统调整 `main.cpp`。
 - 应用窗口与任务栏图标来自内嵌资源 `:/images/logo.png`；系统菜单/dock 图标名称为 `easybench`，需通过 `cmake --install` 或 `scripts/install-desktop-local.sh` 安装到图标主题路径。`StartupWMClass=easybench` 与 `QApplication::setDesktopFileName()` 配合，便于 Ubuntu dock 正确分组与固定。
+
+
+
+## 更新图标
+
+图标文件位于 resource 目录，如果更换了图标，只需重新编译即可（让 Qt 资源重新打包新图）：
+
+```bash
+cmake --build build -j$(nproc)
+```
+
+如果使用 Ubuntu 系统，且之前装过桌面图标，还要再装一次并刷新缓存，dock 才会显示新 logo：
+
+```bash
+sudo cmake --install build
+# 或仅本机用户目录：
+./scripts/install-desktop-local.sh
+```
+
+Ubuntu dock 若仍显示旧图，可注销再登录，或执行：
+
+```bash
+gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor
+```
+
+
+
+## 配色风格
+
+主色调：橙黄色 `FFD54B`

@@ -1,5 +1,5 @@
 #include "basepcbthread.h"
-#include "sub_page/monitorpage.h"
+#include "sub_page/systempage.h"
 #include <QString>
 //#include <QChar>
 
@@ -26,7 +26,7 @@ BasePcbThread::BasePcbThread(const int arg, QObject *parent) :
 void BasePcbThread::run()
 {
     int len;
-    MonitorPage *page = (MonitorPage *)parent();
+    SystemPage *page = static_cast<SystemPage *>(parent());
 
     while(1)
     {

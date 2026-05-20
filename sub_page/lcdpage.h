@@ -5,31 +5,25 @@
 #include "module/lcd/grayscalewidget.h"
 #include "eb_common.h"
 
-#include <QString>
-#include <QPushButton>
-#include <QLabel>
 #include <QGroupBox>
-#include <QProgressBar>
+#include <QLabel>
+#include <QProcess>
+#include <QPushButton>
+#include <QSlider>
+#include <QString>
 
-extern "C"
-{
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+extern "C" {
 #include <fcntl.h>
 #include <linux/fb.h>
-//#include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 }
-
 
 class LcdPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit LcdPage(EbOptions *options, QWidget *parent = 0);
-
-public slots:
+    explicit LcdPage(EbOptions *options, QWidget *parent = nullptr);
 
 private slots:
     void pixelCheckBtnClicked();
@@ -37,39 +31,67 @@ private slots:
     void changeColor();
     void lcdBacklightUp();
     void lcdBacklightDown();
+    void onBacklightSliderChanged(int value);
+    void calBtnClicked();
+    void linz9BtnClicked();
+    void linzBtnClicked();
+    void drawBtnClicked();
+    void refreshScreenInfo();
+    void startECalib(const QString &mode);
 
 private:
-    int getScreenInfo();
+    void buildUi();
+    void setupTouchButtons();
+    bool loadFramebufferInfo();
+    void applyScreenInfoLabels();
+    bool detectBacklight();
+    bool writeBacklightHardware(int hwValue);
+    bool applyBacklightPercent(int percent);
+    int percentToHardware(int percent) const;
+    int hardwareToPercent(int hwValue) const;
+    QString touchTypeText() const;
 
-    QPushButton *pixelCheckBtn;
-    QPushButton *grayscaleTestBtn;
-    QPushButton *colorBtn;
+    QPushButton *pixelCheckBtn = nullptr;
+    QPushButton *grayscaleTestBtn = nullptr;
+    QPushButton *colorBtn = nullptr;
 
-    QLabel *backlightLabel;
-    QProgressBar *backlightBar;
-    QString backlightName;
-    int backlightValue;
-    int maxBacklightValue;
-    int minBacklightValue;
-    int MaxBacklightValue;
-    int MinBacklightValue;
+    QPushButton *calBtn = nullptr;
+    QPushButton *linz9Btn = nullptr;
+    QPushButton *linzBtn = nullptr;
+    QPushButton *drawBtn = nullptr;
 
-    /*
-     * visible resolution : xres yres
-     * bits_per_pixel
-     * grayscale
-     * pixclock
-     * height width
-    */
-    struct fb_var_screeninfo vinfo;
-    QGroupBox *lcdInfoBox;
-    QLabel *lcdInfoLabel;
-    QLabel *resolutionLabel;
-    QLabel *bppLabel;
-    //QLabel *grayscaleLabel;
-    //QLabel *pixclockLabel;
-    //QLabel *sizeLabel;
+    QLabel *backlightLabel = nullptr;
+    QSlider *backlightSlider = nullptr;
+    QLabel *backlightHintLabel = nullptr;
 
+    QString backlightNode;
+    QString brightnessPath;
+    QString maxBrightnessPath;
+    int hwMinValue = 1;
+    int hwMaxValue = 100;
+    int hwCurrentValue = 1;
+    int uiPercent = 50;
+    enum class BacklightMode { HardwareSysfs, XBacklight, Xrandr, Simulated };
+    BacklightMode backlightMode = BacklightMode::Simulated;
+
+    bool hasFramebuffer = false;
+    struct fb_var_screeninfo vinfo {};
+    struct fb_fix_screeninfo finfo {};
+
+    QString qtScreenName;
+    QSize qtScreenSize;
+    int qtScreenDpi = 0;
+
+    QGroupBox *lcdInfoBox = nullptr;
+    QLabel *infoDeviceLabel = nullptr;
+    QLabel *infoResolutionLabel = nullptr;
+    QLabel *infoVirtualLabel = nullptr;
+    QLabel *infoBppLabel = nullptr;
+    QLabel *infoPitchLabel = nullptr;
+    QLabel *infoPhysicalLabel = nullptr;
+    QLabel *infoGrayscaleLabel = nullptr;
+    QLabel *infoTouchLabel = nullptr;
+    QLabel *infoSourceLabel = nullptr;
 };
 
-#endif // LCDPAGE_H
+#endif /* LCDPAGE_H */

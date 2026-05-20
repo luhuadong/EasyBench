@@ -2,4 +2,26 @@
     <qresource prefix="/images">
         <file>logo.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file>icons/menu_lcd.svg</file>
+        <file>icons/menu_lcd_active.svg</file>
+        <file>icons/menu_touch.svg</file>
+        <file>icons/menu_touch_active.svg</file>
+        <file>icons/menu_camera.svg</file>
+        <file>icons/menu_camera_active.svg</file>
+        <file>icons/menu_network.svg</file>
+        <file>icons/menu_network_active.svg</file>
+        <file>icons/menu_system.svg</file>
+        <file>icons/menu_system_active.svg</file>
+        <file>icons/menu_monitor.svg</file>
+        <file>icons/menu_monitor_active.svg</file>
+        <file>icons/menu_version.svg</file>
+        <file>icons/menu_version_active.svg</file>
+        <file>icons/menu_audio.svg</file>
+        <file>icons/menu_audio_active.svg</file>
+        <file>icons/menu_serial.svg</file>
+        <file>icons/menu_serial_active.svg</file>
+        <file>icons/menu_storage.svg</file>
+        <file>icons/menu_storage_active.svg</file>
+    </qresource>
 </RCC>
