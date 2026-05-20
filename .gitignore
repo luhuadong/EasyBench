@@ -2,6 +2,7 @@ Makefile
 build/
 easybench
 *.user*
+*.pro.user
 *.o
 moc_*
 qrc_*
@@ -10,5 +11,11 @@ qrc_*
 *.run
 *.zip
 md5sum.txt
+dist/
+build/_CPack_Packages/
+build/easybench-*.tar.gz
 
 .vscode
+
+# Local overrides (use config/easybench.conf as template)
+/easybench.conf

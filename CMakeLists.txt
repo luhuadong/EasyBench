@@ -9,6 +9,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+set(EB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 option(EASYBENCH_FORCE_QT6 "Force Qt 6 even when Qt 5 is available" OFF)
 option(EASYBENCH_FORCE_QT5 "Force Qt 5 even when Qt 6 is available" OFF)
 
@@ -37,70 +39,73 @@ endif()
 message(STATUS "EasyBench: building with Qt ${EB_QT_VERSION_MAJOR}")
 
 set(EASYBENCH_SOURCES
-    main.cpp
-    mainwidget.cpp
-    eb_common.c
-    eb_options.cpp
-    eb_startup.cpp
-    eb_branding.cpp
-    custom_widget/statusbar.cpp
-    custom_widget/pagewidget.cpp
-    custom_widget/inputlineedit.cpp
-    sub_page/lcdpage.cpp
-    sub_page/camerapage.cpp
-    sub_page/datetimepage.cpp
-    sub_page/realtimepage.cpp
-    sub_page/serialpage.cpp
-    sub_page/storagepage.cpp
-    sub_page/versionpage.cpp
-    sub_page/upgradepage.cpp
-    sub_page/networkpage.cpp
-    sub_page/systempage.cpp
-    sub_page/audiopage.cpp
-    module/audio/eb_pcm_util.cpp
-    module/audio/pcm_memory_device.cpp
-    module/camera/processimage.cpp
-    module/camera/videodevice.cpp
-    module/lcd/grayscalewidget.cpp
-    module/monitor/basepcbthread.cpp
-    module/monitor/cpustatthread.cpp
-    module/monitor/eb_sysstats.cpp
-    module/monitor/eb_version_info.cpp
-    module/network/eb_net_util.cpp
-    module/update/eb_update_util.cpp
+    src/main.cpp
+    src/app/mainwidget.cpp
+    src/app/eb_common.c
+    src/app/eb_options.cpp
+    src/app/eb_startup.cpp
+    src/app/eb_branding.cpp
+    src/app/eb_paths.cpp
+    src/widgets/statusbar.cpp
+    src/widgets/pagewidget.cpp
+    src/widgets/inputlineedit.cpp
+    src/pages/lcdpage.cpp
+    src/pages/camerapage.cpp
+    src/pages/datetimepage.cpp
+    src/pages/realtimepage.cpp
+    src/pages/serialpage.cpp
+    src/pages/storagepage.cpp
+    src/pages/versionpage.cpp
+    src/pages/upgradepage.cpp
+    src/pages/networkpage.cpp
+    src/pages/systempage.cpp
+    src/pages/audiopage.cpp
+    src/modules/audio/eb_pcm_util.cpp
+    src/modules/audio/pcm_memory_device.cpp
+    src/modules/camera/processimage.cpp
+    src/modules/camera/videodevice.cpp
+    src/modules/lcd/grayscalewidget.cpp
+    src/modules/monitor/basepcbthread.cpp
+    src/modules/monitor/cpustatthread.cpp
+    src/modules/monitor/eb_sysstats.cpp
+    src/modules/monitor/eb_version_info.cpp
+    src/modules/network/eb_net_util.cpp
+    src/modules/update/eb_update_util.cpp
 )
 
 set(EASYBENCH_HEADERS
-    mainwidget.h
-    eb_common.h
-    eb_options.h
-    eb_startup.h
-    eb_branding.h
-    custom_widget/statusbar.h
-    custom_widget/pagewidget.h
-    custom_widget/inputlineedit.h
-    sub_page/lcdpage.h
-    sub_page/camerapage.h
-    sub_page/datetimepage.h
-    sub_page/realtimepage.h
-    sub_page/serialpage.h
-    sub_page/storagepage.h
-    sub_page/versionpage.h
-    sub_page/upgradepage.h
-    sub_page/networkpage.h
-    sub_page/systempage.h
-    sub_page/audiopage.h
-    module/audio/eb_pcm_util.h
-    module/audio/pcm_memory_device.h
-    module/camera/processimage.h
-    module/camera/videodevice.h
-    module/lcd/grayscalewidget.h
-    module/monitor/basepcbthread.h
-    module/monitor/cpustatthread.h
-    module/monitor/eb_sysstats.h
-    module/monitor/eb_version_info.h
-    module/network/eb_net_util.h
-    module/update/eb_update_util.h
+    src/app/mainwidget.h
+    src/app/eb_common.h
+    src/app/eb_options.h
+    src/app/eb_startup.h
+    src/app/eb_branding.h
+    src/app/eb_paths.h
+    src/app/eb_qt_compat.h
+    src/widgets/statusbar.h
+    src/widgets/pagewidget.h
+    src/widgets/inputlineedit.h
+    src/pages/lcdpage.h
+    src/pages/camerapage.h
+    src/pages/datetimepage.h
+    src/pages/realtimepage.h
+    src/pages/serialpage.h
+    src/pages/storagepage.h
+    src/pages/versionpage.h
+    src/pages/upgradepage.h
+    src/pages/networkpage.h
+    src/pages/systempage.h
+    src/pages/audiopage.h
+    src/modules/audio/eb_pcm_util.h
+    src/modules/audio/pcm_memory_device.h
+    src/modules/camera/processimage.h
+    src/modules/camera/videodevice.h
+    src/modules/lcd/grayscalewidget.h
+    src/modules/monitor/basepcbthread.h
+    src/modules/monitor/cpustatthread.h
+    src/modules/monitor/eb_sysstats.h
+    src/modules/monitor/eb_version_info.h
+    src/modules/network/eb_net_util.h
+    src/modules/update/eb_update_util.h
 )
 
 set(EASYBENCH_RESOURCES
@@ -115,19 +120,21 @@ add_executable(easybench
 )
 
 target_include_directories(easybench PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/custom_widget
-    ${CMAKE_CURRENT_SOURCE_DIR}/sub_page
-    ${CMAKE_CURRENT_SOURCE_DIR}/module/camera
-    ${CMAKE_CURRENT_SOURCE_DIR}/module/lcd
-    ${CMAKE_CURRENT_SOURCE_DIR}/module/monitor
-    ${CMAKE_CURRENT_SOURCE_DIR}/module/audio
-    ${CMAKE_CURRENT_SOURCE_DIR}/module/network
-    ${CMAKE_CURRENT_SOURCE_DIR}/module/update
+    ${EB_SOURCE_DIR}
+    ${EB_SOURCE_DIR}/app
+    ${EB_SOURCE_DIR}/widgets
+    ${EB_SOURCE_DIR}/pages
+    ${EB_SOURCE_DIR}/modules/camera
+    ${EB_SOURCE_DIR}/modules/lcd
+    ${EB_SOURCE_DIR}/modules/monitor
+    ${EB_SOURCE_DIR}/modules/audio
+    ${EB_SOURCE_DIR}/modules/network
+    ${EB_SOURCE_DIR}/modules/update
 )
 
 target_compile_definitions(easybench PRIVATE
     EB_QT_VERSION_MAJOR=${EB_QT_VERSION_MAJOR}
+    EB_PROJECT_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 if(EB_QT_VERSION_MAJOR EQUAL 6)
@@ -160,43 +167,5 @@ pkg_check_modules(ALSA REQUIRED alsa)
 target_include_directories(easybench PRIVATE ${ALSA_INCLUDE_DIRS})
 target_link_libraries(easybench PRIVATE ${ALSA_LIBRARIES})
 
-include(GNUInstallDirs)
-
-install(TARGETS easybench RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-# Freedesktop: launcher + icon theme (GNOME/KDE/Ubuntu dock, etc.)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/easybench.desktop.in
-    ${CMAKE_CURRENT_BINARY_DIR}/easybench.desktop
-    @ONLY
-)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/easybench.desktop
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-
-set(_EB_ICON_SIZES 16 32 48 64 128 256 512)
-foreach(_size IN LISTS _EB_ICON_SIZES)
-    install(
-        FILES ${CMAKE_CURRENT_SOURCE_DIR}/resource/logo.png
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/${_size}x${_size}/apps
-        RENAME easybench.png
-    )
-endforeach()
-
-# Legacy path still used by some installers and older desktop environments
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/resource/logo.png
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps
-    RENAME easybench.png
-)
-
-# Optional: refresh GTK icon cache on Ubuntu/Debian when available
-install(CODE "
-    find_program(_EB_UPDATE_ICON_CACHE gtk-update-icon-cache)
-    if(_EB_UPDATE_ICON_CACHE)
-        execute_process(
-            COMMAND \${_EB_UPDATE_ICON_CACHE} -f -t
-                \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons/hicolor\"
-            RESULT_VARIABLE _EB_ICON_CACHE_RESULT
-        )
-    endif()
-")
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/EasyBenchInstall.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/EasyBenchPackaging.cmake)

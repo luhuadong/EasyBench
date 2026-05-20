@@ -1,6 +1,6 @@
 # EasyBench
 
-![](EasyBench_banner.png)
+![](docs/EasyBench_banner.png)
 
 EasyBench 是一个面向嵌入式 Linux 设备的轻量级出厂测试、硬件诊断和板级验证工具，支持图形界面、命令行执行、插件化测试项和测试报告导出。
 
@@ -48,24 +48,34 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 
 3. 可执行文件位于 `build/easybench`。
 
-4. 安装程序、桌面启动项与图标（Freedesktop 通用方式，适用于 GNOME/KDE/Ubuntu dock 等）：
+4. 安装到系统（推荐）：
 
    ```shell
-   sudo cmake --install build
+   sudo ./scripts/cmake-install.sh
+   # 等价于: sudo cmake --install build --prefix /usr
    ```
 
-   将安装 `easybench` 可执行文件、`share/applications/easybench.desktop`，以及 `share/icons/hicolor/*/apps/easybench.png`（源图：`resource/logo.png`）。Ubuntu 上若 dock 未刷新，可注销后重新登录，或执行 `gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor`（用户级安装时）。
+   安装内容：`/usr/bin/easybench`、`/etc/easybench/easybench.conf`（首次创建，不覆盖已有配置）、`share/applications/easybench.desktop`、`share/easybench/deploy/`、`share/easybench/fonts/LiHeiPro.ttf`、Freedesktop 图标。安装结束时会尝试刷新图标缓存与 desktop 数据库。
 
-5. 仅在当前用户目录安装启动器（无需 root，便于 Ubuntu 桌面调试）：
+5. 发布打包（CMake staging / CPack）：
+
+   ```shell
+   ./packaging/build-staging.sh          # dist/easybench-<ver>-linux-<arch>.tar.gz
+   cd build && cpack -G TGZ             # 或 DEB（Debian/Ubuntu）
+   ```
+
+   详见 [packaging/README.md](packaging/README.md)。遗留自解压安装包：`./packaging/package.sh`。
+
+6. 仅在当前用户目录安装启动器（无需 root，便于 Ubuntu 桌面调试）：
 
    ```shell
    chmod +x scripts/install-desktop-local.sh
    ./scripts/install-desktop-local.sh
    ```
 
-6. 交叉编译时，在 `cmake -B build` 前加载目标平台的 SDK 环境（例如 Yocto 的 `environment-setup-*`），并确保 `CMAKE_PREFIX_PATH` 指向目标 Qt 安装路径。
+7. 交叉编译时，在 `cmake -B build` 前加载目标平台的 SDK 环境（例如 Yocto 的 `environment-setup-*`），并确保 `CMAKE_PREFIX_PATH` 指向目标 Qt 安装路径。
 
-7. 裁剪体积（嵌入式部署可选）：
+8. 裁剪体积（嵌入式部署可选）：
 
    ```shell
    arm-poky-linux-gnueabi-strip build/easybench
@@ -73,22 +83,42 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 
 
 
-## 遗留 qmake 构建
+## 目录结构
 
-仓库仍保留 `easybench.pro` 供参考，推荐使用 CMake。若继续使用 qmake：
-
-```shell
-qmake
-make
+```
+EasyBench/
+├── CMakeLists.txt          # 构建入口
+├── src/                    # 应用源码
+│   ├── main.cpp
+│   ├── app/                # 主窗口、配置、启动检查、路径解析
+│   ├── widgets/            # 通用控件（PageWidget、StatusBar 等）
+│   ├── pages/              # 功能页面（网络、升级、版本等）
+│   └── modules/            # 功能模块（audio、network、update、monitor…）
+├── config/                 # 运行时配置模板
+├── deploy/                 # 产线工具与数据（eepromARMtool、I210 OTP）
+├── resource/               # Qt 资源（qrc、图标、QSS、字体）
+├── cmake/                  # EasyBenchInstall / Packaging、desktop 模板
+├── packaging/              # staging、CPack、遗留 .run 安装包
+├── scripts/                # 开发辅助脚本
+├── docs/                   # 文档
+└── legacy/                 # 遗留 qmake / JSON / Seat 样例
 ```
 
+## 配置与路径
 
+- 主配置模板：`config/easybench.conf`
+- 搜索顺序：`/etc/easybench/` → `/etc/gbox/`（兼容）→ 程序目录旁 `config/` → 开发树 `config/`
+- 产线工具：`deploy/bin/eepromARMtool`，数据：`deploy/data/I210NIC-origin.otp`（安装后位于 `share/easybench/deploy/`）
+
+## 遗留 qmake 构建
+
+`legacy/easybench.pro` 仅供参考，推荐使用 CMake。
 
 ## 注意事项
 
 - 默认通过 CMake 检测 Qt 版本；摄像头页面在 Qt 5 与 Qt 6 下使用各自的多媒体 API。
 - Qt 6 构建依赖 `Qt6::Core5Compat`，以兼容代码中的 `QTextCodec` 与 `QRegExp`。
-- 中文字体路径默认为 `/usr/share/fonts/ttf/LiHeiPro.ttf`，可按目标系统调整 `main.cpp`。
+- 中文字体由 `EbPaths::chineseFontFile()` 自动查找（安装路径、`resource/fonts/` 等）。
 - 应用窗口与任务栏图标来自内嵌资源 `:/images/logo.png`；系统菜单/dock 图标名称为 `easybench`，需通过 `cmake --install` 或 `scripts/install-desktop-local.sh` 安装到图标主题路径。`StartupWMClass=easybench` 与 `QApplication::setDesktopFileName()` 配合，便于 Ubuntu dock 正确分组与固定。
 
 
