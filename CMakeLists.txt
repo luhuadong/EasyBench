@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(EasyBench VERSION 1.0.0 LANGUAGES C CXX)
+project(EasyBench VERSION 0.2.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -65,6 +65,7 @@ set(EASYBENCH_SOURCES
     module/monitor/basepcbthread.cpp
     module/monitor/cpustatthread.cpp
     module/monitor/eb_sysstats.cpp
+    module/monitor/eb_version_info.cpp
     module/network/eb_net_util.cpp
     module/update/eb_update_util.cpp
 )
@@ -97,6 +98,7 @@ set(EASYBENCH_HEADERS
     module/monitor/basepcbthread.h
     module/monitor/cpustatthread.h
     module/monitor/eb_sysstats.h
+    module/monitor/eb_version_info.h
     module/network/eb_net_util.h
     module/update/eb_update_util.h
 )

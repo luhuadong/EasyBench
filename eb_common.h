@@ -5,8 +5,8 @@
 
 //#define EASYBENCH_VERSION "v1.0.0"
 
-#define MAJOR_VERSION 1
-#define MINOR_VERSION 0
+#define MAJOR_VERSION 0
+#define MINOR_VERSION 2
 #define PATCH_VERSION 0
 
 #define DEFAULT_FILE "/var/run/easybench.pid"

@@ -1,4 +1,5 @@
 #include "eb_options.h"
+#include "module/monitor/eb_version_info.h"
 
 #include <cstring>
 
@@ -38,19 +39,7 @@ EbOptions::EbOptions()
         gSerialPortStr[sizeof(gSerialPortStr) - 1] = '\0';
     }
 
-    QString verFile = QStringLiteral("/etc/gy-version");
-    QSettings configRead2(verFile, QSettings::IniFormat);
-
-    product = configRead2.value(QStringLiteral("/PLATFORM/Product"), QStringLiteral("reTerminal")).toString();
-    developer = configRead2.value(QStringLiteral("/PLATFORM/Developer"), QStringLiteral("EasyBench Team")).toString();
-    rootfs = configRead2.value(QStringLiteral("/LINUX/Rootfs"), QStringLiteral("1.0.0")).toString();
-    gyos = configRead2.value(QStringLiteral("/LINUX/GYOS"), QStringLiteral("MyLinux")).toString()
-           + QStringLiteral("_") + rootfs;
-    distro = configRead2.value(QStringLiteral("/LINUX/YOCTO"), QStringLiteral("Yocto 1.8")).toString();
-    kernel = configRead2.value(QStringLiteral("/LINUX/Kernel"), QStringLiteral("3.14.52")).toString();
-    bootloader = configRead2.value(QStringLiteral("/LINUX/UBoot"), QStringLiteral("2015.04-g624b022")).toString();
-    gcc = configRead2.value(QStringLiteral("/LINUX/GCC"), QStringLiteral("arm-poky-linux-gnueabi-gcc")).toString();
-    model = configRead2.value(QStringLiteral("/PLATFORM/Model"), QStringLiteral("Raspberry Pi Compute Module 4")).toString();
+    loadVersionInfo(configRead);
 
     struct fb_var_screeninfo vinfo;
     if (0 == getScreenInfo(&vinfo)) {
@@ -146,23 +135,57 @@ int EbOptions::getScreenInfo(struct fb_var_screeninfo *vinfo)
     return 0;
 }
 
-QString EbOptions::invokeShell(const char *cmd) const
+void EbOptions::loadVersionInfo(const QSettings &mainConfig)
 {
-    FILE *fstream = NULL;
-    char buf[128];
-    memset(buf, 0, sizeof(buf));
+    const QString verPath = EbVersion::resolveVersionConfigPath();
+    QSettings verCfg(verPath.isEmpty() ? QStringLiteral("easybench-version.conf") : verPath,
+                     QSettings::IniFormat);
 
-    if (NULL == (fstream = popen(cmd, "r"))) {
-        return QString();
+    auto cfgVer = [&](const char *key) -> QString {
+        return verCfg.value(QString::fromLatin1(key)).toString().trimmed();
+    };
+    auto cfgMain = [&](const char *key) -> QString {
+        return mainConfig.value(QString::fromLatin1(key)).toString().trimmed();
+    };
+
+    QString cfgProduct = cfgVer("Platform/Product");
+    if (cfgProduct.isEmpty()) {
+        cfgProduct = cfgMain("VERSION/Product");
     }
-
-    if (NULL == fgets(buf, sizeof(buf), fstream)) {
-        pclose(fstream);
-        return QString();
+    if (cfgProduct.isEmpty()) {
+        const QString manufacturer = cfgMain("PLATFORM/Manufacturer");
+        const QString platformModel = cfgMain("PLATFORM/Model");
+        if (!manufacturer.isEmpty() && !platformModel.isEmpty()) {
+            cfgProduct = manufacturer + QLatin1Char(' ') + platformModel;
+        } else if (!platformModel.isEmpty()) {
+            cfgProduct = platformModel;
+        }
     }
+    product = EbVersion::pick(cfgProduct, EbVersion::probeProduct(), QStringLiteral("Unknown"));
 
-    pclose(fstream);
-    return QString(buf);
+    QString cfgDeveloper = cfgVer("Platform/Developer");
+    developer = EbVersion::pick(cfgDeveloper, QString(), QStringLiteral("EasyBench"));
+
+    QString cfgOs = cfgVer("Linux/OsVersion");
+    osVersion = EbVersion::pick(cfgOs, EbVersion::probeOsVersion(), QStringLiteral("—"));
+
+    QString cfgDistro = cfgVer("Linux/Distro");
+    distro = EbVersion::pick(cfgDistro, EbVersion::probeDistro(), QStringLiteral("Linux"));
+
+    QString cfgKernel = cfgVer("Linux/Kernel");
+    kernel = EbVersion::pick(cfgKernel, EbVersion::probeKernel(), QStringLiteral("—"));
+
+    QString cfgBoot = cfgVer("Linux/Bootloader");
+    bootloader = EbVersion::pick(cfgBoot, EbVersion::probeBootloader(), QStringLiteral("—"));
+
+    QString cfgGcc = cfgVer("Linux/Gcc");
+    gcc = EbVersion::pick(cfgGcc, EbVersion::probeGcc(), QStringLiteral("—"));
+
+    QString cfgModel = cfgVer("Platform/Model");
+    if (cfgModel.isEmpty()) {
+        cfgModel = cfgMain("PLATFORM/Model");
+    }
+    model = EbVersion::pick(cfgModel, EbVersion::probeHardwareModel(), QStringLiteral("—"));
 }
 
 QSize EbOptions::fixedSize() const
@@ -220,31 +243,19 @@ QString EbOptions::getDeveloperInfo() const
     return developer;
 }
 
-QString EbOptions::getGYOSInfo() const
+QString EbOptions::getCustomOSInfo() const
 {
-    return gyos;
+    return osVersion;
 }
 
 QString EbOptions::getDistroInfo() const
 {
-    QString info = invokeShell("cat /etc/issue");
-
-    if (info.isEmpty()) {
-        return distro;
-    }
-
-    return info.replace(QString("\\n"), QString()).replace(QString("\\l"), QString());
+    return distro;
 }
 
 QString EbOptions::getKernelInfo() const
 {
-    QString info = invokeShell("uname -r");
-
-    if (info.isEmpty()) {
-        return kernel;
-    }
-
-    return info;
+    return kernel;
 }
 
 QString EbOptions::getBootloaderInfo() const
@@ -260,11 +271,6 @@ QString EbOptions::getGCCInfo() const
 QString EbOptions::getModelInfo() const
 {
     return model;
-}
-
-QString EbOptions::getRootfsInfo() const
-{
-    return rootfs;
 }
 
 QString EbOptions::getAppVersion() const

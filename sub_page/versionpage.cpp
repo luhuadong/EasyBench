@@ -59,12 +59,12 @@ VersionPage::VersionPage(EbOptions *options, QWidget *parent) :
 void VersionPage::getVersionData()
 {
     QStringList itemNameList;
-    itemNameList << tr("设备型号") << tr("系统版本") << tr("发行版本") << tr("内核版本") << tr("Uboot版本")
-                 << tr("GCC版本") << tr("核心模块") << tr("开发者") << tr("Easy Bench");
+    itemNameList << tr("设备型号") << tr("系统版本") << tr("发行版本") << tr("内核版本") << tr("引导程序")
+                 << tr("GCC版本") << tr("硬件型号") << tr("开发者") << tr("Easy Bench");
 
     QStringList itemValueList;
     itemValueList << g_opt->getProductInfo()
-                  << g_opt->getGYOSInfo()
+                  << g_opt->getCustomOSInfo()
                   << g_opt->getDistroInfo()
                   << g_opt->getKernelInfo()
                   << g_opt->getBootloaderInfo()

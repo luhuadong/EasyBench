@@ -7,8 +7,6 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QHeaderView>
-#include <QSettings>
-
 class VersionPage : public PageWidget
 {
     Q_OBJECT
@@ -18,8 +16,6 @@ public:
 private:
     QTableView *tabView;
     QStandardItemModel *tabModel;
-
-    QString gyVersionFile;
 
     void getVersionData(void);
 };

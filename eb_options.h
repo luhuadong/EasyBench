@@ -46,13 +46,12 @@ public:
 
     QString getProductInfo() const;
     QString getDeveloperInfo() const;
-    QString getGYOSInfo() const;
+    QString getCustomOSInfo() const;
     QString getDistroInfo() const;
     QString getKernelInfo() const;
     QString getBootloaderInfo() const;
     QString getGCCInfo() const;
     QString getModelInfo() const;
-    QString getRootfsInfo() const;
 
     QString getAppVersion() const;
 
@@ -65,27 +64,17 @@ public:
 
 private:
     int getScreenInfo(struct fb_var_screeninfo *vinfo);
-    QString invokeShell(const char *cmd) const;
+    void loadVersionInfo(const QSettings &mainConfig);
 
 private:
     QString product;
     QString developer;
-    QString vendor;
     QString model;
-    QString processor;
-    QString OS;
-    QString baseBoard;
-
+    QString osVersion;
+    QString distro;
+    QString kernel;
     QString bootloader;
     QString gcc;
-    QString binutils;
-    QString kernel;
-    QString issue;
-    QString distro;
-    QString qt;
-    QString rootfs;
-    QString gyos;
-    QString data;
 
     uint lcdWidth;
     uint lcdHeight;

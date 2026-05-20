@@ -28,7 +28,7 @@ ${DEBUG} cp ${APP} ${TMP_DIR}
 ${DEBUG} cp ${BOOT} ${TMP_DIR}
 ${DEBUG} cp ${ICON} ${TMP_DIR}
 ${DEBUG} cp ${CONFIG} ${TMP_DIR}
-${DEBUG} cp ${DESKTOP} ${TMP_DIR}
+${DEBUG} cp cmake/easybench.desktop.in ${TMP_DIR}/${DESKTOP}
 ${DEBUG} cp eepromARMtool ${TMP_DIR}
 
 ${DEBUG} tar jcf ${BIN} ${TMP_DIR}

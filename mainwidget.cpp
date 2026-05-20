@@ -21,8 +21,8 @@ static const MenuItemDef kMenuItems[] = {
     { MainWidget::PAGE_SERIAL,   ":/icons/menu_serial.svg",   ":/icons/menu_serial_active.svg" },
     { MainWidget::PAGE_STORAGE,  ":/icons/menu_storage.svg",  ":/icons/menu_storage_active.svg" },
     { MainWidget::PAGE_AUDIO,    ":/icons/menu_audio.svg",    ":/icons/menu_audio_active.svg" },
-    { MainWidget::PAGE_VERSION,  ":/icons/menu_version.svg",  ":/icons/menu_version_active.svg" },
     { MainWidget::PAGE_UPGRADE,  ":/icons/menu_update.svg",   ":/icons/menu_update_active.svg" },
+    { MainWidget::PAGE_VERSION,  ":/icons/menu_version.svg",  ":/icons/menu_version_active.svg" },
 };
 
 MainWidget::MainWidget(EbOptions *options, QWidget *parent)
@@ -69,7 +69,7 @@ void MainWidget::initMainUI()
 
     const QStringList menuLabels = QStringList()
         << tr("系统") << tr("显示") << tr("相机") << tr("网络")
-        << tr("串口") << tr("存储") << tr("声音") << tr("版本") << tr("升级");
+        << tr("串口") << tr("存储") << tr("声音") << tr("升级") << tr("版本");
 
     const int menuCount = sizeof(kMenuItems) / sizeof(kMenuItems[0]);
     for (int i = 0; i < menuCount; ++i) {

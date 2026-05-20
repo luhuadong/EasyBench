@@ -36,6 +36,7 @@ SOURCES += main.cpp\
     module/monitor/basepcbthread.cpp \
     module/monitor/cpustatthread.cpp \
     module/monitor/eb_sysstats.cpp \
+    module/monitor/eb_version_info.cpp \
     module/network/eb_net_util.cpp \
     module/update/eb_update_util.cpp \
     custom_widget/inputlineedit.cpp \
@@ -64,6 +65,7 @@ HEADERS  += mainwidget.h \
     module/monitor/basepcbthread.h \
     module/monitor/cpustatthread.h \
     module/monitor/eb_sysstats.h \
+    module/monitor/eb_version_info.h \
     module/network/eb_net_util.h \
     module/update/eb_update_util.h \
     custom_widget/inputlineedit.h \

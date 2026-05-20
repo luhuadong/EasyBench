@@ -1,0 +1,16 @@
+; EasyBench 设备版本信息（可选）
+; 安装示例: sudo mkdir -p /etc/easybench && sudo cp easybench-version.conf.example /etc/easybench/version.conf
+; 读取优先级: 本配置文件 > 系统自动探测 > 程序内置默认值
+; Linux 段中带分号的项默认从系统读取，取消注释并填写可强制覆盖。
+
+[Platform]
+; Product=
+; Developer=
+; Model=
+
+[Linux]
+; OsVersion=
+; Distro=
+; Kernel=
+; Bootloader=
+; Gcc=

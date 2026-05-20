@@ -48,10 +48,9 @@ EbStartupReport eb_check_runtime(const EbOptions &opt)
     }
 
     const QString backlight = opt.getBacklightNode();
-    if (backlight.isEmpty()) {
-        report.warnings << QStringLiteral("未检测到背光设备（/sys/class/backlight）");
-    } else {
-        const QString brightnessPath = QStringLiteral("/sys/class/backlight/%1/brightness").arg(backlight);
+    if (!backlight.isEmpty()) {
+        const QString brightnessPath =
+            QStringLiteral("/sys/class/backlight/%1/brightness").arg(backlight);
         if (!QFile::exists(brightnessPath)) {
             report.warnings << QStringLiteral("背光节点不可用：%1").arg(brightnessPath);
         }
@@ -62,9 +61,7 @@ EbStartupReport eb_check_runtime(const EbOptions &opt)
     }
 
     const QString serial = opt.getSerialPort();
-    if (serial.isEmpty()) {
-        report.warnings << QStringLiteral("未配置串口设备");
-    } else if (!QFile::exists(serial)) {
+    if (!serial.isEmpty() && !QFile::exists(serial)) {
         report.warnings << QStringLiteral("串口设备不存在：%1").arg(serial);
     }
 
