@@ -1,4 +1,6 @@
 #include "datetimepage.h"
+#include "widgets/eb_widget_util.h"
+
 #include <QTextCodec>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -66,6 +68,16 @@ DatetimePage::DatetimePage(EbOptions *options, QWidget *parent) :
     rightLayout->addRow(tr("Date : "), dateLineEdit);
     rightLayout->addRow(tr("Time : "), timeLineEdit);
     datetimeGroupBox->setLayout(rightLayout);
+
+    EbWidget::applyFormLayoutStyle(leftLayout);
+    EbWidget::applyFormLayoutStyle(rightLayout);
+    EbWidget::applyComboBoxStyle(timezoneComboBox);
+    EbWidget::applyLineEditStyle(ipLineEdit);
+    EbWidget::applyLineEditStyle(maskLineEdit);
+    EbWidget::applyLineEditStyle(gatewayLineEdit);
+    EbWidget::applyLineEditStyle(dnsLineEdit);
+    EbWidget::applyLineEditStyle(dateLineEdit);
+    EbWidget::applyLineEditStyle(timeLineEdit);
 
     QWidget *mainWidget = new QWidget(this);
     mainWidget->setGeometry(0, 96, this->width(), this->height()-96-72);

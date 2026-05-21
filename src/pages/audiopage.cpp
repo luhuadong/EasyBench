@@ -252,10 +252,8 @@ void AudioPage::buildUi()
     speakerGrid->setColumnStretch(1, 1);
 
     auto addSpeakerRow = [&](int row, const QString &labelText, QWidget *field) {
-        QLabel *label = new QLabel(labelText, speakerGroup);
-        label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        speakerGrid->addWidget(label, row, 0);
+        speakerGrid->addWidget(EbWidget::createFormLabel(speakerGroup, labelText), row, 0);
         speakerGrid->addWidget(field, row, 1);
     };
 
@@ -294,10 +292,8 @@ void AudioPage::buildUi()
     micGrid->setColumnStretch(1, 1);
 
     auto addMicRow = [&](int row, const QString &labelText, QWidget *field) {
-        QLabel *label = new QLabel(labelText, micGroup);
-        label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        micGrid->addWidget(label, row, 0);
+        micGrid->addWidget(EbWidget::createFormLabel(micGroup, labelText), row, 0);
         micGrid->addWidget(field, row, 1);
     };
 

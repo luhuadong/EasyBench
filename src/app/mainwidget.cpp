@@ -147,6 +147,8 @@ void MainWidget::initMainUI()
 
     const int popupHeight = PAGE_BODY_HEIGHT - STATUS_BAR_HEIGHT - 48;
     EbWidget::applyComboBoxStyles(this, popupHeight);
+    EbWidget::applyFormFieldStyles(this);
+    EbWidget::applyAllFormLayouts(this);
 }
 
 void MainWidget::bindPageStatus(PageWidget *page)

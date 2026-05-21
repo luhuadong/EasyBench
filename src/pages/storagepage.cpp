@@ -1,4 +1,5 @@
 #include "storagepage.h"
+#include "widgets/eb_widget_util.h"
 #include "eb_thread_util.h"
 
 #include <QDir>
@@ -290,9 +291,14 @@ void StoragePage::buildUi()
 
     QPushButton *refreshBtn = new QPushButton(tr("刷新"), cfgGroup);
     refreshBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    QHBoxLayout *mediaRow = new QHBoxLayout;
+    QWidget *mediaRowWidget = new QWidget(cfgGroup);
+    mediaRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *mediaRow = new QHBoxLayout(mediaRowWidget);
+    mediaRow->setContentsMargins(0, 0, 0, 0);
+    mediaRow->setSpacing(8);
+    mediaRow->setAlignment(Qt::AlignVCenter);
     mediaRow->addWidget(mediaBox, 1);
-    mediaRow->addWidget(refreshBtn);
+    mediaRow->addWidget(refreshBtn, 0, Qt::AlignVCenter);
 
     startBtn = new QPushButton(tr("开始测试"), cfgGroup);
     startBtn->setObjectName(QStringLiteral("functionBtn_small"));
@@ -300,18 +306,24 @@ void StoragePage::buildUi()
     stopBtn->setObjectName(QStringLiteral("functionBtn_small"));
     stopBtn->setEnabled(false);
 
-    QHBoxLayout *btnRow = new QHBoxLayout;
+    QWidget *btnRowWidget = new QWidget(cfgGroup);
+    btnRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *btnRow = new QHBoxLayout(btnRowWidget);
+    btnRow->setContentsMargins(0, 0, 0, 0);
+    btnRow->setSpacing(8);
+    btnRow->setAlignment(Qt::AlignVCenter);
     btnRow->addWidget(startBtn);
     btnRow->addWidget(stopBtn);
     btnRow->addStretch();
 
     QFormLayout *form = new QFormLayout;
     form->setContentsMargins(12, 16, 12, 12);
-    form->addRow(tr("测试媒介"), mediaRow);
+    form->addRow(tr("测试媒介"), mediaRowWidget);
     form->addRow(tr("测试类型"), testTypeBox);
     form->addRow(tr("数据量"), sizeSpin);
     form->addRow(tr("循环次数"), loopsSpin);
-    form->addRow(QString(), btnRow);
+    form->addRow(QString(), btnRowWidget);
+    EbWidget::applyFormLayoutStyle(form);
     cfgGroup->setLayout(form);
 
     QGroupBox *logGroup = new QGroupBox(tr("测试日志"), content);

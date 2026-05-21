@@ -1,5 +1,6 @@
 #include "serialpage.h"
 #include "eb_thread_util.h"
+#include "widgets/eb_widget_util.h"
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -255,10 +256,8 @@ void SerialPage::buildUi()
     portGrid->setColumnStretch(1, 1);
 
     auto addPortRow = [&](int row, const QString &labelText, QWidget *field) {
-        QLabel *label = new QLabel(labelText, portGroup);
-        label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        portGrid->addWidget(label, row, 0);
+        portGrid->addWidget(EbWidget::createFormLabel(portGroup, labelText), row, 0);
         portGrid->addWidget(field, row, 1);
     };
 

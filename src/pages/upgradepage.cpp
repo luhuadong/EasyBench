@@ -1,4 +1,5 @@
 #include "upgradepage.h"
+#include "widgets/eb_widget_util.h"
 
 #include <QFileDialog>
 #include <QFormLayout>
@@ -81,6 +82,7 @@ void UpgradePage::buildUi()
     QFormLayout *pkgForm = new QFormLayout(pkgGroup);
     pkgForm->setContentsMargins(12, 16, 12, 12);
     pkgForm->addRow(tr("路径"), packagePathEdit);
+    EbWidget::applyFormLayoutStyle(pkgForm);
 
     QGroupBox *infoGroup = new QGroupBox(tr("包信息"), content);
     infoPathLabel = new QLabel(infoGroup);

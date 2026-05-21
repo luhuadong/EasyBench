@@ -1,4 +1,5 @@
 #include "networkpage.h"
+#include "widgets/eb_widget_util.h"
 #include "eb_paths.h"
 
 #include <QFile>
@@ -143,14 +144,20 @@ void NetworkPage::buildUi()
     macApplyBtn->setObjectName(QStringLiteral("functionBtn_small"));
     macSaveBtn = new QPushButton(tr("保存 MAC"), macGroup);
     macSaveBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    QHBoxLayout *macBtnRow = new QHBoxLayout;
+    QWidget *macBtnRowWidget = new QWidget(macGroup);
+    macBtnRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *macBtnRow = new QHBoxLayout(macBtnRowWidget);
+    macBtnRow->setContentsMargins(0, 0, 0, 0);
+    macBtnRow->setSpacing(8);
+    macBtnRow->setAlignment(Qt::AlignVCenter);
     macBtnRow->addWidget(macApplyBtn);
     macBtnRow->addWidget(macSaveBtn);
     macBtnRow->addStretch();
     QFormLayout *macForm = new QFormLayout(macGroup);
     macForm->setContentsMargins(12, 16, 12, 12);
     macForm->addRow(tr("新 MAC"), macEdit);
-    macForm->addRow(QString(), macBtnRow);
+    macForm->addRow(QString(), macBtnRowWidget);
+    EbWidget::applyFormLayoutStyle(macForm);
 
     macLogArea = new QTextEdit(macTab);
     macLogArea->setReadOnly(true);
@@ -188,7 +195,12 @@ void NetworkPage::buildUi()
     ipApplyBtn->setObjectName(QStringLiteral("functionBtn_small"));
     ipSaveBtn = new QPushButton(tr("保存网络"), ipGroup);
     ipSaveBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    QHBoxLayout *ipBtnRow = new QHBoxLayout;
+    QWidget *ipBtnRowWidget = new QWidget(ipGroup);
+    ipBtnRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *ipBtnRow = new QHBoxLayout(ipBtnRowWidget);
+    ipBtnRow->setContentsMargins(0, 0, 0, 0);
+    ipBtnRow->setSpacing(8);
+    ipBtnRow->setAlignment(Qt::AlignVCenter);
     ipBtnRow->addWidget(ipApplyBtn);
     ipBtnRow->addWidget(ipSaveBtn);
     ipBtnRow->addStretch();
@@ -202,7 +214,8 @@ void NetworkPage::buildUi()
     ipForm->addRow(tr("前缀长度"), prefixSpin);
     ipForm->addRow(tr("默认网关"), gatewayEdit);
     ipForm->addRow(tr("DNS"), dnsEdit);
-    ipForm->addRow(QString(), ipBtnRow);
+    ipForm->addRow(QString(), ipBtnRowWidget);
+    EbWidget::applyFormLayoutStyle(ipForm);
 
     ipv4LogArea = new QTextEdit(ipv4Tab);
     ipv4LogArea->setReadOnly(true);
@@ -228,7 +241,12 @@ void NetworkPage::buildUi()
     pingStopBtn->setEnabled(false);
     pingSummaryLabel = new QLabel(pingGroup);
     pingSummaryLabel->setWordWrap(true);
-    QHBoxLayout *pingBtnRow = new QHBoxLayout;
+    QWidget *pingBtnRowWidget = new QWidget(pingGroup);
+    pingBtnRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *pingBtnRow = new QHBoxLayout(pingBtnRowWidget);
+    pingBtnRow->setContentsMargins(0, 0, 0, 0);
+    pingBtnRow->setSpacing(8);
+    pingBtnRow->setAlignment(Qt::AlignVCenter);
     pingBtnRow->addWidget(pingBtn);
     pingBtnRow->addWidget(pingStopBtn);
     pingBtnRow->addStretch();
@@ -236,8 +254,9 @@ void NetworkPage::buildUi()
     pingForm->setContentsMargins(12, 16, 12, 12);
     pingForm->addRow(tr("目标"), pingHostEdit);
     pingForm->addRow(tr("次数"), pingCountSpin);
-    pingForm->addRow(QString(), pingBtnRow);
+    pingForm->addRow(QString(), pingBtnRowWidget);
     pingForm->addRow(tr("摘要"), pingSummaryLabel);
+    EbWidget::applyFormLayoutStyle(pingForm);
 
     pingLogArea = new QTextEdit(pingTab);
     pingLogArea->setReadOnly(true);
@@ -294,7 +313,12 @@ void NetworkPage::buildI210Tab(QWidget *tabPage)
     QPushButton *writeBtn = new QPushButton(tr("写入"), i210Group);
     writeBtn->setObjectName(QStringLiteral("functionBtn_small"));
 
-    QHBoxLayout *i210BtnRow = new QHBoxLayout;
+    QWidget *i210BtnRowWidget = new QWidget(i210Group);
+    i210BtnRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *i210BtnRow = new QHBoxLayout(i210BtnRowWidget);
+    i210BtnRow->setContentsMargins(0, 0, 0, 0);
+    i210BtnRow->setSpacing(8);
+    i210BtnRow->setAlignment(Qt::AlignVCenter);
     i210BtnRow->addWidget(editBtn);
     i210BtnRow->addWidget(checkBtn);
     i210BtnRow->addWidget(dumpBtn);
@@ -304,7 +328,8 @@ void NetworkPage::buildI210Tab(QWidget *tabPage)
     QFormLayout *i210Form = new QFormLayout(i210Group);
     i210Form->setContentsMargins(12, 16, 12, 12);
     i210Form->addRow(tr("MAC"), i210MacLine);
-    i210Form->addRow(QString(), i210BtnRow);
+    i210Form->addRow(QString(), i210BtnRowWidget);
+    EbWidget::applyFormLayoutStyle(i210Form);
 
     i210LogArea = new QTextEdit(tabPage);
     i210LogArea->setReadOnly(true);

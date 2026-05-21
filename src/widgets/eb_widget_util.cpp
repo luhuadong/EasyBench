@@ -2,8 +2,19 @@
 
 #include <QComboBox>
 #include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSizePolicy>
+#include <QSpinBox>
 
 namespace EbWidget {
+
+QLabel *createFormLabel(QWidget *parent, const QString &text)
+{
+    QLabel *label = new QLabel(text, parent);
+    label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    return label;
+}
 
 void applyFormLayoutStyle(QFormLayout *form)
 {
@@ -15,15 +26,24 @@ void applyFormLayoutStyle(QFormLayout *form)
     form->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     form->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
-    // 每行：左侧标签与右侧控件在垂直方向居中对齐（须在 addRow 完成之后调用）
     for (int row = 0; row < form->rowCount(); ++row) {
         if (QLayoutItem *labelItem = form->itemAt(row, QFormLayout::LabelRole)) {
             labelItem->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         }
         if (QLayoutItem *fieldItem = form->itemAt(row, QFormLayout::FieldRole)) {
-            // 仅垂直居中；水平拉伸由控件的 Expanding 策略负责
             fieldItem->setAlignment(Qt::AlignVCenter);
         }
+    }
+}
+
+void applyAllFormLayouts(QWidget *root)
+{
+    if (!root) {
+        return;
+    }
+    const QList<QFormLayout *> forms = root->findChildren<QFormLayout *>();
+    for (QFormLayout *form : forms) {
+        applyFormLayoutStyle(form);
     }
 }
 
@@ -33,7 +53,7 @@ void applyComboBoxStyle(QComboBox *box)
         return;
     }
 
-    box->setFixedHeight(32);
+    box->setFixedHeight(kFormFieldHeight);
     box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
@@ -43,13 +63,45 @@ void applyComboBoxStyles(QWidget *root, int maxPopupHeightPx)
         return;
     }
 
-    const int itemHeight = 32;
-    const int maxItems = qMax(6, maxPopupHeightPx / itemHeight);
+    const int maxItems = qMax(6, maxPopupHeightPx / kFormFieldHeight);
 
     const QList<QComboBox *> boxes = root->findChildren<QComboBox *>();
     for (QComboBox *box : boxes) {
         box->setMaxVisibleItems(maxItems);
         applyComboBoxStyle(box);
+    }
+}
+
+void applyLineEditStyle(QLineEdit *edit)
+{
+    if (!edit) {
+        return;
+    }
+    edit->setFixedHeight(kFormFieldHeight);
+    edit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+}
+
+void applySpinBoxStyle(QSpinBox *spin)
+{
+    if (!spin) {
+        return;
+    }
+    spin->setFixedHeight(kFormFieldHeight);
+    spin->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+}
+
+void applyFormFieldStyles(QWidget *root)
+{
+    if (!root) {
+        return;
+    }
+    const QList<QLineEdit *> edits = root->findChildren<QLineEdit *>();
+    for (QLineEdit *edit : edits) {
+        applyLineEditStyle(edit);
+    }
+    const QList<QSpinBox *> spins = root->findChildren<QSpinBox *>();
+    for (QSpinBox *spin : spins) {
+        applySpinBoxStyle(spin);
     }
 }
 

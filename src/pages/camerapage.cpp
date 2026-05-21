@@ -1,4 +1,5 @@
 #include "camerapage.h"
+#include "widgets/eb_widget_util.h"
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -99,13 +100,13 @@ void CameraPage::buildUi()
     controlGrid->setContentsMargins(12, 14, 12, 12);
     controlGrid->setHorizontalSpacing(10);
     controlGrid->setVerticalSpacing(8);
-    controlGrid->addWidget(new QLabel(tr("摄像头"), controlGroup), 0, 0);
-    controlGrid->addWidget(deviceBox, 0, 1);
-    controlGrid->addWidget(new QLabel(tr("分辨率"), controlGroup), 0, 2);
-    controlGrid->addWidget(resolutionBox, 0, 3);
-    controlGrid->addWidget(refreshDevicesBtn, 0, 4);
-    controlGrid->addWidget(cameraToggleBtn, 0, 5);
-    controlGrid->addWidget(cameraCaptureBtn, 0, 6);
+    controlGrid->addWidget(EbWidget::createFormLabel(controlGroup, tr("摄像头")), 0, 0);
+    controlGrid->addWidget(deviceBox, 0, 1, Qt::AlignVCenter);
+    controlGrid->addWidget(EbWidget::createFormLabel(controlGroup, tr("分辨率")), 0, 2);
+    controlGrid->addWidget(resolutionBox, 0, 3, Qt::AlignVCenter);
+    controlGrid->addWidget(refreshDevicesBtn, 0, 4, Qt::AlignVCenter);
+    controlGrid->addWidget(cameraToggleBtn, 0, 5, Qt::AlignVCenter);
+    controlGrid->addWidget(cameraCaptureBtn, 0, 6, Qt::AlignVCenter);
     controlGrid->setColumnStretch(1, 1);
     controlGrid->setColumnStretch(3, 0);
 
