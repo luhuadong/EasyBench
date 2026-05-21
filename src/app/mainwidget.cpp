@@ -1,8 +1,10 @@
 #include "mainwidget.h"
 #include "eb_branding.h"
 #include "eb_common.h"
+#include "widgets/eb_widget_util.h"
 
 #include <QAbstractButton>
+#include <QComboBox>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QVBoxLayout>
@@ -142,6 +144,9 @@ void MainWidget::initMainUI()
 
     prevPage = PAGE_SYSTEM;
     currPage = PAGE_SYSTEM;
+
+    const int popupHeight = PAGE_BODY_HEIGHT - STATUS_BAR_HEIGHT - 48;
+    EbWidget::applyComboBoxStyles(this, popupHeight);
 }
 
 void MainWidget::bindPageStatus(PageWidget *page)

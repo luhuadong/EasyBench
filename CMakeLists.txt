@@ -49,6 +49,7 @@ set(EASYBENCH_SOURCES
     src/widgets/statusbar.cpp
     src/widgets/pagewidget.cpp
     src/widgets/inputlineedit.cpp
+    src/widgets/eb_widget_util.cpp
     src/pages/lcdpage.cpp
     src/pages/camerapage.cpp
     src/pages/datetimepage.cpp
@@ -84,6 +85,7 @@ set(EASYBENCH_HEADERS
     src/widgets/statusbar.h
     src/widgets/pagewidget.h
     src/widgets/inputlineedit.h
+    src/widgets/eb_widget_util.h
     src/pages/lcdpage.h
     src/pages/camerapage.h
     src/pages/datetimepage.h

@@ -4,9 +4,10 @@
 #include "widgets/pagewidget.h"
 #include "eb_common.h"
 
+#include <QByteArray>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
-#include <QLabel>
 #include <QPushButton>
 #include <QTextEdit>
 #include <QThread>
@@ -28,12 +29,41 @@ private:
     int serialFd = -1;
 };
 
+/** 串口参数默认值（波特率等），供 UI 与 stty 配置共用 */
+namespace SerialParam {
+
+struct ParityOption {
+    const char *sttyValue;
+};
+
+constexpr int kBaudRates[] = {
+    9600, 19200, 38400, 57600, 100000, 115200, 230400, 460800, 921600, 1500000,
+};
+constexpr int kBaudRateCount = sizeof(kBaudRates) / sizeof(kBaudRates[0]);
+
+constexpr int kDataBits[] = {8, 7};
+constexpr int kDataBitsCount = sizeof(kDataBits) / sizeof(kDataBits[0]);
+
+constexpr ParityOption kParityOptions[] = {
+    {"none"},
+    {"even"},
+    {"odd"},
+};
+constexpr int kParityCount = sizeof(kParityOptions) / sizeof(kParityOptions[0]);
+
+constexpr int kStopBits[] = {1, 2};
+constexpr int kStopBitsCount = sizeof(kStopBits) / sizeof(kStopBits[0]);
+
+} // namespace SerialParam
+
 class SerialPage : public PageWidget
 {
     Q_OBJECT
 public:
     explicit SerialPage(EbOptions *options, QWidget *parent = nullptr);
     ~SerialPage();
+
+    QString defaultStatusHint() const override;
 
 private slots:
     void refreshPortList();
@@ -47,9 +77,13 @@ private slots:
 
 private:
     void buildUi();
+    void populateParamCombos();
     void applySerialPortStty();
+    void setSerialStatus(const QString &text);
     QString currentPortPath() const;
     int currentBaudRate() const;
+    QByteArray payloadFromSendArea(bool *hexOk) const;
+    QString formatRecvData(const QByteArray &data) const;
 
     int serialFd = -1;
     SerialRecvThread *recvThread = nullptr;
@@ -66,10 +100,11 @@ private:
     QGroupBox *echoGroup = nullptr;
     QTextEdit *sendArea = nullptr;
     QTextEdit *recvArea = nullptr;
+    QCheckBox *sendHexCheck = nullptr;
+    QCheckBox *recvHexCheck = nullptr;
     QPushButton *sendBtn = nullptr;
     QPushButton *sendClearBtn = nullptr;
     QPushButton *recvClearBtn = nullptr;
-    QLabel *statusLabel = nullptr;
 };
 
 #endif /* SERIALPAGE_H */

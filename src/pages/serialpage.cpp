@@ -1,18 +1,68 @@
 #include "serialpage.h"
-
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QFormLayout>
+#include <QGridLayout>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QVBoxLayout>
 
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
+#include <QtGlobal>
 #include <unistd.h>
+
+namespace {
+
+QByteArray decodeHexPayload(const QString &text, bool *ok)
+{
+    QString compact = text;
+    compact.remove(QRegularExpression(QStringLiteral("\\s")));
+    if (compact.isEmpty()) {
+        *ok = true;
+        return QByteArray();
+    }
+    if (compact.size() % 2 != 0) {
+        *ok = false;
+        return QByteArray();
+    }
+
+    QByteArray out;
+    out.reserve(compact.size() / 2);
+    for (int i = 0; i < compact.size(); i += 2) {
+        bool byteOk = false;
+        const int value = compact.mid(i, 2).toInt(&byteOk, 16);
+        if (!byteOk || value < 0 || value > 255) {
+            *ok = false;
+            return QByteArray();
+        }
+        out.append(static_cast<char>(value));
+    }
+    *ok = true;
+    return out;
+}
+
+QString encodeHexDisplay(const QByteArray &data)
+{
+    if (data.isEmpty()) {
+        return QString();
+    }
+    QString out;
+    out.reserve(data.size() * 3);
+    for (int i = 0; i < data.size(); ++i) {
+        if (i > 0) {
+            out.append(QLatin1Char(' '));
+        }
+        out.append(QStringLiteral("%1").arg(static_cast<unsigned char>(data.at(i)), 2, 16, QLatin1Char('0')));
+    }
+    return out.toUpper();
+}
+
+} // namespace
 
 SerialRecvThread::SerialRecvThread(QObject *parent)
     : QThread(parent)
@@ -52,60 +102,118 @@ SerialPage::SerialPage(EbOptions *options, QWidget *parent)
 
     recvThread = new SerialRecvThread(this);
     connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::showRecvData);
+    setSerialStatus(defaultStatusHint());
 }
 
 SerialPage::~SerialPage() = default;
+
+QString SerialPage::defaultStatusHint() const
+{
+    return tr("未打开");
+}
+
+void SerialPage::setSerialStatus(const QString &text)
+{
+    setStatusMessage(text);
+}
+
+void SerialPage::populateParamCombos()
+{
+    baudRateBox->clear();
+    for (int i = 0; i < SerialParam::kBaudRateCount; ++i) {
+        const int baud = SerialParam::kBaudRates[i];
+        baudRateBox->addItem(QString::number(baud), baud);
+    }
+    baudRateBox->setCurrentIndex(0);
+
+    dataBitsBox->clear();
+    for (int i = 0; i < SerialParam::kDataBitsCount; ++i) {
+        const int bits = SerialParam::kDataBits[i];
+        dataBitsBox->addItem(QString::number(bits), bits);
+    }
+    dataBitsBox->setCurrentIndex(0);
+
+    parityBox->clear();
+    for (int i = 0; i < SerialParam::kParityCount; ++i) {
+        const SerialParam::ParityOption &opt = SerialParam::kParityOptions[i];
+        QString label;
+        if (qstrcmp(opt.sttyValue, "none") == 0) {
+            label = tr("无");
+        } else if (qstrcmp(opt.sttyValue, "even") == 0) {
+            label = tr("偶");
+        } else {
+            label = tr("奇");
+        }
+        parityBox->addItem(label, QString::fromLatin1(opt.sttyValue));
+    }
+    parityBox->setCurrentIndex(0);
+
+    stopBitsBox->clear();
+    for (int i = 0; i < SerialParam::kStopBitsCount; ++i) {
+        const int bits = SerialParam::kStopBits[i];
+        stopBitsBox->addItem(QString::number(bits), bits);
+    }
+    stopBitsBox->setCurrentIndex(0);
+}
 
 void SerialPage::buildUi()
 {
     QWidget *content = contentArea();
 
     portGroup = new QGroupBox(tr("串口设置"), content);
+    portGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     serialPortBox = new QComboBox(portGroup);
-    serialPortBox->setMinimumWidth(220);
     refreshPortBtn = new QPushButton(tr("刷新"), portGroup);
     refreshPortBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    refreshPortBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     baudRateBox = new QComboBox(portGroup);
-    baudRateBox->addItem(QStringLiteral("9600"), 9600);
-    baudRateBox->addItem(QStringLiteral("19200"), 19200);
-    baudRateBox->addItem(QStringLiteral("38400"), 38400);
-    baudRateBox->addItem(QStringLiteral("57600"), 57600);
-    baudRateBox->addItem(QStringLiteral("115200"), 115200);
-    baudRateBox->setCurrentIndex(0);
 
     dataBitsBox = new QComboBox(portGroup);
-    dataBitsBox->addItem(QStringLiteral("8"), 8);
-    dataBitsBox->addItem(QStringLiteral("7"), 7);
-    dataBitsBox->setCurrentIndex(0);
-
     parityBox = new QComboBox(portGroup);
-    parityBox->addItem(tr("无"), QStringLiteral("none"));
-    parityBox->addItem(tr("偶"), QStringLiteral("even"));
-    parityBox->addItem(tr("奇"), QStringLiteral("odd"));
-
     stopBitsBox = new QComboBox(portGroup);
-    stopBitsBox->addItem(QStringLiteral("1"), 1);
-    stopBitsBox->addItem(QStringLiteral("2"), 2);
+    populateParamCombos();
+
+    constexpr int kPortComboMinChars = 14;
+    for (QComboBox *box :
+         {serialPortBox, baudRateBox, dataBitsBox, parityBox, stopBitsBox}) {
+        box->setMinimumContentsLength(kPortComboMinChars);
+        box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    }
 
     openBtn = new QPushButton(tr("打开"), portGroup);
     openBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    openBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    QHBoxLayout *portRow = new QHBoxLayout;
+    QWidget *portRowWidget = new QWidget(portGroup);
+    portRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *portRow = new QHBoxLayout(portRowWidget);
     portRow->setContentsMargins(0, 0, 0, 0);
     portRow->setSpacing(8);
+    portRow->setAlignment(Qt::AlignVCenter);
     portRow->addWidget(serialPortBox, 1);
-    portRow->addWidget(refreshPortBtn);
+    portRow->addWidget(refreshPortBtn, 0, Qt::AlignVCenter);
 
-    QFormLayout *portForm = new QFormLayout;
-    portForm->setContentsMargins(12, 16, 12, 12);
-    portForm->addRow(tr("串口"), portRow);
-    portForm->addRow(tr("波特率"), baudRateBox);
-    portForm->addRow(tr("数据位"), dataBitsBox);
-    portForm->addRow(tr("校验"), parityBox);
-    portForm->addRow(tr("停止位"), stopBitsBox);
-    portForm->addRow(QString(), openBtn);
-    portGroup->setLayout(portForm);
+    QGridLayout *portGrid = new QGridLayout(portGroup);
+    portGrid->setContentsMargins(12, 12, 12, 12);
+    portGrid->setHorizontalSpacing(12);
+    portGrid->setVerticalSpacing(6);
+    portGrid->setColumnStretch(1, 1);
+
+    auto addPortRow = [&](int row, const QString &labelText, QWidget *field) {
+        QLabel *label = new QLabel(labelText, portGroup);
+        label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        portGrid->addWidget(label, row, 0);
+        portGrid->addWidget(field, row, 1);
+    };
+
+    addPortRow(0, tr("串口"), portRowWidget);
+    addPortRow(1, tr("波特率"), baudRateBox);
+    addPortRow(2, tr("数据位"), dataBitsBox);
+    addPortRow(3, tr("校验"), parityBox);
+    addPortRow(4, tr("停止位"), stopBitsBox);
+    portGrid->addWidget(openBtn, 5, 1);
 
     echoGroup = new QGroupBox(tr("收发测试"), content);
     sendArea = new QTextEdit(echoGroup);
@@ -113,21 +221,25 @@ void SerialPage::buildUi()
     sendArea->setMaximumHeight(100);
     recvArea = new QTextEdit(echoGroup);
     recvArea->setReadOnly(true);
+    sendHexCheck = new QCheckBox(tr("HEX 发送"), echoGroup);
+    recvHexCheck = new QCheckBox(tr("HEX 显示"), echoGroup);
     sendBtn = new QPushButton(tr("发送"), echoGroup);
     sendBtn->setObjectName(QStringLiteral("functionBtn_small"));
     sendClearBtn = new QPushButton(tr("清空发送"), echoGroup);
     sendClearBtn->setObjectName(QStringLiteral("functionBtn_small"));
     recvClearBtn = new QPushButton(tr("清空接收"), echoGroup);
     recvClearBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    statusLabel = new QLabel(tr("未打开"), echoGroup);
-    statusLabel->setWordWrap(true);
 
     QHBoxLayout *sendBtnRow = new QHBoxLayout;
+    sendBtnRow->setAlignment(Qt::AlignVCenter);
+    sendBtnRow->addWidget(sendHexCheck);
     sendBtnRow->addWidget(sendBtn);
     sendBtnRow->addWidget(sendClearBtn);
     sendBtnRow->addStretch();
 
     QHBoxLayout *recvBtnRow = new QHBoxLayout;
+    recvBtnRow->setAlignment(Qt::AlignVCenter);
+    recvBtnRow->addWidget(recvHexCheck);
     recvBtnRow->addWidget(recvClearBtn);
     recvBtnRow->addStretch();
 
@@ -139,12 +251,11 @@ void SerialPage::buildUi()
     echoLayout->addWidget(new QLabel(tr("接收区"), echoGroup));
     echoLayout->addWidget(recvArea, 1);
     echoLayout->addLayout(recvBtnRow);
-    echoLayout->addWidget(statusLabel);
 
     QHBoxLayout *pageLayout = new QHBoxLayout(content);
     pageLayout->setContentsMargins(16, 12, 16, 12);
     pageLayout->setSpacing(16);
-    pageLayout->addWidget(portGroup, 0);
+    pageLayout->addWidget(portGroup, 0, Qt::AlignTop);
     pageLayout->addWidget(echoGroup, 1);
 
     echoGroup->setEnabled(false);
@@ -186,7 +297,7 @@ void SerialPage::refreshPortList()
     serialPortBox->blockSignals(false);
 
     if (serialPortBox->count() == 0) {
-        statusLabel->setText(tr("未检测到串口设备"));
+        setSerialStatus(tr("未检测到串口设备"));
         return;
     }
     if (previous >= 0 && previous < serialPortBox->count()) {
@@ -206,16 +317,24 @@ void SerialPage::onPortChanged(int index)
         strncpy(gSerialPortStr, bytes.constData(), sizeof(gSerialPortStr) - 1);
         gSerialPortStr[sizeof(gSerialPortStr) - 1] = '\0';
     }
+    if (serialFd < 0) {
+        setSerialStatus(tr("未打开 · %1").arg(path.isEmpty() ? tr("无设备") : path));
+    }
 }
 
 QString SerialPage::currentPortPath() const
 {
-    return serialPortBox->currentText();
+    return serialPortBox->currentText().trimmed();
 }
 
 int SerialPage::currentBaudRate() const
 {
-    return baudRateBox->currentData().toInt();
+    bool ok = false;
+    const int baud = baudRateBox->currentData().toInt(&ok);
+    if (!ok || baud <= 0) {
+        return SerialParam::kBaudRates[0];
+    }
+    return baud;
 }
 
 void SerialPage::applySerialPortStty()
@@ -254,13 +373,39 @@ void SerialPage::applySerialPortStty()
                             .arg(parityFlag)
                             .arg(stopFlag);
     if (system(cmd.toLocal8Bit().constData()) != 0) {
-        statusLabel->setText(tr("stty 配置失败：%1").arg(path));
+        setSerialStatus(tr("stty 配置失败：%1").arg(path));
     }
 }
 
 void SerialPage::applyParameters()
 {
     applySerialPortStty();
+}
+
+QByteArray SerialPage::payloadFromSendArea(bool *hexOk) const
+{
+    const QString text = sendArea->toPlainText();
+    if (!sendHexCheck->isChecked()) {
+        if (hexOk) {
+            *hexOk = true;
+        }
+        return text.toUtf8();
+    }
+
+    bool ok = false;
+    const QByteArray payload = decodeHexPayload(text, &ok);
+    if (hexOk) {
+        *hexOk = ok;
+    }
+    return payload;
+}
+
+QString SerialPage::formatRecvData(const QByteArray &data) const
+{
+    if (recvHexCheck->isChecked()) {
+        return encodeHexDisplay(data);
+    }
+    return QString::fromUtf8(data);
 }
 
 void SerialPage::openSerialPort()
@@ -282,7 +427,7 @@ void SerialPage::openSerialPort()
         recvThread->start();
         echoGroup->setEnabled(true);
         openBtn->setText(tr("关闭"));
-        statusLabel->setText(tr("已打开 %1，波特率 %2").arg(path).arg(currentBaudRate()));
+        setSerialStatus(tr("已打开 %1，波特率 %2").arg(path).arg(currentBaudRate()));
     } else {
         recvThread->requestInterruption();
         recvThread->wait(2000);
@@ -293,14 +438,14 @@ void SerialPage::openSerialPort()
         recvThread->setSerialPortFd(-1);
         echoGroup->setEnabled(false);
         openBtn->setText(tr("打开"));
-        statusLabel->setText(tr("已关闭"));
+        setSerialStatus(tr("已关闭"));
     }
 }
 
 void SerialPage::showRecvData(const QByteArray &data)
 {
     recvArea->moveCursor(QTextCursor::End);
-    recvArea->insertPlainText(QString::fromUtf8(data));
+    recvArea->insertPlainText(formatRecvData(data));
     recvArea->verticalScrollBar()->setValue(recvArea->verticalScrollBar()->maximum());
 }
 
@@ -316,16 +461,22 @@ void SerialPage::clearRecvArea()
 
 void SerialPage::sendSerialData()
 {
-    const QString path = currentPortPath();
     if (serialFd < 0) {
         QMessageBox::information(this, tr("串口"), tr("请先打开串口。"));
         return;
     }
-    const QByteArray payload = sendArea->toPlainText().toUtf8();
+
+    bool hexOk = true;
+    const QByteArray payload = payloadFromSendArea(&hexOk);
+    if (sendHexCheck->isChecked() && !hexOk) {
+        QMessageBox::warning(this, tr("串口"), tr("HEX 格式无效，请使用成对的十六进制字符（如 48 65 6C 6C 6F）。"));
+        return;
+    }
+
     const ssize_t written = write(serialFd, payload.constData(), static_cast<size_t>(payload.size()));
     if (written < 0) {
         QMessageBox::warning(this, tr("串口"), tr("发送失败：%1").arg(strerror(errno)));
         return;
     }
-    statusLabel->setText(tr("已发送 %1 字节").arg(written));
+    setSerialStatus(tr("已发送 %1 字节").arg(written));
 }
