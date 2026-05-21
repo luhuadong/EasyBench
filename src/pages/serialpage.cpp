@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QScrollBar>
+#include <QTextCursor>
+#include <QTextDocument>
 #include <QVBoxLayout>
 
 #include <cerrno>
@@ -62,6 +64,13 @@ QString encodeHexDisplay(const QByteArray &data)
     return out.toUpper();
 }
 
+constexpr int kSerialReadChunk = 4096;
+constexpr int kRecvFlushIntervalMs = 50;
+constexpr qsizetype kRecvPendingMaxBytes = 64 * 1024;
+constexpr int kRecvFlushMaxBytesPerTick = 4096;
+constexpr int kRecvDisplayMaxChars = 48 * 1024;
+constexpr int kRecvDisplayMaxBlocks = 400;
+
 } // namespace
 
 SerialRecvThread::SerialRecvThread(QObject *parent)
@@ -74,21 +83,45 @@ void SerialRecvThread::setSerialPortFd(int fd)
     serialFd = fd;
 }
 
+void SerialRecvThread::setDiscardIncoming(bool discard)
+{
+    discardIncoming.store(discard, std::memory_order_release);
+}
+
 void SerialRecvThread::run()
 {
-    char buf[256];
+    QByteArray batch;
+    batch.reserve(kSerialReadChunk * 4);
+    char buf[kSerialReadChunk];
+
     while (!isInterruptionRequested()) {
         if (serialFd < 0) {
             msleep(50);
             continue;
         }
-        const ssize_t ret = read(serialFd, buf, sizeof(buf));
-        if (ret > 0) {
-            emit msgReceived(QByteArray(buf, static_cast<int>(ret)));
-        } else if (ret < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
-            break;
-        } else {
-            msleep(20);
+
+        batch.clear();
+        bool gotData = false;
+        while (!isInterruptionRequested()) {
+            const ssize_t ret = read(serialFd, buf, sizeof(buf));
+            if (ret > 0) {
+                batch.append(buf, static_cast<int>(ret));
+                gotData = true;
+                continue;
+            }
+            if (ret == 0) {
+                break;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                break;
+            }
+            return;
+        }
+
+        if (!batch.isEmpty() && !discardIncoming.load(std::memory_order_acquire)) {
+            emit msgReceived(batch);
+        } else if (!gotData) {
+            msleep(5);
         }
     }
 }
@@ -101,11 +134,27 @@ SerialPage::SerialPage(EbOptions *options, QWidget *parent)
     refreshPortList();
 
     recvThread = new SerialRecvThread(this);
-    connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::showRecvData);
+    connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::appendRecvChunk);
+
+    recvFlushTimer = new QTimer(this);
+    recvFlushTimer->setInterval(kRecvFlushIntervalMs);
+    connect(recvFlushTimer, &QTimer::timeout, this, &SerialPage::flushRecvDisplay);
+
+    recvThread->start();
     setSerialStatus(defaultStatusHint());
 }
 
-SerialPage::~SerialPage() = default;
+SerialPage::~SerialPage()
+{
+    if (recvThread->isRunning()) {
+        recvThread->requestInterruption();
+        recvThread->wait(2000);
+    }
+    if (serialFd >= 0) {
+        ::close(serialFd);
+        serialFd = -1;
+    }
+}
 
 QString SerialPage::defaultStatusHint() const
 {
@@ -219,10 +268,13 @@ void SerialPage::buildUi()
     sendArea = new QTextEdit(echoGroup);
     sendArea->setPlainText(QStringLiteral("Hello from EasyBench"));
     sendArea->setMaximumHeight(100);
-    recvArea = new QTextEdit(echoGroup);
+    recvArea = new QPlainTextEdit(echoGroup);
     recvArea->setReadOnly(true);
+    recvArea->setMaximumBlockCount(kRecvDisplayMaxBlocks);
+    recvArea->setLineWrapMode(QPlainTextEdit::NoWrap);
     sendHexCheck = new QCheckBox(tr("HEX 发送"), echoGroup);
     recvHexCheck = new QCheckBox(tr("HEX 显示"), echoGroup);
+    recvPauseCheck = new QCheckBox(tr("暂停接收"), echoGroup);
     sendBtn = new QPushButton(tr("发送"), echoGroup);
     sendBtn->setObjectName(QStringLiteral("functionBtn_small"));
     sendClearBtn = new QPushButton(tr("清空发送"), echoGroup);
@@ -239,6 +291,7 @@ void SerialPage::buildUi()
 
     QHBoxLayout *recvBtnRow = new QHBoxLayout;
     recvBtnRow->setAlignment(Qt::AlignVCenter);
+    recvBtnRow->addWidget(recvPauseCheck);
     recvBtnRow->addWidget(recvHexCheck);
     recvBtnRow->addWidget(recvClearBtn);
     recvBtnRow->addStretch();
@@ -267,6 +320,7 @@ void SerialPage::buildUi()
     connect(sendBtn, &QPushButton::clicked, this, &SerialPage::sendSerialData);
     connect(sendClearBtn, &QPushButton::clicked, this, &SerialPage::clearSendArea);
     connect(recvClearBtn, &QPushButton::clicked, this, &SerialPage::clearRecvArea);
+    connect(recvPauseCheck, &QCheckBox::toggled, this, &SerialPage::onRecvPauseToggled);
 }
 
 void SerialPage::refreshPortList()
@@ -423,30 +477,89 @@ void SerialPage::openSerialPort()
             QMessageBox::warning(this, tr("串口"), tr("打开 %1 失败：%2").arg(path, strerror(errno)));
             return;
         }
+        recvThread->setDiscardIncoming(false);
+        recvPauseCheck->setChecked(false);
         recvThread->setSerialPortFd(serialFd);
-        recvThread->start();
+        recvPending.clear();
+        recvFlushTimer->start();
         echoGroup->setEnabled(true);
         openBtn->setText(tr("关闭"));
         setSerialStatus(tr("已打开 %1，波特率 %2").arg(path).arg(currentBaudRate()));
     } else {
-        recvThread->requestInterruption();
-        recvThread->wait(2000);
+        recvFlushTimer->stop();
+        flushRecvDisplay();
+        recvThread->setDiscardIncoming(false);
+        recvPauseCheck->setChecked(false);
         if (serialFd >= 0) {
             ::close(serialFd);
             serialFd = -1;
         }
         recvThread->setSerialPortFd(-1);
+        recvPending.clear();
         echoGroup->setEnabled(false);
         openBtn->setText(tr("打开"));
         setSerialStatus(tr("已关闭"));
     }
 }
 
-void SerialPage::showRecvData(const QByteArray &data)
+void SerialPage::onRecvPauseToggled(bool paused)
 {
-    recvArea->moveCursor(QTextCursor::End);
-    recvArea->insertPlainText(formatRecvData(data));
-    recvArea->verticalScrollBar()->setValue(recvArea->verticalScrollBar()->maximum());
+    recvThread->setDiscardIncoming(paused);
+    if (paused) {
+        recvPending.clear();
+        recvFlushTimer->stop();
+    } else if (serialFd >= 0) {
+        recvFlushTimer->start();
+    }
+}
+
+void SerialPage::appendRecvChunk(const QByteArray &data)
+{
+    if (data.isEmpty() || recvPauseCheck->isChecked()) {
+        return;
+    }
+    recvPending.append(data);
+    if (recvPending.size() > kRecvPendingMaxBytes) {
+        recvPending.remove(0, recvPending.size() - static_cast<qsizetype>(kRecvPendingMaxBytes));
+    }
+}
+
+bool SerialPage::recvAutoScroll() const
+{
+    QScrollBar *bar = recvArea->verticalScrollBar();
+    return bar->value() + bar->pageStep() >= bar->maximum();
+}
+
+void SerialPage::trimRecvDocument()
+{
+    QTextDocument *doc = recvArea->document();
+    if (doc->characterCount() <= kRecvDisplayMaxChars) {
+        return;
+    }
+    const QString trimmed = recvArea->toPlainText().right(kRecvDisplayMaxChars);
+    recvArea->setPlainText(trimmed);
+}
+
+void SerialPage::flushRecvDisplay()
+{
+    if (recvPending.isEmpty() || recvPauseCheck->isChecked()) {
+        return;
+    }
+
+    const int takeBytes =
+        qMin(static_cast<int>(recvPending.size()), kRecvFlushMaxBytesPerTick);
+    const QByteArray chunk = recvPending.left(takeBytes);
+    recvPending.remove(0, takeBytes);
+
+    const bool scrollToEnd = recvAutoScroll();
+    recvArea->setUpdatesEnabled(false);
+    recvArea->appendPlainText(formatRecvData(chunk));
+    trimRecvDocument();
+    recvArea->setUpdatesEnabled(true);
+
+    if (scrollToEnd) {
+        recvArea->verticalScrollBar()->setValue(recvArea->verticalScrollBar()->maximum());
+    }
 }
 
 void SerialPage::clearSendArea()
@@ -456,6 +569,7 @@ void SerialPage::clearSendArea()
 
 void SerialPage::clearRecvArea()
 {
+    recvPending.clear();
     recvArea->clear();
 }
 

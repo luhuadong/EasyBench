@@ -8,9 +8,13 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTextEdit>
 #include <QThread>
+#include <QTimer>
+
+#include <atomic>
 
 class SerialRecvThread : public QThread
 {
@@ -18,6 +22,7 @@ class SerialRecvThread : public QThread
 public:
     explicit SerialRecvThread(QObject *parent = nullptr);
     void setSerialPortFd(int fd);
+    void setDiscardIncoming(bool discard);
 
 signals:
     void msgReceived(const QByteArray &data);
@@ -27,6 +32,7 @@ protected:
 
 private:
     int serialFd = -1;
+    std::atomic<bool> discardIncoming{false};
 };
 
 /** 串口参数默认值（波特率等），供 UI 与 stty 配置共用 */
@@ -73,9 +79,13 @@ private slots:
     void clearSendArea();
     void clearRecvArea();
     void sendSerialData();
-    void showRecvData(const QByteArray &data);
+    void appendRecvChunk(const QByteArray &data);
+    void flushRecvDisplay();
+    void onRecvPauseToggled(bool paused);
 
 private:
+    void trimRecvDocument();
+    bool recvAutoScroll() const;
     void buildUi();
     void populateParamCombos();
     void applySerialPortStty();
@@ -87,6 +97,8 @@ private:
 
     int serialFd = -1;
     SerialRecvThread *recvThread = nullptr;
+    QTimer *recvFlushTimer = nullptr;
+    QByteArray recvPending;
 
     QGroupBox *portGroup = nullptr;
     QComboBox *serialPortBox = nullptr;
@@ -99,9 +111,10 @@ private:
 
     QGroupBox *echoGroup = nullptr;
     QTextEdit *sendArea = nullptr;
-    QTextEdit *recvArea = nullptr;
+    QPlainTextEdit *recvArea = nullptr;
     QCheckBox *sendHexCheck = nullptr;
     QCheckBox *recvHexCheck = nullptr;
+    QCheckBox *recvPauseCheck = nullptr;
     QPushButton *sendBtn = nullptr;
     QPushButton *sendClearBtn = nullptr;
     QPushButton *recvClearBtn = nullptr;
