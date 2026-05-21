@@ -1,7 +1,8 @@
 #include "cpustatthread.h"
-#include "pages/systempage.h"
-#include <QString>
+#include "eb_thread_util.h"
+
 #include <QFile>
+#include <QString>
 
 static const char kProcStatPath[] = "/proc/stat";
 
@@ -14,13 +15,13 @@ extern "C"
 CpuStatThread::CpuStatThread(QObject *parent) :
     QThread(parent)
 {
-    printf("CpuStatThread\n");
+    EbThread::nameQThread(this, "eb-cpu-stat");
 }
 
 void CpuStatThread::run()
 {
-    float cpuTotalDuty;
-    SystemPage *page = static_cast<SystemPage *>(parent());
+    EbThread::setCurrentThreadName("eb-cpu-stat");
+    float cpuTotalDuty = 0.0f;
     QString tmpStr;
     QStringList tmpStrList;
     QFile tmpFile;
@@ -32,8 +33,7 @@ void CpuStatThread::run()
     int a = 0, b = 0;
     int a0 = 0, a1 = 0, b0 = 0, b1 = 0;
 
-    while(1)
-    {
+    while (!isInterruptionRequested()) {
 //        index = 0;
 //        while(index < 2) {
 //            tmpFile.setFileName(QLatin1String(kProcStatPath));
@@ -127,7 +127,7 @@ void CpuStatThread::run()
         }
         */
 
-        page->setCpuDuty(cpuTotalDuty);
+        emit cpuDutyUpdated(cpuTotalDuty);
         usleep(500000);
     }
 }

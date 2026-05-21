@@ -46,6 +46,7 @@ set(EASYBENCH_SOURCES
     src/app/eb_startup.cpp
     src/app/eb_branding.cpp
     src/app/eb_paths.cpp
+    src/app/eb_thread_util.cpp
     src/widgets/statusbar.cpp
     src/widgets/pagewidget.cpp
     src/widgets/inputlineedit.cpp
@@ -81,6 +82,7 @@ set(EASYBENCH_HEADERS
     src/app/eb_startup.h
     src/app/eb_branding.h
     src/app/eb_paths.h
+    src/app/eb_thread_util.h
     src/app/eb_qt_compat.h
     src/widgets/statusbar.h
     src/widgets/pagewidget.h
@@ -164,10 +166,12 @@ else()
     )
 endif()
 
+find_package(Threads REQUIRED)
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(ALSA REQUIRED alsa)
 target_include_directories(easybench PRIVATE ${ALSA_INCLUDE_DIRS})
-target_link_libraries(easybench PRIVATE ${ALSA_LIBRARIES})
+target_link_libraries(easybench PRIVATE Threads::Threads ${ALSA_LIBRARIES})
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/EasyBenchInstall.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/EasyBenchPackaging.cmake)

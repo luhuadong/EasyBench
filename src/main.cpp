@@ -4,11 +4,13 @@
 #include "eb_startup.h"
 #include "eb_branding.h"
 #include "eb_paths.h"
+#include "eb_thread_util.h"
 #include <QApplication>
 #include <QFile>
 #include <QMessageBox>
 #include <QPushButton>
 #include "eb_qt_compat.h"
+#include <QDebug>
 #include <QFontDatabase>
 #include <QFont>
 
@@ -40,6 +42,7 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication a(argc, argv);
+    EbThread::setCurrentThreadName("eb-main");
     EbBranding::applyApplicationIdentity(a);
 
     QFile qssFile(":/qss/easybench.qss");
@@ -52,16 +55,23 @@ int main(int argc, char *argv[])
     eb_set_utf8_locale();
 
     const QString fontPath = EbPaths::chineseFontFile();
-    const int index = fontPath.isEmpty() ? -1 : QFontDatabase::addApplicationFont(fontPath);
-    if (index != -1) {
-        QStringList fontList(QFontDatabase::applicationFontFamilies(index));
-
-        // font : LiHei Pro
-        if(fontList.count() > 0) {
-            QFont font_zh(fontList.at(0));
-            //font_zh.setPointSize(26);
-            font_zh.setBold(false);
-            a.setFont(font_zh);
+    if (fontPath.isEmpty()) {
+        qWarning("EasyBench: Chinese font not found (LiHeiPro.ttf), using system default");
+    } else {
+        const int index = QFontDatabase::addApplicationFont(fontPath);
+        if (index == -1) {
+            qWarning().noquote() << "EasyBench: failed to load font file:" << fontPath;
+        } else {
+            const QStringList fontList = QFontDatabase::applicationFontFamilies(index);
+            qWarning().noquote() << "EasyBench: loaded font file:" << fontPath
+                                 << "families:" << fontList.join(QLatin1String(", "));
+            if (!fontList.isEmpty()) {
+                QFont font_zh(fontList.at(0));
+                font_zh.setBold(false);
+                a.setFont(font_zh);
+            } else {
+                qWarning("EasyBench: font file loaded but no families returned, using system default");
+            }
         }
     }
 #endif

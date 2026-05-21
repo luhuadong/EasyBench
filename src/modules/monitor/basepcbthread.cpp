@@ -1,4 +1,5 @@
 #include "basepcbthread.h"
+#include "eb_thread_util.h"
 #include "pages/systempage.h"
 #include <QString>
 //#include <QChar>
@@ -21,10 +22,12 @@ BasePcbThread::BasePcbThread(const int arg, QObject *parent) :
     QThread(parent)
 {
     sockfd = arg;
+    EbThread::nameQThread(this, "eb-base-pcb");
 }
 
 void BasePcbThread::run()
 {
+    EbThread::setCurrentThreadName("eb-base-pcb");
     int len;
     SystemPage *page = static_cast<SystemPage *>(parent());
 

@@ -10,6 +10,7 @@ public:
     explicit CpuStatThread(QObject *parent = 0);
 
 signals:
+    void cpuDutyUpdated(float duty);
 
 protected:
     void run();

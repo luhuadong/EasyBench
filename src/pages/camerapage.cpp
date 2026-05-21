@@ -64,6 +64,13 @@ CameraPage::CameraPage(EbOptions *options, QWidget *parent)
     setStatusMessage(defaultStatusHint());
 }
 
+CameraPage::~CameraPage()
+{
+    closeCamera();
+    teardownCamera();
+    releasePreviewVideoWidget();
+}
+
 QString CameraPage::defaultStatusHint() const
 {
     return tr("就绪");
@@ -110,27 +117,8 @@ void CameraPage::buildUi()
     previewPlaceholder->setAlignment(Qt::AlignCenter);
     previewPlaceholder->setObjectName(QStringLiteral("cameraPreviewPlaceholder"));
 
-#if EB_QT5_MULTIMEDIA
-    viewfinder = new QCameraViewfinder(previewFrame);
-    viewfinder->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    viewfinder->hide();
-#endif
-
-#if EB_QT6_MULTIMEDIA
-    videoWidget = new QVideoWidget(previewFrame);
-    videoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    videoWidget->hide();
-#endif
-
     previewStack = new QStackedWidget(previewFrame);
     previewStack->addWidget(previewPlaceholder);
-#if EB_QT5_MULTIMEDIA
-    previewStack->addWidget(viewfinder);
-#elif EB_QT6_MULTIMEDIA
-    previewStack->addWidget(videoWidget);
-#else
-    previewStack->addWidget(new QWidget(previewFrame));
-#endif
 
     QVBoxLayout *previewLayout = new QVBoxLayout(previewFrame);
     previewLayout->setContentsMargins(0, 0, 0, 0);
@@ -357,9 +345,76 @@ void CameraPage::onDeviceChanged(int index)
         closeCamera();
     }
 
-    setupCameraForCurrentDevice();
+    teardownCamera();
+    updateSelectedDeviceDetail();
+    populateResolutionList();
     updateControlStates();
     updateStatusBar();
+}
+
+void CameraPage::updateSelectedDeviceDetail()
+{
+#if EB_QT5_MULTIMEDIA
+    const QCameraInfo info = currentCameraInfo();
+    if (info.isNull()) {
+        selectedDeviceDetail.clear();
+        return;
+    }
+    selectedDeviceDetail = info.description().isEmpty()
+        ? info.deviceName()
+        : QStringLiteral("%1 (%2)").arg(info.description(), info.deviceName());
+#elif EB_QT6_MULTIMEDIA
+    const QCameraDevice device = currentCameraDevice();
+    if (device.isNull()) {
+        selectedDeviceDetail.clear();
+        return;
+    }
+    selectedDeviceDetail = device.description();
+    if (selectedDeviceDetail.isEmpty()) {
+        selectedDeviceDetail = device.id();
+    }
+#else
+    selectedDeviceDetail.clear();
+#endif
+}
+
+void CameraPage::ensurePreviewVideoWidget()
+{
+#if EB_QT5_MULTIMEDIA
+    if (!viewfinder) {
+        viewfinder = new QCameraViewfinder(previewFrame);
+        viewfinder->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        previewStack->addWidget(viewfinder);
+    }
+#elif EB_QT6_MULTIMEDIA
+    if (!videoWidget) {
+        videoWidget = new QVideoWidget(previewFrame);
+        videoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        previewStack->addWidget(videoWidget);
+    }
+#endif
+}
+
+void CameraPage::releasePreviewVideoWidget()
+{
+#if EB_QT5_MULTIMEDIA
+    if (!viewfinder) {
+        return;
+    }
+    previewStack->removeWidget(viewfinder);
+    delete viewfinder;
+    viewfinder = nullptr;
+#elif EB_QT6_MULTIMEDIA
+    if (!videoWidget) {
+        return;
+    }
+    previewStack->removeWidget(videoWidget);
+    delete videoWidget;
+    videoWidget = nullptr;
+#endif
+    if (previewStack && previewPlaceholder) {
+        previewStack->setCurrentWidget(previewPlaceholder);
+    }
 }
 
 void CameraPage::onResolutionChanged(int index)
@@ -423,14 +478,22 @@ void CameraPage::applySelectedResolution()
 void CameraPage::teardownCamera()
 {
 #if EB_QT5_MULTIMEDIA
+    if (camera) {
+        camera->stop();
+        camera->setViewfinder(static_cast<QCameraViewfinder *>(nullptr));
+    }
     delete imageCapture;
     imageCapture = nullptr;
     delete camera;
     camera = nullptr;
 #elif EB_QT6_MULTIMEDIA
+    if (camera) {
+        camera->stop();
+    }
     if (captureSession) {
         captureSession->setCamera(nullptr);
         captureSession->setImageCapture(nullptr);
+        captureSession->setVideoOutput(nullptr);
     }
     delete imageCapture;
     imageCapture = nullptr;
@@ -467,6 +530,8 @@ void CameraPage::attachCamera(const QCameraInfo &info)
         updateStatusBar();
         return;
     }
+
+    ensurePreviewVideoWidget();
 
     camera = new QCamera(info, this);
     imageCapture = new QCameraImageCapture(camera, this);
@@ -560,6 +625,8 @@ void CameraPage::attachCamera(const QCameraDevice &device)
         return;
     }
 
+    ensurePreviewVideoWidget();
+
     camera = new QCamera(device, this);
     imageCapture = new QImageCapture(this);
     captureSession->setCamera(camera);
@@ -628,10 +695,11 @@ void CameraPage::openCamera()
 void CameraPage::closeCamera()
 {
 #if EB_QT5_MULTIMEDIA || EB_QT6_MULTIMEDIA
-    if (!camera || !cameraActive) {
+    if (!cameraActive) {
         return;
     }
-    camera->stop();
+    teardownCamera();
+    releasePreviewVideoWidget();
     cameraActive = false;
     updateControlStates();
     updateStatusBar();

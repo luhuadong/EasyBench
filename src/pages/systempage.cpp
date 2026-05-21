@@ -1,4 +1,5 @@
 #include "systempage.h"
+#include "eb_thread_util.h"
 #include "modules/monitor/basepcbthread.h"
 #include "modules/monitor/cpustatthread.h"
 
@@ -36,13 +37,15 @@ SystemPage::SystemPage(EbOptions *options, QWidget *parent)
     connect(updateTimer, &QTimer::timeout, this, &SystemPage::onUpdateTimer);
     updateTimer->start(1000);
 
-    CpuStatThread *cpuStatThread = new CpuStatThread(this);
+    cpuStatThread = new CpuStatThread(this);
+    connect(cpuStatThread, &CpuStatThread::cpuDutyUpdated, this, &SystemPage::setCpuDuty);
     cpuStatThread->start();
 
 #if CONNECT_STM32
     createSocketWithBasePcb();
     if (sockToBasdPcbIsOk) {
         BasePcbThread *pcbThread = new BasePcbThread(sockfd, this);
+        EbThread::nameQThread(pcbThread, "eb-base-pcb");
         pcbThread->start();
         sendBasePcbCmd(CMD_GET_VERSION, QString());
         sendBasePcbCmd(CMD_CONTROL, QString());
@@ -54,6 +57,14 @@ SystemPage::SystemPage(EbOptions *options, QWidget *parent)
         connect(fanChangeBtn, &QPushButton::clicked, this, &SystemPage::changeFanSpeedBtnClicked);
     }
 #endif
+}
+
+SystemPage::~SystemPage()
+{
+    if (cpuStatThread && cpuStatThread->isRunning()) {
+        cpuStatThread->requestInterruption();
+        cpuStatThread->wait(3000);
+    }
 }
 
 void SystemPage::buildUi()

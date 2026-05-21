@@ -1,4 +1,5 @@
 #include "serialpage.h"
+#include "eb_thread_util.h"
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -90,6 +91,7 @@ void SerialRecvThread::setDiscardIncoming(bool discard)
 
 void SerialRecvThread::run()
 {
+    EbThread::setCurrentThreadName("eb-serial");
     QByteArray batch;
     batch.reserve(kSerialReadChunk * 4);
     char buf[kSerialReadChunk];
@@ -134,6 +136,7 @@ SerialPage::SerialPage(EbOptions *options, QWidget *parent)
     refreshPortList();
 
     recvThread = new SerialRecvThread(this);
+    EbThread::nameQThread(recvThread, "eb-serial");
     connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::appendRecvChunk);
 
     recvFlushTimer = new QTimer(this);
@@ -146,13 +149,15 @@ SerialPage::SerialPage(EbOptions *options, QWidget *parent)
 
 SerialPage::~SerialPage()
 {
-    if (recvThread->isRunning()) {
-        recvThread->requestInterruption();
-        recvThread->wait(2000);
-    }
+    recvFlushTimer->stop();
     if (serialFd >= 0) {
         ::close(serialFd);
         serialFd = -1;
+    }
+    recvThread->setSerialPortFd(-1);
+    if (recvThread->isRunning()) {
+        recvThread->requestInterruption();
+        recvThread->wait(2000);
     }
 }
 

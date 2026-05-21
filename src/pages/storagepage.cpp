@@ -1,4 +1,5 @@
 #include "storagepage.h"
+#include "eb_thread_util.h"
 
 #include <QDir>
 #include <QFormLayout>
@@ -60,6 +61,7 @@ StorageTestWorker::StorageTestWorker(TestKind kind,
 
 void StorageTestWorker::run()
 {
+    EbThread::setCurrentThreadName("eb-storage");
     m_timer.start();
     m_lastDdMbps = -1.0;
 
@@ -410,6 +412,7 @@ void StoragePage::startTest()
     statusLabel->setText(tr("测试进行中…"));
 
     worker = new StorageTestWorker(kind, target, sizeSpin->value(), loopsSpin->value(), this);
+    EbThread::nameQThread(worker, "eb-storage");
     connect(worker, &StorageTestWorker::logLine, this, &StoragePage::onLogLine);
     connect(worker, &StorageTestWorker::progressChanged, this, &StoragePage::onProgress);
     connect(worker, &StorageTestWorker::finished, this, &StoragePage::onTestFinished);

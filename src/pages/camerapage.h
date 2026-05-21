@@ -35,6 +35,7 @@ class CameraPage : public PageWidget
     Q_OBJECT
 public:
     explicit CameraPage(EbOptions *options, QWidget *parent = 0);
+    ~CameraPage() override;
 
     QString defaultStatusHint() const override;
 
@@ -80,6 +81,9 @@ private:
     void applySelectedResolution();
     void teardownCamera();
     void setupCameraForCurrentDevice();
+    void ensurePreviewVideoWidget();
+    void releasePreviewVideoWidget();
+    void updateSelectedDeviceDetail();
 
 #if EB_QT5_MULTIMEDIA
     QCameraInfo currentCameraInfo() const;
@@ -104,16 +108,16 @@ private:
     QLabel *previewPlaceholder;
 
 #if EB_QT5_MULTIMEDIA
-    QCameraViewfinder *viewfinder;
-    QCamera *camera;
-    QCameraImageCapture *imageCapture;
+    QCameraViewfinder *viewfinder = nullptr;
+    QCamera *camera = nullptr;
+    QCameraImageCapture *imageCapture = nullptr;
 #endif
 
 #if EB_QT6_MULTIMEDIA
-    QVideoWidget *videoWidget;
-    QCamera *camera;
+    QVideoWidget *videoWidget = nullptr;
+    QCamera *camera = nullptr;
     QMediaCaptureSession *captureSession;
-    QImageCapture *imageCapture;
+    QImageCapture *imageCapture = nullptr;
 #endif
 
     bool cameraActive;

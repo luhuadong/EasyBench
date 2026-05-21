@@ -19,11 +19,14 @@ typedef enum {
     CMD_CONTROL
 } BASEPCB_CMD;
 
+class CpuStatThread;
+
 class SystemPage : public PageWidget
 {
     Q_OBJECT
 public:
     explicit SystemPage(EbOptions *options, QWidget *parent = nullptr);
+    ~SystemPage() override;
 
     void setBasePcbTemp1Text(float value);
     void setBasePcbTemp2Text(float value);
@@ -89,6 +92,7 @@ private:
     EbSysStats::DiskInfo diskInfo;
 
     QTimer *updateTimer = nullptr;
+    CpuStatThread *cpuStatThread = nullptr;
     int sockfd = -1;
     int fanMode = 0;
 };
