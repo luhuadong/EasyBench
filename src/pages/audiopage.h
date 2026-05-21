@@ -13,6 +13,7 @@
 #include <QSlider>
 
 class PcmMemoryDevice;
+class QAudioDecoder;
 
 #if EB_QT_VERSION_MAJOR >= 6
 class QAudioSink;
@@ -31,6 +32,8 @@ public:
     explicit AudioPage(EbOptions *options, QWidget *parent = 0);
     ~AudioPage();
 
+    QString defaultStatusHint() const override;
+
 private slots:
     void playTestTone();
     void stopPlayback();
@@ -43,13 +46,24 @@ private slots:
     void refreshInputDevices();
     void onOutputDeviceChanged(int index);
     void onInputDeviceChanged(int index);
+    void onTonePlayBtnClicked();
 
 private:
     void buildUi();
-    void setStatus(const QString &text);
+    void updateTonePlayButton();
+    void setSpeakerStatus(const QString &text);
+    void setMicStatus(const QString &text);
+    void updateStatusBar();
     void stopSpeakerOutput();
     void stopMicInput();
+    void stopToneDecoder();
+    void playPcmOnOutput(const QByteArray &pcm, const QAudioFormat &format,
+                         const QString &statusText = QString());
+    void onResourceToneDecoded();
     QByteArray currentTonePcm() const;
+    QString currentResourceToneUrl() const;
+    bool isResourceToneSelected() const;
+    void playResourceTone(const QString &resourceUrl);
     void refreshToneList();
     void updatePlaybackFormat();
     void updateCaptureFormat();
@@ -68,16 +82,18 @@ private:
     QComboBox *outputDeviceBox;
     QPushButton *refreshOutputBtn;
     QComboBox *toneBox;
+    QPushButton *tonePlayBtn;
     QSlider *volumeSlider;
     QLabel *volumeValueLabel;
-    QLabel *speakerStatusLabel;
 
     QGroupBox *micGroup;
     QComboBox *inputDeviceBox;
     QPushButton *refreshInputBtn;
     QPushButton *recordBtn;
     QPushButton *playRecordBtn;
-    QLabel *micStatusLabel;
+
+    QString speakerStatusHint;
+    QString micStatusHint;
 
     QAudioFormat playbackFormat;
     QAudioFormat captureFormat;
@@ -87,6 +103,8 @@ private:
     bool isPlayingTone;
 
     PcmMemoryDevice *playbackDevice;
+    QAudioDecoder *toneDecoder = nullptr;
+    QByteArray resourceDecodeBuffer;
 #if EB_QT_VERSION_MAJOR >= 6
     QAudioSink *audioSink;
     QAudioSource *audioSource;

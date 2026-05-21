@@ -1,3 +1,5 @@
 <RCC>
-    <!-- 在此添加 <file>sounds/your_tone.wav</file>，并在 AudioPage 中扩展加载逻辑 -->
+    <qresource prefix="/sounds">
+        <file alias="for_elise_tune.mp3">sounds/for_elise_tune.mp3</file>
+    </qresource>
 </RCC>

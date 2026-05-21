@@ -115,6 +115,7 @@ set(EASYBENCH_HEADERS
 set(EASYBENCH_RESOURCES
     resource/images.qrc
     resource/stylesheet.qrc
+    resource/sounds.qrc
 )
 
 add_executable(easybench
