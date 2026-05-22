@@ -12,17 +12,22 @@ PREFIX="${PREFIX:-/usr}"
 
 cd "${ROOT}"
 
-if [ ! -f "${BUILD_DIR}/CMakeCache.txt" ]; then
-    cmake -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release
-fi
+# Re-configure so PROJECT_VERSION in CMakeLists.txt is reflected in the cache.
+cmake -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release
 
 cmake --build "${BUILD_DIR}" -j"$(nproc 2>/dev/null || echo 2)"
 
 rm -rf "${STAGE}"
 DESTDIR="${STAGE}" cmake --install "${BUILD_DIR}" --prefix "${PREFIX}"
 
-VERSION="$(cmake -B "${BUILD_DIR}" -N 2>/dev/null | awk -F= '/CMAKE_PROJECT_VERSION:STATIC/{print $2; exit}')"
-VERSION="${VERSION:-0.2.0}"
+VERSION="$(cmake -DBUILD_DIR="${BUILD_DIR}" -P "${ROOT}/cmake/ReadProjectVersion.cmake" 2>&1)"
+case "${VERSION}" in
+    *[!0-9.]*|'')
+        echo "error: failed to read version from CMake (got: ${VERSION})" >&2
+        echo "Set project(VERSION ...) in CMakeLists.txt and run: cmake -B ${BUILD_DIR}" >&2
+        exit 1
+        ;;
+esac
 
 ARCH="$(uname -m)"
 TARBALL="${DIST_DIR}/easybench-${VERSION}-linux-${ARCH}.tar.gz"

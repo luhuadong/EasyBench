@@ -3,11 +3,16 @@
 
 #include <stdbool.h>
 
-//#define EASYBENCH_VERSION "v1.0.0"
+/* App version: set project(VERSION x.y.z) in CMakeLists.txt (passed as EB_VERSION_*). */
+#ifndef EB_VERSION_MAJOR
+#define EB_VERSION_MAJOR 0
+#define EB_VERSION_MINOR 3
+#define EB_VERSION_PATCH 0
+#endif
 
-#define MAJOR_VERSION 0
-#define MINOR_VERSION 2
-#define PATCH_VERSION 0
+#define MAJOR_VERSION EB_VERSION_MAJOR
+#define MINOR_VERSION EB_VERSION_MINOR
+#define PATCH_VERSION EB_VERSION_PATCH
 
 #define DEFAULT_FILE "/var/run/easybench.pid"
 
