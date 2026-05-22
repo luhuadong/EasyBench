@@ -1,8 +1,8 @@
 #include "audiopage.h"
-#include "eb_qt_compat.h"
-#include "modules/audio/eb_pcm_util.h"
+#include "tb_qt_compat.h"
+#include "modules/audio/tb_pcm_util.h"
 #include "modules/audio/pcm_memory_device.h"
-#include "widgets/eb_widget_util.h"
+#include "widgets/tb_widget_util.h"
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -20,7 +20,7 @@
 #include <QStandardPaths>
 #include <QUrl>
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
 #include <QMediaDevices>
 #include <QAudioSink>
 #include <QAudioSource>
@@ -35,13 +35,13 @@ Q_DECLARE_METATYPE(QAudioDevice)
 namespace {
 
 QAudioFormat formatForDevice(const QAudioFormat &desired,
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
                              const QAudioDevice &device)
 #else
                              const QAudioDeviceInfo &device)
 #endif
 {
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (device.isFormatSupported(desired)) {
         return desired;
     }
@@ -94,7 +94,7 @@ QUrl mediaUrlForResourceTone(const QString &resourceUrl)
         }
         if (!cacheDir.isEmpty()) {
             QDir().mkpath(cacheDir);
-            const QString cached = cacheDir + QStringLiteral("/easybench_") + fileName;
+            const QString cached = cacheDir + QStringLiteral("/tuxibit_") + fileName;
             if (QFile::exists(cached)) {
                 QFile::remove(cached);
             }
@@ -104,8 +104,8 @@ QUrl mediaUrlForResourceTone(const QString &resourceUrl)
         }
     }
 
-#ifdef EB_PROJECT_ROOT
-    candidates << QStringLiteral(EB_PROJECT_ROOT) + QStringLiteral("/resource/sounds/")
+#ifdef TB_PROJECT_ROOT
+    candidates << QStringLiteral(TB_PROJECT_ROOT) + QStringLiteral("/resource/sounds/")
                       + fileName;
 #endif
     candidates << QDir::currentPath() + QStringLiteral("/resource/sounds/") + fileName;
@@ -139,7 +139,7 @@ void applySmallActionButtonWidth(const QList<QPushButton *> &buttons, const QStr
 
 } // namespace
 
-AudioPage::AudioPage(EbOptions *options, QWidget *parent)
+AudioPage::AudioPage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
     , speakerGroup(nullptr)
     , outputDeviceBox(nullptr)
@@ -157,7 +157,7 @@ AudioPage::AudioPage(EbOptions *options, QWidget *parent)
     , isRecording(false)
     , isPlayingTone(false)
     , playbackDevice(nullptr)
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     , audioSink(nullptr)
     , audioSource(nullptr)
 #else
@@ -166,7 +166,7 @@ AudioPage::AudioPage(EbOptions *options, QWidget *parent)
 #endif
 {
     setTitleLabelText(tr("声音测试"));
-    const QAudioFormat target = EbPcm::defaultFormat();
+    const QAudioFormat target = TbPcm::defaultFormat();
     playbackFormat = target;
     captureFormat = target;
     recordedFormat = target;
@@ -176,7 +176,7 @@ AudioPage::AudioPage(EbOptions *options, QWidget *parent)
     refreshOutputDevices();
     refreshInputDevices();
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     audioSink = nullptr;
     audioSource = nullptr;
 #else
@@ -227,7 +227,7 @@ void AudioPage::buildUi()
         row->setContentsMargins(0, 0, 0, 0);
         row->setSpacing(8);
         row->setAlignment(Qt::AlignVCenter);
-        EbWidget::applyComboBoxStyle(combo);
+        TbWidget::applyComboBoxStyle(combo);
         row->addWidget(combo, 1);
         row->addWidget(actionBtn, 0, Qt::AlignVCenter);
         return rowWidget;
@@ -253,7 +253,7 @@ void AudioPage::buildUi()
 
     auto addSpeakerRow = [&](int row, const QString &labelText, QWidget *field) {
         field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        speakerGrid->addWidget(EbWidget::createFormLabel(speakerGroup, labelText), row, 0);
+        speakerGrid->addWidget(TbWidget::createFormLabel(speakerGroup, labelText), row, 0);
         speakerGrid->addWidget(field, row, 1);
     };
 
@@ -293,7 +293,7 @@ void AudioPage::buildUi()
 
     auto addMicRow = [&](int row, const QString &labelText, QWidget *field) {
         field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        micGrid->addWidget(EbWidget::createFormLabel(micGroup, labelText), row, 0);
+        micGrid->addWidget(TbWidget::createFormLabel(micGroup, labelText), row, 0);
         micGrid->addWidget(field, row, 1);
     };
 
@@ -341,7 +341,7 @@ void AudioPage::onTonePlayBtnClicked()
 void AudioPage::refreshToneList()
 {
     toneBox->clear();
-    const QStringList names = EbPcm::builtinToneNames();
+    const QStringList names = TbPcm::builtinToneNames();
     for (int i = 0; i < names.size(); ++i) {
         toneBox->addItem(names.at(i), i);
     }
@@ -354,7 +354,7 @@ void AudioPage::refreshOutputDevices()
     outputDeviceBox->blockSignals(true);
     outputDeviceBox->clear();
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     const QAudioDevice defaultDevice = QMediaDevices::defaultAudioOutput();
     const QList<QAudioDevice> devices = QMediaDevices::audioOutputs();
     for (const QAudioDevice &device : devices) {
@@ -398,7 +398,7 @@ void AudioPage::refreshInputDevices()
     inputDeviceBox->blockSignals(true);
     inputDeviceBox->clear();
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     const QAudioDevice defaultDevice = QMediaDevices::defaultAudioInput();
     const QList<QAudioDevice> devices = QMediaDevices::audioInputs();
     for (const QAudioDevice &device : devices) {
@@ -450,28 +450,28 @@ void AudioPage::onInputDeviceChanged(int index)
 
 void AudioPage::updatePlaybackFormat()
 {
-    /* 内置测试音按 EbPcm::defaultFormat() 生成，播放格式须与其一致 */
-    playbackFormat = EbPcm::defaultFormat();
+    /* 内置测试音按 TbPcm::defaultFormat() 生成，播放格式须与其一致 */
+    playbackFormat = TbPcm::defaultFormat();
 }
 
 void AudioPage::updateCaptureFormat()
 {
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     const QAudioDevice device = currentInputDevice();
     if (device.isNull()) {
         return;
     }
-    captureFormat = formatForDevice(EbPcm::defaultFormat(), device);
+    captureFormat = formatForDevice(TbPcm::defaultFormat(), device);
 #else
     const QAudioDeviceInfo device = currentInputDevice();
     if (device.isNull()) {
         return;
     }
-    captureFormat = formatForDevice(EbPcm::defaultFormat(), device);
+    captureFormat = formatForDevice(TbPcm::defaultFormat(), device);
 #endif
 }
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
 QAudioDevice AudioPage::currentOutputDevice() const
 {
     if (outputDeviceBox->currentIndex() < 0) {
@@ -530,7 +530,7 @@ bool AudioPage::ensureOutputAvailable()
         return false;
     }
     updatePlaybackFormat();
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (!device.isFormatSupported(playbackFormat)) {
 #else
     if (!device.isFormatSupported(playbackFormat)) {
@@ -547,7 +547,7 @@ bool AudioPage::ensureOutputAvailable()
 
 bool AudioPage::ensureInputAvailable()
 {
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (currentInputDevice().isNull()) {
 #else
     if (currentInputDevice().isNull()) {
@@ -581,7 +581,7 @@ QByteArray AudioPage::currentTonePcm() const
     if (index < 0) {
         return QByteArray();
     }
-    return EbPcm::builtinTonePcm(index);
+    return TbPcm::builtinTonePcm(index);
 }
 
 void AudioPage::stopToneDecoder()
@@ -612,7 +612,7 @@ void AudioPage::playPcmOnOutput(const QByteArray &pcm, const QAudioFormat &forma
 
     const qreal volume = volumeSlider->value() / 100.0;
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     const QAudioDevice device = currentOutputDevice();
     audioSink = new QAudioSink(device, playbackFormat, this);
     audioSink->setVolume(static_cast<float>(volume));
@@ -667,7 +667,7 @@ void AudioPage::onResourceToneDecoded()
         return;
     }
 
-    playPcmOnOutput(pcm, EbPcm::defaultFormat());
+    playPcmOnOutput(pcm, TbPcm::defaultFormat());
 }
 
 void AudioPage::playResourceTone(const QString &url)
@@ -699,14 +699,14 @@ void AudioPage::playResourceTone(const QString &url)
 
     resourceDecodeBuffer.clear();
     toneDecoder = new QAudioDecoder(this);
-    toneDecoder->setAudioFormat(EbPcm::defaultFormat());
-#if EB_QT_VERSION_MAJOR >= 6
+    toneDecoder->setAudioFormat(TbPcm::defaultFormat());
+#if TB_QT_VERSION_MAJOR >= 6
     toneDecoder->setSource(playUrl);
 #else
     toneDecoder->setSourceFilename(localFile);
 #endif
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     connect(toneDecoder, &QAudioDecoder::bufferReady, this,
             [this](const QAudioBuffer &buffer) {
                 if (!buffer.isValid()) {
@@ -749,7 +749,7 @@ void AudioPage::playResourceTone(const QString &url)
 void AudioPage::onVolumeChanged(int value)
 {
     volumeValueLabel->setText(QStringLiteral("%1%").arg(value));
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (audioSink) {
         audioSink->setVolume(value / 100.0f);
     }
@@ -763,7 +763,7 @@ void AudioPage::onVolumeChanged(int value)
 void AudioPage::stopSpeakerOutput()
 {
     stopToneDecoder();
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (audioSink) {
         audioSink->stop();
         audioSink->deleteLater();
@@ -790,7 +790,7 @@ void AudioPage::stopMicInput()
     if (!isRecording) {
         return;
     }
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (audioSource) {
         audioSource->stop();
     }
@@ -815,7 +815,7 @@ void AudioPage::playTestTone()
 
     const QByteArray pcm = currentTonePcm();
     stopSpeakerOutput();
-    playPcmOnOutput(pcm, EbPcm::defaultFormat());
+    playPcmOnOutput(pcm, TbPcm::defaultFormat());
 }
 
 void AudioPage::stopPlayback()
@@ -851,7 +851,7 @@ void AudioPage::startMicRecord()
     QBuffer *buffer = new QBuffer(&recordedPcm, this);
     buffer->open(QIODevice::WriteOnly);
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     audioSource = new QAudioSource(currentInputDevice(), captureFormat, this);
     audioSource->start(buffer);
 #else
@@ -873,7 +873,7 @@ void AudioPage::stopMicRecord()
         return;
     }
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (audioSource) {
         audioSource->stop();
         audioSource->deleteLater();
@@ -919,7 +919,7 @@ void AudioPage::playMicRecording()
     stopMicRecord();
 
     const QAudioFormat playFormat = recordedFormat;
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     if (!currentOutputDevice().isFormatSupported(playFormat)) {
 #else
     if (!currentOutputDevice().isFormatSupported(playFormat)) {

@@ -1,7 +1,7 @@
 #ifndef BASEPCBTHREAD_H
 #define BASEPCBTHREAD_H
 
-#include "eb_common.h"
+#include "tb_common.h"
 #include <QWidget>
 #include <QThread>
 

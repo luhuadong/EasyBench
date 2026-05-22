@@ -1,5 +1,5 @@
 #include "versionpage.h"
-#include "eb_common.h"
+#include "tb_common.h"
 #include <QTextCodec>
 #include <QStringList>
 #include <QFile>
@@ -9,7 +9,7 @@
 
 #define TAB_ITEM_HEIGHT 48
 
-VersionPage::VersionPage(EbOptions *options, QWidget *parent) :
+VersionPage::VersionPage(TbOptions *options, QWidget *parent) :
     PageWidget(options, parent)
 {
     //setTitleLabelText(tr("Version Information"));
@@ -60,7 +60,7 @@ void VersionPage::getVersionData()
 {
     QStringList itemNameList;
     itemNameList << tr("设备型号") << tr("系统版本") << tr("发行版本") << tr("内核版本") << tr("引导程序")
-                 << tr("GCC版本") << tr("硬件型号") << tr("开发者") << tr("Easy Bench");
+                 << tr("GCC版本") << tr("硬件型号") << tr("开发者") << tr("TuxiBit");
 
     QStringList itemValueList;
     itemValueList << g_opt->getProductInfo()

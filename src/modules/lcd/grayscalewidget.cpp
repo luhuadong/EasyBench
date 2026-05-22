@@ -1,5 +1,5 @@
 #include "grayscalewidget.h"
-#include "eb_common.h"
+#include "tb_common.h"
 #include <QLabel>
 #include <QVBoxLayout>
 

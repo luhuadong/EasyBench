@@ -1,5 +1,5 @@
 #include "datetimepage.h"
-#include "widgets/eb_widget_util.h"
+#include "widgets/tb_widget_util.h"
 
 #include <QTextCodec>
 #include <QHBoxLayout>
@@ -10,7 +10,7 @@
 #include <QIntValidator>
 #include <QRegExpValidator>
 
-DatetimePage::DatetimePage(EbOptions *options, QWidget *parent) :
+DatetimePage::DatetimePage(TbOptions *options, QWidget *parent) :
     PageWidget(options, parent)
 {
     setTitleLabelText(tr("Setting panel"));
@@ -69,15 +69,15 @@ DatetimePage::DatetimePage(EbOptions *options, QWidget *parent) :
     rightLayout->addRow(tr("Time : "), timeLineEdit);
     datetimeGroupBox->setLayout(rightLayout);
 
-    EbWidget::applyFormLayoutStyle(leftLayout);
-    EbWidget::applyFormLayoutStyle(rightLayout);
-    EbWidget::applyComboBoxStyle(timezoneComboBox);
-    EbWidget::applyLineEditStyle(ipLineEdit);
-    EbWidget::applyLineEditStyle(maskLineEdit);
-    EbWidget::applyLineEditStyle(gatewayLineEdit);
-    EbWidget::applyLineEditStyle(dnsLineEdit);
-    EbWidget::applyLineEditStyle(dateLineEdit);
-    EbWidget::applyLineEditStyle(timeLineEdit);
+    TbWidget::applyFormLayoutStyle(leftLayout);
+    TbWidget::applyFormLayoutStyle(rightLayout);
+    TbWidget::applyComboBoxStyle(timezoneComboBox);
+    TbWidget::applyLineEditStyle(ipLineEdit);
+    TbWidget::applyLineEditStyle(maskLineEdit);
+    TbWidget::applyLineEditStyle(gatewayLineEdit);
+    TbWidget::applyLineEditStyle(dnsLineEdit);
+    TbWidget::applyLineEditStyle(dateLineEdit);
+    TbWidget::applyLineEditStyle(timeLineEdit);
 
     QWidget *mainWidget = new QWidget(this);
     mainWidget->setGeometry(0, 96, this->width(), this->height()-96-72);

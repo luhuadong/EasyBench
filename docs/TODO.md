@@ -2,7 +2,7 @@
 
 
 
-## EasyBench v0.2
+## TuxiBit v0.2
 
 - [x] 支持 Qt5/Qt6 构建（CMake）
 - [ ] 支持 CLI 模式

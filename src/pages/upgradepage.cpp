@@ -1,5 +1,5 @@
 #include "upgradepage.h"
-#include "widgets/eb_widget_util.h"
+#include "widgets/tb_widget_util.h"
 
 #include <QFileDialog>
 #include <QFormLayout>
@@ -29,17 +29,17 @@ QString formatFileSize(qint64 bytes)
 
 } // namespace
 
-UpgradePage::UpgradePage(EbOptions *options, QWidget *parent)
+UpgradePage::UpgradePage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
 {
     setTitleLabelText(tr("系统升级"));
-    updateRunner = new EbUpdate::UpdateRunner(this);
-    connect(updateRunner, &EbUpdate::UpdateRunner::lineOutput, this, &UpgradePage::onUpdateLine);
-    connect(updateRunner, &EbUpdate::UpdateRunner::finished, this, &UpgradePage::onUpdateFinished);
+    updateRunner = new TbUpdate::UpdateRunner(this);
+    connect(updateRunner, &TbUpdate::UpdateRunner::lineOutput, this, &UpgradePage::onUpdateLine);
+    connect(updateRunner, &TbUpdate::UpdateRunner::finished, this, &UpgradePage::onUpdateFinished);
 
     buildUi();
 
-    const QString hint = EbUpdate::findRemovablePackageHint();
+    const QString hint = TbUpdate::findRemovablePackageHint();
     if (!hint.isEmpty()) {
         packagePathEdit->setText(hint);
     }
@@ -82,7 +82,7 @@ void UpgradePage::buildUi()
     QFormLayout *pkgForm = new QFormLayout(pkgGroup);
     pkgForm->setContentsMargins(12, 16, 12, 12);
     pkgForm->addRow(tr("路径"), packagePathEdit);
-    EbWidget::applyFormLayoutStyle(pkgForm);
+    TbWidget::applyFormLayoutStyle(pkgForm);
 
     QGroupBox *infoGroup = new QGroupBox(tr("包信息"), content);
     infoPathLabel = new QLabel(infoGroup);
@@ -136,10 +136,10 @@ void UpgradePage::buildUi()
 
 QString UpgradePage::defaultStatusHint() const
 {
-    if (!EbUpdate::hasRootPrivilege()) {
+    if (!TbUpdate::hasRootPrivilege()) {
         return tr("警告：升级将覆盖根目录；当前非 root，请使用 sudo 运行。");
     }
-    return tr("警告：升级包将解压到 /，请确认备份；格式 *.tar.gz，可选 easybench-update.json。");
+    return tr("警告：升级包将解压到 /，请确认备份；格式 *.tar.gz，可选 tuxibit-update.json。");
 }
 
 void UpgradePage::syncActionButtons()
@@ -158,7 +158,7 @@ void UpgradePage::syncActionButtons()
 
 bool UpgradePage::canStartUpgrade() const
 {
-    return EbUpdate::hasRootPrivilege() && !upgradeBusy;
+    return TbUpdate::hasRootPrivilege() && !upgradeBusy;
 }
 
 void UpgradePage::setUpgradeBusy(bool busy)
@@ -185,7 +185,7 @@ void UpgradePage::appendLog(const QString &text)
     logArea->append(text);
 }
 
-void UpgradePage::refreshInfoLabels(const EbUpdate::PackageInfo &info)
+void UpgradePage::refreshInfoLabels(const TbUpdate::PackageInfo &info)
 {
     setInfoLine(infoPathLabel, tr("文件"), info.path.isEmpty() ? tr("—") : info.path);
     setInfoLine(infoSizeLabel, tr("大小"),
@@ -223,7 +223,7 @@ void UpgradePage::selectPackage()
         return;
     }
     packagePathEdit->setText(path);
-    lastInfo = EbUpdate::PackageInfo();
+    lastInfo = TbUpdate::PackageInfo();
     setInfoLine(infoStatusLabel, tr("状态"), tr("已选择，请校验"));
 }
 
@@ -235,7 +235,7 @@ void UpgradePage::verifyPackage()
         return;
     }
 
-    lastInfo = EbUpdate::inspectPackage(path, g_opt->getProductInfo());
+    lastInfo = TbUpdate::inspectPackage(path, g_opt->getProductInfo());
     refreshInfoLabels(lastInfo);
     appendLog(tr("--- 校验 %1 ---").arg(path));
     if (!lastInfo.errorMessage.isEmpty()) {
@@ -262,9 +262,9 @@ bool UpgradePage::confirmUpgrade()
 
 void UpgradePage::startUpgrade()
 {
-    if (!EbUpdate::hasRootPrivilege()) {
+    if (!TbUpdate::hasRootPrivilege()) {
         QMessageBox::warning(this, tr("权限不足"),
-                             tr("升级需要 root 权限，请使用 sudo 运行 EasyBench。"));
+                             tr("升级需要 root 权限，请使用 sudo 运行 TuxiBit。"));
         return;
     }
 
@@ -315,7 +315,7 @@ void UpgradePage::onUpdateFinished(bool success, int exitCode)
         if (QMessageBox::question(this, tr("重启"), tr("清单要求升级后重启，是否立即重启？"),
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
             == QMessageBox::Yes) {
-            EbUpdate::runShell(QStringLiteral("reboot"));
+            TbUpdate::runShell(QStringLiteral("reboot"));
         }
     }
 }

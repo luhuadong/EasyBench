@@ -1,6 +1,6 @@
 #include "storagepage.h"
-#include "widgets/eb_widget_util.h"
-#include "eb_thread_util.h"
+#include "widgets/tb_widget_util.h"
+#include "tb_thread_util.h"
 
 #include <QDir>
 #include <QFormLayout>
@@ -62,7 +62,7 @@ StorageTestWorker::StorageTestWorker(TestKind kind,
 
 void StorageTestWorker::run()
 {
-    EbThread::setCurrentThreadName("eb-storage");
+    TbThread::setCurrentThreadName("eb-storage");
     m_timer.start();
     m_lastDdMbps = -1.0;
 
@@ -252,7 +252,7 @@ bool StorageTestWorker::runDiskWrite()
     return !isInterruptionRequested();
 }
 
-StoragePage::StoragePage(EbOptions *options, QWidget *parent)
+StoragePage::StoragePage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
 {
     setTitleLabelText(tr("存储测试"));
@@ -323,7 +323,7 @@ void StoragePage::buildUi()
     form->addRow(tr("数据量"), sizeSpin);
     form->addRow(tr("循环次数"), loopsSpin);
     form->addRow(QString(), btnRowWidget);
-    EbWidget::applyFormLayoutStyle(form);
+    TbWidget::applyFormLayoutStyle(form);
     cfgGroup->setLayout(form);
 
     QGroupBox *logGroup = new QGroupBox(tr("测试日志"), content);
@@ -424,7 +424,7 @@ void StoragePage::startTest()
     statusLabel->setText(tr("测试进行中…"));
 
     worker = new StorageTestWorker(kind, target, sizeSpin->value(), loopsSpin->value(), this);
-    EbThread::nameQThread(worker, "eb-storage");
+    TbThread::nameQThread(worker, "eb-storage");
     connect(worker, &StorageTestWorker::logLine, this, &StoragePage::onLogLine);
     connect(worker, &StorageTestWorker::progressChanged, this, &StoragePage::onProgress);
     connect(worker, &StorageTestWorker::finished, this, &StoragePage::onTestFinished);

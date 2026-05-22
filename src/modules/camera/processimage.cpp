@@ -1,5 +1,5 @@
 #include "processimage.h"
-#include "eb_common.h"
+#include "tb_common.h"
 #include <QMessageBox>
 #include <QTimer>
 #include <QHBoxLayout>

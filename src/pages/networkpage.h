@@ -3,7 +3,7 @@
 
 #include "widgets/pagewidget.h"
 
-#include "modules/network/eb_net_util.h"
+#include "modules/network/tb_net_util.h"
 
 #include <QComboBox>
 #include <QFile>
@@ -20,7 +20,7 @@ class NetworkPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit NetworkPage(EbOptions *options, QWidget *parent = nullptr);
+    explicit NetworkPage(TbOptions *options, QWidget *parent = nullptr);
 
     QString defaultStatusHint() const override;
 
@@ -58,10 +58,10 @@ private:
     bool confirmNetworkChange(const QString &title, const QString &detail);
     QString currentInterfaceName() const;
     void updateStatusLabels();
-    void fillConfigFields(const EbNet::InterfaceInfo &info);
+    void fillConfigFields(const TbNet::InterfaceInfo &info);
     bool checkPrivilegeForApply();
 
-    EbNet::PingRunner *pingRunner = nullptr;
+    TbNet::PingRunner *pingRunner = nullptr;
     QTabWidget *tabWidget = nullptr;
     int i210TabIndex = -1;
 
@@ -101,7 +101,7 @@ private:
     QLineEdit *i210MacLine = nullptr;
     QTextEdit *i210LogArea = nullptr;
 
-    QList<EbNet::InterfaceInfo> interfaces;
+    QList<TbNet::InterfaceInfo> interfaces;
 
     char i210MacBytes[6] = {};
     QStringList i210MacParts;

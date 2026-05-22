@@ -14,7 +14,7 @@ class DatetimePage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit DatetimePage(EbOptions *options, QWidget *parent = 0);
+    explicit DatetimePage(TbOptions *options, QWidget *parent = 0);
 
 public slots:
 

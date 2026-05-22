@@ -55,7 +55,7 @@ class StoragePage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit StoragePage(EbOptions *options, QWidget *parent = nullptr);
+    explicit StoragePage(TbOptions *options, QWidget *parent = nullptr);
     ~StoragePage();
 
 private slots:

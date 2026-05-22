@@ -3,7 +3,7 @@
 
 #include "widgets/pagewidget.h"
 #include "modules/lcd/grayscalewidget.h"
-#include "eb_common.h"
+#include "tb_common.h"
 
 #include <QGroupBox>
 #include <QLabel>
@@ -23,7 +23,7 @@ class LcdPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit LcdPage(EbOptions *options, QWidget *parent = nullptr);
+    explicit LcdPage(TbOptions *options, QWidget *parent = nullptr);
 
 private slots:
     void pixelCheckBtnClicked();

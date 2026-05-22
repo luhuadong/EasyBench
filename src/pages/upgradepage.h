@@ -2,7 +2,7 @@
 #define UPGRADEPAGE_H
 
 #include "widgets/pagewidget.h"
-#include "modules/update/eb_update_util.h"
+#include "modules/update/tb_update_util.h"
 
 #include <QLabel>
 #include <QLineEdit>
@@ -13,7 +13,7 @@ class UpgradePage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit UpgradePage(EbOptions *options, QWidget *parent = nullptr);
+    explicit UpgradePage(TbOptions *options, QWidget *parent = nullptr);
 
     bool isUpgradeBusy() const { return upgradeBusy; }
     bool canStartUpgrade() const;
@@ -34,13 +34,13 @@ private slots:
 private:
     void buildUi();
     void appendLog(const QString &text);
-    void refreshInfoLabels(const EbUpdate::PackageInfo &info);
+    void refreshInfoLabels(const TbUpdate::PackageInfo &info);
     bool confirmUpgrade();
     void setUpgradeBusy(bool busy);
     void syncActionButtons();
 
-    EbUpdate::UpdateRunner *updateRunner = nullptr;
-    EbUpdate::PackageInfo lastInfo;
+    TbUpdate::UpdateRunner *updateRunner = nullptr;
+    TbUpdate::PackageInfo lastInfo;
     bool upgradeBusy = false;
 
     QPushButton *selectBtn = nullptr;

@@ -5,15 +5,15 @@ LINES=100 # The number of file lines + 1, be careful after modified !!!
 BIN_DIR="/usr/bin"
 TMP_DIR="/tmp"
 ICON_DIR="/usr/share/pixmaps"
-CONFIG_DIR="/etc/easybench"
+CONFIG_DIR="/etc/tuxibit"
 LEGACY_CONFIG_DIR="/etc/gbox"
-DEPLOY_DIR="/usr/share/easybench/deploy"
+DEPLOY_DIR="/usr/share/tuxibit/deploy"
 DESKTOP_DIR="/usr/share/applications"
-FONT_DIR="/usr/share/fonts/easybench"
+FONT_DIR="/usr/share/fonts/tuxibit"
 
 APP_DIR="gbox"
 
-APP="easybench"
+APP="tuxibit"
 BOOT=${APP}.sh
 ICON=${APP}.png
 CONFIG=${APP}.conf
@@ -78,7 +78,7 @@ Install() {
 	fi
 
 	if [ -f ${CONFIG_DIR}/${CONFIG} ] && [ ! -f ${LEGACY_CONFIG_DIR}/${CONFIG} ]; then
-		ln -sf ../easybench/${CONFIG} ${LEGACY_CONFIG_DIR}/${CONFIG} 2>/dev/null || true
+		ln -sf ../tuxibit/${CONFIG} ${LEGACY_CONFIG_DIR}/${CONFIG} 2>/dev/null || true
 	fi
 
 	if command -v gtk-update-icon-cache >/dev/null 2>&1; then

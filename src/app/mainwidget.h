@@ -6,7 +6,7 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
-#include "eb_options.h"
+#include "tb_options.h"
 #include "widgets/pagewidget.h"
 #include "widgets/statusbar.h"
 #include "pages/lcdpage.h"
@@ -26,7 +26,7 @@ class MainWidget : public QWidget
     Q_OBJECT
 
 public:
-    MainWidget(EbOptions *options, QWidget *parent = 0);
+    MainWidget(TbOptions *options, QWidget *parent = 0);
     ~MainWidget();
 
     typedef enum {
@@ -51,7 +51,7 @@ private:
     void applyPageDefaultStatus(pageTypes page);
     PageWidget *pageForType(pageTypes page) const;
 
-    EbOptions *g_opt;
+    TbOptions *g_opt;
 
     QWidget *menuWidget;
     QButtonGroup *menuBtnGroup;

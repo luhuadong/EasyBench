@@ -9,7 +9,7 @@ class RealtimePage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit RealtimePage(EbOptions *options, QWidget *parent = 0);
+    explicit RealtimePage(TbOptions *options, QWidget *parent = 0);
 
 public slots:
 

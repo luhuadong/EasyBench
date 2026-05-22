@@ -44,7 +44,7 @@ QString detectXrandrOutputName()
 
 } // namespace
 
-LcdPage::LcdPage(EbOptions *options, QWidget *parent)
+LcdPage::LcdPage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
 {
     setTitleLabelText(tr("显示与触摸测试"));

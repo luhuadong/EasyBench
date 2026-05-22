@@ -3,14 +3,14 @@
 
 #include <QWidget>
 #include <QLabel>
-#include "eb_common.h"
-#include "eb_options.h"
+#include "tb_common.h"
+#include "tb_options.h"
 
 class PageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PageWidget(EbOptions *options, QWidget *parent = 0);
+    explicit PageWidget(TbOptions *options, QWidget *parent = 0);
 
     void setBackgroundPicture(const QString &path);
     void setTitleLabelText(const QString &text);
@@ -25,7 +25,7 @@ protected:
     QWidget *contentArea() const;
 
 protected:
-    EbOptions *g_opt;
+    TbOptions *g_opt;
 
 private:
     QLabel *titleLabel;

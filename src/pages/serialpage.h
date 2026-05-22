@@ -2,7 +2,7 @@
 #define SERIALPAGE_H
 
 #include "widgets/pagewidget.h"
-#include "eb_common.h"
+#include "tb_common.h"
 
 #include <QByteArray>
 #include <QCheckBox>
@@ -66,7 +66,7 @@ class SerialPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit SerialPage(EbOptions *options, QWidget *parent = nullptr);
+    explicit SerialPage(TbOptions *options, QWidget *parent = nullptr);
     ~SerialPage();
 
     QString defaultStatusHint() const override;

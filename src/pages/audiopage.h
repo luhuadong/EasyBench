@@ -2,7 +2,7 @@
 #define AUDIOPAGE_H
 
 #include "widgets/pagewidget.h"
-#include "eb_qt_compat.h"
+#include "tb_qt_compat.h"
 
 #include <QAudioFormat>
 #include <QByteArray>
@@ -15,7 +15,7 @@
 class PcmMemoryDevice;
 class QAudioDecoder;
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
 class QAudioSink;
 class QAudioSource;
 class QAudioDevice;
@@ -29,7 +29,7 @@ class AudioPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit AudioPage(EbOptions *options, QWidget *parent = 0);
+    explicit AudioPage(TbOptions *options, QWidget *parent = 0);
     ~AudioPage();
 
     QString defaultStatusHint() const override;
@@ -70,7 +70,7 @@ private:
     bool ensureOutputAvailable();
     bool ensureInputAvailable();
 
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     QAudioDevice currentOutputDevice() const;
     QAudioDevice currentInputDevice() const;
 #else
@@ -105,7 +105,7 @@ private:
     PcmMemoryDevice *playbackDevice;
     QAudioDecoder *toneDecoder = nullptr;
     QByteArray resourceDecodeBuffer;
-#if EB_QT_VERSION_MAJOR >= 6
+#if TB_QT_VERSION_MAJOR >= 6
     QAudioSink *audioSink;
     QAudioSource *audioSource;
 #else

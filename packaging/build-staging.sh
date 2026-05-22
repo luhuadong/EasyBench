@@ -30,7 +30,7 @@ case "${VERSION}" in
 esac
 
 ARCH="$(uname -m)"
-TARBALL="${DIST_DIR}/easybench-${VERSION}-linux-${ARCH}.tar.gz"
+TARBALL="${DIST_DIR}/tuxibit-${VERSION}-linux-${ARCH}.tar.gz"
 mkdir -p "${DIST_DIR}"
 tar -C "${STAGE}" -czf "${TARBALL}" .
 

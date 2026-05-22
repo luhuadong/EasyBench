@@ -1,8 +1,8 @@
-# EasyBench
+# TuxiBit
 
-![](docs/EasyBench_banner.png)
+![](resource/TuxiBit_Banner.png)
 
-EasyBench 是一个面向嵌入式 Linux 设备的轻量级出厂测试、硬件诊断和板级验证工具，支持图形界面、命令行执行、插件化测试项和测试报告导出。
+TuxiBit 是一个面向嵌入式 Linux 设备的轻量级出厂测试、硬件诊断和板级验证工具，支持图形界面、命令行执行、插件化测试项和测试报告导出。
 
 通过模块化的设计思想对功能进行划分，主要包括：
 
@@ -42,11 +42,11 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 2. 指定 Qt 版本：
 
    ```shell
-   cmake -B build -DEASYBENCH_FORCE_QT5=ON   # 强制 Qt 5
-   cmake -B build -DEASYBENCH_FORCE_QT6=ON   # 强制 Qt 6（需 Qt 6.2+）
+   cmake -B build -DTUXIBIT_FORCE_QT5=ON   # 强制 Qt 5
+   cmake -B build -DTUXIBIT_FORCE_QT6=ON   # 强制 Qt 6（需 Qt 6.2+）
    ```
 
-3. 可执行文件位于 `build/easybench`。
+3. 可执行文件位于 `build/tuxibit`。
 
 4. 安装到系统（推荐）：
 
@@ -55,12 +55,12 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
    # 等价于: sudo cmake --install build --prefix /usr
    ```
 
-   安装内容：`/usr/bin/easybench`、`/etc/easybench/easybench.conf`（首次创建，不覆盖已有配置）、`share/applications/easybench.desktop`、`share/easybench/deploy/`、`share/easybench/fonts/LiHeiPro.ttf`、Freedesktop 图标。安装结束时会尝试刷新图标缓存与 desktop 数据库。
+   安装内容：`/usr/bin/tuxibit`、`/etc/tuxibit/tuxibit.conf`（首次创建，不覆盖已有配置）、`share/applications/tuxibit.desktop`、`share/tuxibit/deploy/`、`share/tuxibit/fonts/LiHeiPro.ttf`、Freedesktop 图标。安装结束时会尝试刷新图标缓存与 desktop 数据库。
 
 5. 发布打包（CMake staging / CPack）：
 
    ```shell
-   ./packaging/build-staging.sh          # dist/easybench-<ver>-linux-<arch>.tar.gz
+   ./packaging/build-staging.sh          # dist/tuxibit-<ver>-linux-<arch>.tar.gz
    cd build && cpack -G TGZ             # 或 DEB（Debian/Ubuntu）
    ```
 
@@ -78,15 +78,15 @@ sudo apt install qt6-base-dev qt6-multimedia-dev libqt6core5compat6-dev
 8. 裁剪体积（嵌入式部署可选）：
 
    ```shell
-   arm-poky-linux-gnueabi-strip build/easybench
+   arm-poky-linux-gnueabi-strip build/tuxibit
    ```
 
 
 
 ## 目录结构
 
-```
-EasyBench/
+```bash
+TuxiBit/
 ├── CMakeLists.txt          # 构建入口
 ├── src/                    # 应用源码
 │   ├── main.cpp
@@ -97,7 +97,7 @@ EasyBench/
 ├── config/                 # 运行时配置模板
 ├── deploy/                 # 产线工具与数据（eepromARMtool、I210 OTP）
 ├── resource/               # Qt 资源（qrc、图标、QSS、字体）
-├── cmake/                  # EasyBenchInstall / Packaging、desktop 模板
+├── cmake/                  # TuxiBitInstall / Packaging、desktop 模板
 ├── packaging/              # staging、CPack、遗留 .run 安装包
 ├── scripts/                # 开发辅助脚本
 ├── docs/                   # 文档
@@ -106,20 +106,20 @@ EasyBench/
 
 ## 配置与路径
 
-- 主配置模板：`config/easybench.conf`
-- 搜索顺序：`/etc/easybench/` → `/etc/gbox/`（兼容）→ 程序目录旁 `config/` → 开发树 `config/`
-- 产线工具：`deploy/bin/eepromARMtool`，数据：`deploy/data/I210NIC-origin.otp`（安装后位于 `share/easybench/deploy/`）
+- 主配置模板：`config/tuxibit.conf`
+- 搜索顺序：`/etc/tuxibit/` → `/etc/gbox/`（兼容）→ 程序目录旁 `config/` → 开发树 `config/`
+- 产线工具：`deploy/bin/eepromARMtool`，数据：`deploy/data/I210NIC-origin.otp`（安装后位于 `share/tuxibit/deploy/`）
 
 ## 遗留 qmake 构建
 
-`legacy/easybench.pro` 仅供参考，推荐使用 CMake。
+`legacy/tuxibit.pro` 仅供参考，推荐使用 CMake。
 
 ## 注意事项
 
 - 默认通过 CMake 检测 Qt 版本；摄像头页面在 Qt 5 与 Qt 6 下使用各自的多媒体 API。
 - Qt 6 构建依赖 `Qt6::Core5Compat`，以兼容代码中的 `QTextCodec` 与 `QRegExp`。
-- 中文字体由 `EbPaths::chineseFontFile()` 自动查找（安装路径、`resource/fonts/` 等）。
-- 应用窗口与任务栏图标来自内嵌资源 `:/images/logo.png`；系统菜单/dock 图标名称为 `easybench`，需通过 `cmake --install` 或 `scripts/install-desktop-local.sh` 安装到图标主题路径。`StartupWMClass=easybench` 与 `QApplication::setDesktopFileName()` 配合，便于 Ubuntu dock 正确分组与固定。
+- 中文字体由 `TbPaths::chineseFontFile()` 自动查找（安装路径、`resource/fonts/` 等）。
+- 应用窗口与任务栏图标来自内嵌资源 `:/images/logo.png`；系统菜单/dock 图标名称为 `tuxibit`，需通过 `cmake --install` 或 `scripts/install-desktop-local.sh` 安装到图标主题路径。`StartupWMClass=tuxibit` 与 `QApplication::setDesktopFileName()` 配合，便于 Ubuntu dock 正确分组与固定。
 
 
 

@@ -2,8 +2,8 @@
 #define SYSTEMPAGE_H
 
 #include "widgets/pagewidget.h"
-#include "eb_common.h"
-#include "modules/monitor/eb_sysstats.h"
+#include "tb_common.h"
+#include "modules/monitor/tb_sysstats.h"
 
 #include <QLabel>
 #include <QGroupBox>
@@ -25,7 +25,7 @@ class SystemPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit SystemPage(EbOptions *options, QWidget *parent = nullptr);
+    explicit SystemPage(TbOptions *options, QWidget *parent = nullptr);
     ~SystemPage() override;
 
     void setBasePcbTemp1Text(float value);
@@ -82,14 +82,14 @@ private:
     QPushButton *fanModeBtn = nullptr;
     QPushButton *fanChangeBtn = nullptr;
 
-    EbSysStats::CpuInfo cpuInfo;
+    TbSysStats::CpuInfo cpuInfo;
     float cpuTotalDuty = 0.0f;
     float armTemp = 0.0f;
     float adspTemp = 0.0f;
     float pcbTemp = 0.0f;
     float fanSpeed = 0.0f;
-    EbSysStats::MemInfo memInfo;
-    EbSysStats::DiskInfo diskInfo;
+    TbSysStats::MemInfo memInfo;
+    TbSysStats::DiskInfo diskInfo;
 
     QTimer *updateTimer = nullptr;
     CpuStatThread *cpuStatThread = nullptr;

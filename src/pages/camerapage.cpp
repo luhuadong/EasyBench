@@ -1,5 +1,5 @@
 #include "camerapage.h"
-#include "widgets/eb_widget_util.h"
+#include "widgets/tb_widget_util.h"
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -12,15 +12,15 @@
 #include <QResizeEvent>
 #include <QStackedWidget>
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
 Q_DECLARE_METATYPE(QCameraInfo)
 #endif
 
-#if EB_QT6_MULTIMEDIA
+#if TB_QT6_MULTIMEDIA
 Q_DECLARE_METATYPE(QCameraDevice)
 #endif
 
-CameraPage::CameraPage(EbOptions *options, QWidget *parent)
+CameraPage::CameraPage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
     , controlGroup(nullptr)
     , deviceBox(nullptr)
@@ -30,19 +30,19 @@ CameraPage::CameraPage(EbOptions *options, QWidget *parent)
     , previewFrame(nullptr)
     , previewStack(nullptr)
     , previewPlaceholder(nullptr)
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     , viewfinder(nullptr)
     , camera(nullptr)
     , imageCapture(nullptr)
 #endif
-#if EB_QT6_MULTIMEDIA
+#if TB_QT6_MULTIMEDIA
     , videoWidget(nullptr)
     , camera(nullptr)
     , captureSession(nullptr)
     , imageCapture(nullptr)
 #endif
     , cameraActive(false)
-#if EB_QT5_MULTIMEDIA || EB_QT6_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA || TB_QT6_MULTIMEDIA
     , multimediaAvailable(true)
 #else
     , multimediaAvailable(false)
@@ -56,7 +56,7 @@ CameraPage::CameraPage(EbOptions *options, QWidget *parent)
     connect(resolutionBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onResolutionChanged(int)));
     connect(refreshDevicesBtn, SIGNAL(clicked()), this, SLOT(refreshDeviceList()));
 
-#if EB_QT6_MULTIMEDIA
+#if TB_QT6_MULTIMEDIA
     captureSession = new QMediaCaptureSession(this);
 #endif
 
@@ -100,9 +100,9 @@ void CameraPage::buildUi()
     controlGrid->setContentsMargins(12, 14, 12, 12);
     controlGrid->setHorizontalSpacing(10);
     controlGrid->setVerticalSpacing(8);
-    controlGrid->addWidget(EbWidget::createFormLabel(controlGroup, tr("摄像头")), 0, 0);
+    controlGrid->addWidget(TbWidget::createFormLabel(controlGroup, tr("摄像头")), 0, 0);
     controlGrid->addWidget(deviceBox, 0, 1, Qt::AlignVCenter);
-    controlGrid->addWidget(EbWidget::createFormLabel(controlGroup, tr("分辨率")), 0, 2);
+    controlGrid->addWidget(TbWidget::createFormLabel(controlGroup, tr("分辨率")), 0, 2);
     controlGrid->addWidget(resolutionBox, 0, 3, Qt::AlignVCenter);
     controlGrid->addWidget(refreshDevicesBtn, 0, 4, Qt::AlignVCenter);
     controlGrid->addWidget(cameraToggleBtn, 0, 5, Qt::AlignVCenter);
@@ -240,9 +240,9 @@ bool CameraPage::canCaptureStill() const
     if (!cameraActive) {
         return false;
     }
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     return imageCapture && imageCapture->isReadyForCapture();
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     return imageCapture != nullptr;
 #else
     return false;
@@ -302,7 +302,7 @@ void CameraPage::refreshDeviceList()
     deviceBox->blockSignals(true);
     deviceBox->clear();
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
     for (const QCameraInfo &info : cameras) {
         const QString label = info.description().isEmpty()
@@ -310,7 +310,7 @@ void CameraPage::refreshDeviceList()
             : QStringLiteral("%1 (%2)").arg(info.description(), info.deviceName());
         deviceBox->addItem(label, QVariant::fromValue(info));
     }
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     const QList<QCameraDevice> devices = QMediaDevices::videoInputs();
     for (const QCameraDevice &device : devices) {
         deviceBox->addItem(device.description(), QVariant::fromValue(device));
@@ -355,7 +355,7 @@ void CameraPage::onDeviceChanged(int index)
 
 void CameraPage::updateSelectedDeviceDetail()
 {
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     const QCameraInfo info = currentCameraInfo();
     if (info.isNull()) {
         selectedDeviceDetail.clear();
@@ -364,7 +364,7 @@ void CameraPage::updateSelectedDeviceDetail()
     selectedDeviceDetail = info.description().isEmpty()
         ? info.deviceName()
         : QStringLiteral("%1 (%2)").arg(info.description(), info.deviceName());
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     const QCameraDevice device = currentCameraDevice();
     if (device.isNull()) {
         selectedDeviceDetail.clear();
@@ -381,13 +381,13 @@ void CameraPage::updateSelectedDeviceDetail()
 
 void CameraPage::ensurePreviewVideoWidget()
 {
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     if (!viewfinder) {
         viewfinder = new QCameraViewfinder(previewFrame);
         viewfinder->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         previewStack->addWidget(viewfinder);
     }
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     if (!videoWidget) {
         videoWidget = new QVideoWidget(previewFrame);
         videoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -398,14 +398,14 @@ void CameraPage::ensurePreviewVideoWidget()
 
 void CameraPage::releasePreviewVideoWidget()
 {
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     if (!viewfinder) {
         return;
     }
     previewStack->removeWidget(viewfinder);
     delete viewfinder;
     viewfinder = nullptr;
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     if (!videoWidget) {
         return;
     }
@@ -432,7 +432,7 @@ void CameraPage::populateResolutionList()
 
     const QSize preferred = g_opt->cameraViewSize();
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     if (!camera) {
         resolutionBox->addItem(QStringLiteral("%1 x %2").arg(preferred.width()).arg(preferred.height()),
                                preferred);
@@ -462,7 +462,7 @@ void CameraPage::populateResolutionList()
 
 void CameraPage::applySelectedResolution()
 {
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     if (!camera || resolutionBox->currentIndex() < 0) {
         return;
     }
@@ -478,7 +478,7 @@ void CameraPage::applySelectedResolution()
 
 void CameraPage::teardownCamera()
 {
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     if (camera) {
         camera->stop();
         camera->setViewfinder(static_cast<QCameraViewfinder *>(nullptr));
@@ -487,7 +487,7 @@ void CameraPage::teardownCamera()
     imageCapture = nullptr;
     delete camera;
     camera = nullptr;
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     if (camera) {
         camera->stop();
     }
@@ -505,14 +505,14 @@ void CameraPage::teardownCamera()
 
 void CameraPage::setupCameraForCurrentDevice()
 {
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     attachCamera(currentCameraInfo());
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     attachCamera(currentCameraDevice());
 #endif
 }
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
 
 QCameraInfo CameraPage::currentCameraInfo() const
 {
@@ -606,7 +606,7 @@ void CameraPage::onCaptureError(int id, QCameraImageCapture::Error error, const 
     QMessageBox::warning(this, tr("拍照失败"), message);
 }
 
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
 
 QCameraDevice CameraPage::currentCameraDevice() const
 {
@@ -677,7 +677,7 @@ void CameraPage::openCamera()
         return;
     }
 
-#if EB_QT5_MULTIMEDIA || EB_QT6_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA || TB_QT6_MULTIMEDIA
     if (!camera) {
         setupCameraForCurrentDevice();
     }
@@ -695,7 +695,7 @@ void CameraPage::openCamera()
 
 void CameraPage::closeCamera()
 {
-#if EB_QT5_MULTIMEDIA || EB_QT6_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA || TB_QT6_MULTIMEDIA
     if (!cameraActive) {
         return;
     }
@@ -709,7 +709,7 @@ void CameraPage::closeCamera()
 
 void CameraPage::captureStillImage()
 {
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     if (!cameraActive || !imageCapture || !imageCapture->isReadyForCapture()) {
         QMessageBox::information(this, tr("拍照"), tr("请先打开摄像头并等待就绪。"));
         return;
@@ -717,17 +717,17 @@ void CameraPage::captureStillImage()
 
     const QString dir = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
     QDir().mkpath(dir);
-    const QString path = dir + QStringLiteral("/easybench_%1.jpg")
+    const QString path = dir + QStringLiteral("/tuxibit_%1.jpg")
         .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_hhmmss")));
     imageCapture->capture(path);
     setStatusText(tr("正在拍照…"));
-#elif EB_QT6_MULTIMEDIA
+#elif TB_QT6_MULTIMEDIA
     if (!cameraActive || !imageCapture) {
         QMessageBox::information(this, tr("拍照"), tr("请先打开摄像头。"));
         return;
     }
     imageCapture->captureToFile(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation)
-        + QStringLiteral("/easybench_")
+        + QStringLiteral("/tuxibit_")
         + QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_hhmmss"))
         + QStringLiteral(".jpg"));
     setStatusText(tr("正在拍照…"));

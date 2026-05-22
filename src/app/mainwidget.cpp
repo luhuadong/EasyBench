@@ -1,7 +1,7 @@
 #include "mainwidget.h"
-#include "eb_branding.h"
-#include "eb_common.h"
-#include "widgets/eb_widget_util.h"
+#include "tb_branding.h"
+#include "tb_common.h"
+#include "widgets/tb_widget_util.h"
 
 #include <QAbstractButton>
 #include <QComboBox>
@@ -27,12 +27,12 @@ static const MenuItemDef kMenuItems[] = {
     { MainWidget::PAGE_VERSION,  ":/icons/menu_version.svg",  ":/icons/menu_version_active.svg" },
 };
 
-MainWidget::MainWidget(EbOptions *options, QWidget *parent)
+MainWidget::MainWidget(TbOptions *options, QWidget *parent)
     : QWidget(parent)
 {
     g_opt = options;
 
-    setWindowIcon(EbBranding::applicationIcon());
+    setWindowIcon(TbBranding::applicationIcon());
 
     initMainUI();
     connect(menuBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(menuBtnGroupToggled(int)));
@@ -47,7 +47,7 @@ MainWidget::~MainWidget()
 
 void MainWidget::initMainUI()
 {
-    setWindowTitle(QStringLiteral("EasyBench"));
+    setWindowTitle(QStringLiteral("TuxiBit"));
 #if FIXED_WINDOWN
     setFixedSize(g_opt->fixedSize().width(), g_opt->fixedSize().height());
 #else
@@ -146,9 +146,9 @@ void MainWidget::initMainUI()
     currPage = PAGE_SYSTEM;
 
     const int popupHeight = PAGE_BODY_HEIGHT - STATUS_BAR_HEIGHT - 48;
-    EbWidget::applyComboBoxStyles(this, popupHeight);
-    EbWidget::applyFormFieldStyles(this);
-    EbWidget::applyAllFormLayouts(this);
+    TbWidget::applyComboBoxStyles(this, popupHeight);
+    TbWidget::applyFormFieldStyles(this);
+    TbWidget::applyAllFormLayouts(this);
 }
 
 void MainWidget::bindPageStatus(PageWidget *page)

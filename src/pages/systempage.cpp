@@ -1,5 +1,5 @@
 #include "systempage.h"
-#include "eb_thread_util.h"
+#include "tb_thread_util.h"
 #include "modules/monitor/basepcbthread.h"
 #include "modules/monitor/cpustatthread.h"
 
@@ -26,7 +26,7 @@ void stretchGroupBox(QGroupBox *box)
 
 } // namespace
 
-SystemPage::SystemPage(EbOptions *options, QWidget *parent)
+SystemPage::SystemPage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
 {
     setTitleLabelText(tr("系统信息"));
@@ -45,7 +45,7 @@ SystemPage::SystemPage(EbOptions *options, QWidget *parent)
     createSocketWithBasePcb();
     if (sockToBasdPcbIsOk) {
         BasePcbThread *pcbThread = new BasePcbThread(sockfd, this);
-        EbThread::nameQThread(pcbThread, "eb-base-pcb");
+        TbThread::nameQThread(pcbThread, "eb-base-pcb");
         pcbThread->start();
         sendBasePcbCmd(CMD_GET_VERSION, QString());
         sendBasePcbCmd(CMD_CONTROL, QString());
@@ -188,10 +188,10 @@ void SystemPage::buildUi()
 
 void SystemPage::updateSysParam()
 {
-    EbSysStats::readCpuInfo(&cpuInfo);
-    EbSysStats::readMemInfo(&memInfo);
-    EbSysStats::readDiskInfo(QStringLiteral("/"), &diskInfo);
-    EbSysStats::readArmTemperature(&armTemp);
+    TbSysStats::readCpuInfo(&cpuInfo);
+    TbSysStats::readMemInfo(&memInfo);
+    TbSysStats::readDiskInfo(QStringLiteral("/"), &diskInfo);
+    TbSysStats::readArmTemperature(&armTemp);
 
     cpuNameLabel->setText(tr("型号：%1").arg(cpuInfo.modelName));
     cpuVendorLabel->setText(tr("平台：%1").arg(cpuInfo.hardware.isEmpty() ? tr("—") : cpuInfo.hardware));
@@ -218,7 +218,7 @@ void SystemPage::updateSysParam()
         rtcNameLabel->setText(tr("设备型号：%1").arg(QString::fromUtf8(rtcNameFile.readAll()).trimmed()));
     }
 
-    const QString rtcTime = EbSysStats::readRtcDateTime();
+    const QString rtcTime = TbSysStats::readRtcDateTime();
     if (!rtcTime.isEmpty()) {
         rtcDateTimeLabel->setText(tr("RTC 时间：%1").arg(rtcTime));
     } else {

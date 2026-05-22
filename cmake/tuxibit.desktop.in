@@ -1,0 +1,17 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TuxiBit
+Name[zh_CN]=TuxiBit
+GenericName=Hardware Diagnostics
+GenericName[zh_CN]=硬件诊断工具
+Comment=Linux hardware diagnostics, connectivity and system utilities
+Comment[zh_CN]=Linux 硬件诊断、网络与系统工具
+TryExec=@TB_DESKTOP_EXEC@
+Exec=@TB_DESKTOP_EXEC@
+Icon=tuxibit
+Terminal=false
+Categories=System;Utility;
+StartupNotify=true
+# Match QApplication::setDesktopFileName() — helps GNOME/Ubuntu dock pin & group windows
+StartupWMClass=tuxibit

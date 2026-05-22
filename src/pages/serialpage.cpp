@@ -1,6 +1,6 @@
 #include "serialpage.h"
-#include "eb_thread_util.h"
-#include "widgets/eb_widget_util.h"
+#include "tb_thread_util.h"
+#include "widgets/tb_widget_util.h"
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -92,7 +92,7 @@ void SerialRecvThread::setDiscardIncoming(bool discard)
 
 void SerialRecvThread::run()
 {
-    EbThread::setCurrentThreadName("eb-serial");
+    TbThread::setCurrentThreadName("eb-serial");
     QByteArray batch;
     batch.reserve(kSerialReadChunk * 4);
     char buf[kSerialReadChunk];
@@ -129,7 +129,7 @@ void SerialRecvThread::run()
     }
 }
 
-SerialPage::SerialPage(EbOptions *options, QWidget *parent)
+SerialPage::SerialPage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
 {
     setTitleLabelText(tr("串口测试"));
@@ -137,7 +137,7 @@ SerialPage::SerialPage(EbOptions *options, QWidget *parent)
     refreshPortList();
 
     recvThread = new SerialRecvThread(this);
-    EbThread::nameQThread(recvThread, "eb-serial");
+    TbThread::nameQThread(recvThread, "eb-serial");
     connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::appendRecvChunk);
 
     recvFlushTimer = new QTimer(this);
@@ -257,7 +257,7 @@ void SerialPage::buildUi()
 
     auto addPortRow = [&](int row, const QString &labelText, QWidget *field) {
         field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        portGrid->addWidget(EbWidget::createFormLabel(portGroup, labelText), row, 0);
+        portGrid->addWidget(TbWidget::createFormLabel(portGroup, labelText), row, 0);
         portGrid->addWidget(field, row, 1);
     };
 
@@ -270,7 +270,7 @@ void SerialPage::buildUi()
 
     echoGroup = new QGroupBox(tr("收发测试"), content);
     sendArea = new QTextEdit(echoGroup);
-    sendArea->setPlainText(QStringLiteral("Hello from EasyBench"));
+    sendArea->setPlainText(QStringLiteral("Hello from TuxiBit"));
     sendArea->setMaximumHeight(100);
     recvArea = new QPlainTextEdit(echoGroup);
     recvArea->setReadOnly(true);

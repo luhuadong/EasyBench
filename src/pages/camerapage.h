@@ -2,7 +2,7 @@
 #define CAMERAPAGE_H
 
 #include "widgets/pagewidget.h"
-#include "eb_qt_compat.h"
+#include "tb_qt_compat.h"
 
 #include <QLabel>
 #include <QComboBox>
@@ -14,14 +14,14 @@ class QResizeEvent;
 
 class QStackedWidget;
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
 #include <QCamera>
 #include <QCameraInfo>
 #include <QCameraViewfinder>
 #include <QCameraImageCapture>
 #endif
 
-#if EB_QT6_MULTIMEDIA
+#if TB_QT6_MULTIMEDIA
 #include <QCamera>
 #include <QCameraDevice>
 #include <QImageCapture>
@@ -34,7 +34,7 @@ class CameraPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit CameraPage(EbOptions *options, QWidget *parent = 0);
+    explicit CameraPage(TbOptions *options, QWidget *parent = 0);
     ~CameraPage() override;
 
     QString defaultStatusHint() const override;
@@ -55,7 +55,7 @@ private slots:
     void openCamera();
     void closeCamera();
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     void onCameraStateChanged(QCamera::State state);
     void onCameraError();
     void onCaptureReadyChanged(bool ready);
@@ -64,7 +64,7 @@ private slots:
     void onCaptureError(int id, QCameraImageCapture::Error error, const QString &message);
 #endif
 
-#if EB_QT6_MULTIMEDIA
+#if TB_QT6_MULTIMEDIA
     void onCameraActiveChanged(bool active);
     void onCameraError(QCamera::Error error, const QString &message);
     void onCaptureError(int id, QImageCapture::Error error, const QString &message);
@@ -85,12 +85,12 @@ private:
     void releasePreviewVideoWidget();
     void updateSelectedDeviceDetail();
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     QCameraInfo currentCameraInfo() const;
     void attachCamera(const QCameraInfo &info);
 #endif
 
-#if EB_QT6_MULTIMEDIA
+#if TB_QT6_MULTIMEDIA
     QCameraDevice currentCameraDevice() const;
     void attachCamera(const QCameraDevice &device);
 #endif
@@ -107,13 +107,13 @@ private:
     QStackedWidget *previewStack;
     QLabel *previewPlaceholder;
 
-#if EB_QT5_MULTIMEDIA
+#if TB_QT5_MULTIMEDIA
     QCameraViewfinder *viewfinder = nullptr;
     QCamera *camera = nullptr;
     QCameraImageCapture *imageCapture = nullptr;
 #endif
 
-#if EB_QT6_MULTIMEDIA
+#if TB_QT6_MULTIMEDIA
     QVideoWidget *videoWidget = nullptr;
     QCamera *camera = nullptr;
     QMediaCaptureSession *captureSession;

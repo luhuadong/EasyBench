@@ -1,5 +1,5 @@
 #include "cpustatthread.h"
-#include "eb_thread_util.h"
+#include "tb_thread_util.h"
 
 #include <QFile>
 #include <QString>
@@ -15,12 +15,12 @@ extern "C"
 CpuStatThread::CpuStatThread(QObject *parent) :
     QThread(parent)
 {
-    EbThread::nameQThread(this, "eb-cpu-stat");
+    TbThread::nameQThread(this, "eb-cpu-stat");
 }
 
 void CpuStatThread::run()
 {
-    EbThread::setCurrentThreadName("eb-cpu-stat");
+    TbThread::setCurrentThreadName("eb-cpu-stat");
     float cpuTotalDuty = 0.0f;
     QString tmpStr;
     QStringList tmpStrList;

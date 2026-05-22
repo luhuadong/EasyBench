@@ -1,6 +1,6 @@
 #include "networkpage.h"
-#include "widgets/eb_widget_util.h"
-#include "eb_paths.h"
+#include "widgets/tb_widget_util.h"
+#include "tb_paths.h"
 
 #include <QFile>
 #include <QRegExp>
@@ -36,13 +36,13 @@ int prefixFromMaskField(const QString &mask, int fallback)
 
 } // namespace
 
-NetworkPage::NetworkPage(EbOptions *options, QWidget *parent)
+NetworkPage::NetworkPage(TbOptions *options, QWidget *parent)
     : PageWidget(options, parent)
 {
     setTitleLabelText(tr("网络配置与测试"));
-    pingRunner = new EbNet::PingRunner(this);
-    connect(pingRunner, &EbNet::PingRunner::lineOutput, this, &NetworkPage::onPingLine);
-    connect(pingRunner, &EbNet::PingRunner::finished, this, &NetworkPage::onPingFinished);
+    pingRunner = new TbNet::PingRunner(this);
+    connect(pingRunner, &TbNet::PingRunner::lineOutput, this, &NetworkPage::onPingLine);
+    connect(pingRunner, &TbNet::PingRunner::finished, this, &NetworkPage::onPingFinished);
 
     buildUi();
     refreshInterfaces();
@@ -54,7 +54,7 @@ void NetworkPage::toggleInterfaceLink()
     if (iface.isEmpty()) {
         return;
     }
-    const EbNet::InterfaceInfo info = EbNet::readInterfaceConfig(iface);
+    const TbNet::InterfaceInfo info = TbNet::readInterfaceConfig(iface);
     if (info.linkUp) {
         setInterfaceDown();
     } else {
@@ -67,13 +67,13 @@ void NetworkPage::syncLinkToggleButton()
     if (!linkToggleBtn) {
         return;
     }
-    linkToggleBtn->setEnabled(EbNet::hasNetAdminPrivilege() && !currentInterfaceName().isEmpty());
+    linkToggleBtn->setEnabled(TbNet::hasNetAdminPrivilege() && !currentInterfaceName().isEmpty());
     const QString iface = currentInterfaceName();
     if (iface.isEmpty()) {
         linkToggleBtn->setText(tr("接口 Up"));
         return;
     }
-    const EbNet::InterfaceInfo info = EbNet::readInterfaceConfig(iface);
+    const TbNet::InterfaceInfo info = TbNet::readInterfaceConfig(iface);
     linkToggleBtn->setText(info.linkUp ? tr("接口 Down") : tr("接口 Up"));
 }
 
@@ -157,7 +157,7 @@ void NetworkPage::buildUi()
     macForm->setContentsMargins(12, 16, 12, 12);
     macForm->addRow(tr("新 MAC"), macEdit);
     macForm->addRow(QString(), macBtnRowWidget);
-    EbWidget::applyFormLayoutStyle(macForm);
+    TbWidget::applyFormLayoutStyle(macForm);
 
     macLogArea = new QTextEdit(macTab);
     macLogArea->setReadOnly(true);
@@ -215,7 +215,7 @@ void NetworkPage::buildUi()
     ipForm->addRow(tr("默认网关"), gatewayEdit);
     ipForm->addRow(tr("DNS"), dnsEdit);
     ipForm->addRow(QString(), ipBtnRowWidget);
-    EbWidget::applyFormLayoutStyle(ipForm);
+    TbWidget::applyFormLayoutStyle(ipForm);
 
     ipv4LogArea = new QTextEdit(ipv4Tab);
     ipv4LogArea->setReadOnly(true);
@@ -256,7 +256,7 @@ void NetworkPage::buildUi()
     pingForm->addRow(tr("次数"), pingCountSpin);
     pingForm->addRow(QString(), pingBtnRowWidget);
     pingForm->addRow(tr("摘要"), pingSummaryLabel);
-    EbWidget::applyFormLayoutStyle(pingForm);
+    TbWidget::applyFormLayoutStyle(pingForm);
 
     pingLogArea = new QTextEdit(pingTab);
     pingLogArea->setReadOnly(true);
@@ -270,7 +270,7 @@ void NetworkPage::buildUi()
     QWidget *i210Tab = new QWidget(tabWidget);
     buildI210Tab(i210Tab);
     i210TabIndex = tabWidget->addTab(i210Tab, tr("高级 I210"));
-    if (!EbNet::hasI210Nic()) {
+    if (!TbNet::hasI210Nic()) {
         tabWidget->setTabEnabled(i210TabIndex, false);
         tabWidget->setTabToolTip(i210TabIndex, tr("未检测到 Intel I210 网卡"));
     }
@@ -329,7 +329,7 @@ void NetworkPage::buildI210Tab(QWidget *tabPage)
     i210Form->setContentsMargins(12, 16, 12, 12);
     i210Form->addRow(tr("MAC"), i210MacLine);
     i210Form->addRow(QString(), i210BtnRowWidget);
-    EbWidget::applyFormLayoutStyle(i210Form);
+    TbWidget::applyFormLayoutStyle(i210Form);
 
     i210LogArea = new QTextEdit(tabPage);
     i210LogArea->setReadOnly(true);
@@ -369,7 +369,7 @@ void NetworkPage::appendPingLog(const QString &text)
 
 QString NetworkPage::defaultStatusHint() const
 {
-    if (!EbNet::hasNetAdminPrivilege()) {
+    if (!TbNet::hasNetAdminPrivilege()) {
         return tr("提示：当前非 root，修改 MAC/IPv4 与接口 up/down 不可用；Ping 仍可用。");
     }
     return tr("已具备网络管理权限（root）。");
@@ -378,7 +378,7 @@ QString NetworkPage::defaultStatusHint() const
 void NetworkPage::applyPrivilegeUi()
 {
     setStatusMessage(defaultStatusHint());
-    const bool canAdmin = EbNet::hasNetAdminPrivilege();
+    const bool canAdmin = TbNet::hasNetAdminPrivilege();
     if (macApplyBtn) {
         macApplyBtn->setEnabled(canAdmin);
     }
@@ -413,12 +413,12 @@ QString NetworkPage::currentInterfaceName() const
 void NetworkPage::refreshInterfaces()
 {
     const QString previous = currentInterfaceName();
-    interfaces = EbNet::listInterfaces();
+    interfaces = TbNet::listInterfaces();
     ifaceBox->blockSignals(true);
     ifaceBox->clear();
     int restoreIndex = 0;
     for (int i = 0; i < interfaces.size(); ++i) {
-        const EbNet::InterfaceInfo &info = interfaces.at(i);
+        const TbNet::InterfaceInfo &info = interfaces.at(i);
         ifaceBox->addItem(info.displayText, info.name);
         if (info.name == previous) {
             restoreIndex = i;
@@ -439,7 +439,7 @@ void NetworkPage::onInterfaceChanged(int index)
     if (index < 0 || index >= interfaces.size()) {
         return;
     }
-    const EbNet::InterfaceInfo info = EbNet::readInterfaceConfig(interfaces.at(index).name);
+    const TbNet::InterfaceInfo info = TbNet::readInterfaceConfig(interfaces.at(index).name);
     interfaces[index] = info;
     updateStatusLabels();
     fillConfigFields(info);
@@ -451,7 +451,7 @@ void NetworkPage::updateStatusLabels()
     if (iface.isEmpty()) {
         return;
     }
-    const EbNet::InterfaceInfo info = EbNet::readInterfaceConfig(iface);
+    const TbNet::InterfaceInfo info = TbNet::readInterfaceConfig(iface);
     setInfoLine(statusMacLabel, tr("MAC"), info.mac.isEmpty() ? tr("—") : info.mac);
     const QString ipText = info.ipv4.isEmpty()
         ? tr("—")
@@ -467,11 +467,11 @@ void NetworkPage::updateStatusLabels()
                                                    : info.operState)
                     .arg(info.carrier ? tr("有") : tr("无")));
     setInfoLine(statusBackendLabel, tr("配置后端"),
-                EbNet::backendName(EbNet::detectNetworkBackend()));
+                TbNet::backendName(TbNet::detectNetworkBackend()));
     syncLinkToggleButton();
 }
 
-void NetworkPage::fillConfigFields(const EbNet::InterfaceInfo &info)
+void NetworkPage::fillConfigFields(const TbNet::InterfaceInfo &info)
 {
     macEdit->setText(info.mac);
     ipEdit->setText(info.ipv4);
@@ -485,11 +485,11 @@ void NetworkPage::fillConfigFields(const EbNet::InterfaceInfo &info)
 
 bool NetworkPage::checkPrivilegeForApply()
 {
-    if (EbNet::hasNetAdminPrivilege()) {
+    if (TbNet::hasNetAdminPrivilege()) {
         return true;
     }
     QMessageBox::warning(this, tr("权限不足"),
-                         tr("修改网络配置需要 root 权限，请使用 sudo 运行 EasyBench。"));
+                         tr("修改网络配置需要 root 权限，请使用 sudo 运行 TuxiBit。"));
     return false;
 }
 
@@ -506,7 +506,7 @@ void NetworkPage::applyMacRuntime()
         return;
     }
     QString log;
-    const bool ok = EbNet::applyRuntimeMac(iface, mac, &log);
+    const bool ok = TbNet::applyRuntimeMac(iface, mac, &log);
     appendMacLog(tr("--- 应用 MAC ---"));
     appendMacLog(log);
     refreshInterfaces();
@@ -529,7 +529,7 @@ void NetworkPage::saveMacPersistent()
         return;
     }
     QString log;
-    EbNet::persistMacAddress(iface, mac, &log);
+    TbNet::persistMacAddress(iface, mac, &log);
     appendMacLog(tr("--- 保存 MAC ---"));
     appendMacLog(log);
 }
@@ -546,7 +546,7 @@ void NetworkPage::applyIpv4Runtime()
         if (!confirmNetworkChange(tr("应用 DHCP"), tr("将为 %1 尝试 DHCP（临时）。\n是否继续？").arg(iface))) {
             return;
         }
-        ok = EbNet::applyRuntimeDhcp(iface, &log);
+        ok = TbNet::applyRuntimeDhcp(iface, &log);
     } else {
         const int prefix = prefixFromMaskField(maskEdit->text().trimmed(), prefixSpin->value());
         const QStringList dns =
@@ -556,7 +556,7 @@ void NetworkPage::applyIpv4Runtime()
                 tr("将为 %1 设置临时静态地址 %2/%3\n是否继续？").arg(iface, ipEdit->text()).arg(prefix))) {
             return;
         }
-        ok = EbNet::applyRuntimeIpv4Static(iface, ipEdit->text().trimmed(), prefix,
+        ok = TbNet::applyRuntimeIpv4Static(iface, ipEdit->text().trimmed(), prefix,
                                            gatewayEdit->text().trimmed(), dns, &log);
     }
     appendIpv4Log(tr("--- 应用 IPv4 ---"));
@@ -581,7 +581,7 @@ void NetworkPage::saveIpv4Persistent()
     const QStringList dns =
         dnsEdit->text().split(QRegExp(QStringLiteral("[,\\s]+")), QString::SkipEmptyParts);
     QString log;
-    EbNet::persistIpv4Config(iface, dhcpRadio->isChecked(), ipEdit->text().trimmed(), prefix,
+    TbNet::persistIpv4Config(iface, dhcpRadio->isChecked(), ipEdit->text().trimmed(), prefix,
                              gatewayEdit->text().trimmed(), dns, &log);
     appendIpv4Log(tr("--- 保存网络 ---"));
     appendIpv4Log(log);
@@ -593,7 +593,7 @@ void NetworkPage::setInterfaceUp()
         return;
     }
     QString log;
-    EbNet::setLinkState(currentInterfaceName(), true, &log);
+    TbNet::setLinkState(currentInterfaceName(), true, &log);
     appendMacLog(log);
     refreshInterfaces();
     syncLinkToggleButton();
@@ -605,7 +605,7 @@ void NetworkPage::setInterfaceDown()
         return;
     }
     QString log;
-    EbNet::setLinkState(currentInterfaceName(), false, &log);
+    TbNet::setLinkState(currentInterfaceName(), false, &log);
     appendMacLog(log);
     refreshInterfaces();
     syncLinkToggleButton();
@@ -671,8 +671,8 @@ void NetworkPage::i210EditClicked()
 
 void NetworkPage::i210CheckClicked()
 {
-    const EbNet::CommandResult result =
-        EbNet::runCommand(EbPaths::eepromArmTool(), QStringList());
+    const TbNet::CommandResult result =
+        TbNet::runCommand(TbPaths::eepromArmTool(), QStringList());
     i210LogArea->clear();
     if (result.exitCode != 0 && !result.standardOutput.isEmpty()) {
         i210LogArea->setText(result.standardError.isEmpty() ? result.standardOutput
@@ -686,8 +686,8 @@ void NetworkPage::i210CheckClicked()
 
 void NetworkPage::i210DumpClicked()
 {
-    const EbNet::CommandResult result = EbNet::runCommand(
-        EbPaths::eepromArmTool(), QStringList() << QStringLiteral("-dump") << QStringLiteral("-NIC=1"));
+    const TbNet::CommandResult result = TbNet::runCommand(
+        TbPaths::eepromArmTool(), QStringList() << QStringLiteral("-dump") << QStringLiteral("-NIC=1"));
     i210LogArea->clear();
     for (const QString &line : result.standardOutput.split(QLatin1Char('\n'), QString::SkipEmptyParts)) {
         i210LogArea->append(line);
@@ -711,7 +711,7 @@ bool NetworkPage::generateI210File()
         return false;
     }
 
-    QFile i210File(EbPaths::i210OriginOtp());
+    QFile i210File(TbPaths::i210OriginOtp());
     if (!i210File.exists()) {
         i210LogArea->setText(tr("错误：找不到 I210NIC-origin.otp（%1）").arg(i210File.fileName()));
         return false;
@@ -753,9 +753,9 @@ void NetworkPage::i210WriteClicked()
         return;
     }
     const QString cmd = QStringLiteral("%1 -write -NIC=1 -f=%2")
-                          .arg(EbPaths::eepromArmTool(), i210TmpFile.fileName());
-    const EbNet::CommandResult result =
-        EbNet::runCommand(QStringLiteral("/bin/sh"), QStringList() << QStringLiteral("-c") << cmd);
+                          .arg(TbPaths::eepromArmTool(), i210TmpFile.fileName());
+    const TbNet::CommandResult result =
+        TbNet::runCommand(QStringLiteral("/bin/sh"), QStringList() << QStringLiteral("-c") << cmd);
     i210LogArea->clear();
     for (const QString &line : result.standardOutput.split(QLatin1Char('\n'), QString::SkipEmptyParts)) {
         i210LogArea->append(line);
@@ -765,7 +765,7 @@ void NetworkPage::i210WriteClicked()
         msg.setText(tr("烧录完成。是否立即重启？"));
         msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         if (msg.exec() == QMessageBox::Yes) {
-            EbNet::runShell(QStringLiteral("reboot"));
+            TbNet::runShell(QStringLiteral("reboot"));
         }
     }
 }

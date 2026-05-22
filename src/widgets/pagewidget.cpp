@@ -5,7 +5,7 @@
 #include <QPixmap>
 #include <QVBoxLayout>
 
-PageWidget::PageWidget(EbOptions *options, QWidget *parent)
+PageWidget::PageWidget(TbOptions *options, QWidget *parent)
     : QWidget(parent)
 {
     g_opt = options;

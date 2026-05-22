@@ -11,7 +11,7 @@ class VersionPage : public PageWidget
 {
     Q_OBJECT
 public:
-    explicit VersionPage(EbOptions *options, QWidget *parent = 0);
+    explicit VersionPage(TbOptions *options, QWidget *parent = 0);
 
 private:
     QTableView *tabView;

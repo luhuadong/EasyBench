@@ -1,6 +1,6 @@
 #include "statusbar.h"
 
-#include "eb_common.h"
+#include "tb_common.h"
 
 #include <QHBoxLayout>
 
