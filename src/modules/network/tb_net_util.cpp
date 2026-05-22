@@ -1,6 +1,7 @@
 #include "tb_net_util.h"
 
 #include <QFile>
+#include <QFileInfo>
 #include <QNetworkInterface>
 #include <QRegExp>
 #include <QtAlgorithms>
@@ -24,6 +25,37 @@ bool sysfsBool(const QString &path)
 {
     const QString value = readSysfsString(path);
     return value == QLatin1String("1") || value == QLatin1String("up");
+}
+
+/** Linux: 有底层 device 且非常见虚拟网卡命名 */
+bool isPhysicalInterface(const QString &ifaceName)
+{
+    if (ifaceName.isEmpty()) {
+        return false;
+    }
+
+    if (ifaceName.contains(QLatin1Char('.'))) {
+        return false;
+    }
+
+    static const char *virtualPrefixes[] = {
+        "lo", "docker", "veth", "br-", "virbr", "vnet", "tun", "tap", "wg",
+        "dummy", "ifb", "macvtap", "macvlan", "cali", "flannel", "kube", "nvlan",
+    };
+    for (const char *prefix : virtualPrefixes) {
+        const QLatin1String p(prefix);
+        if (ifaceName == p || ifaceName.startsWith(p)) {
+            return false;
+        }
+    }
+
+    if (ifaceName.length() >= 3 && ifaceName.startsWith(QLatin1String("br"))
+        && ifaceName.at(2).isDigit()) {
+        return false;
+    }
+
+    const QFileInfo deviceLink(QStringLiteral("/sys/class/net/%1/device").arg(ifaceName));
+    return deviceLink.isSymLink() || deviceLink.exists();
 }
 
 QString prefixToNetmask(int prefix)
@@ -191,6 +223,9 @@ QList<InterfaceInfo> listInterfaces()
             // still include down interfaces for configuration
         }
         if (iface.flags() & QNetworkInterface::IsLoopBack) {
+            continue;
+        }
+        if (!isPhysicalInterface(iface.name())) {
             continue;
         }
         InterfaceInfo info = readInterfaceConfig(iface.name());

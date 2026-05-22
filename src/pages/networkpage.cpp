@@ -84,7 +84,8 @@ void NetworkPage::buildUi()
     QWidget *toolbar = new QWidget(content);
     toolbar->setObjectName(QStringLiteral("networkToolbar"));
     ifaceBox = new QComboBox(toolbar);
-    ifaceBox->setMinimumWidth(240);
+    ifaceBox->setMinimumWidth(200);
+    TbWidget::applyComboBoxStyle(ifaceBox);
     QPushButton *refreshBtn = new QPushButton(tr("刷新"), toolbar);
     refreshBtn->setObjectName(QStringLiteral("functionBtn_small"));
     linkToggleBtn = new QPushButton(tr("接口 Up"), toolbar);
@@ -94,9 +95,11 @@ void NetworkPage::buildUi()
     QHBoxLayout *toolbarRow = new QHBoxLayout(toolbar);
     toolbarRow->setContentsMargins(16, 8, 16, 8);
     toolbarRow->setSpacing(8);
+    toolbarRow->setAlignment(Qt::AlignVCenter);
+    toolbarRow->addWidget(TbWidget::createFormLabel(toolbar, tr("选择网卡")));
     toolbarRow->addWidget(ifaceBox, 1);
-    toolbarRow->addWidget(refreshBtn);
-    toolbarRow->addWidget(linkToggleBtn);
+    toolbarRow->addWidget(refreshBtn, 0, Qt::AlignVCenter);
+    toolbarRow->addWidget(linkToggleBtn, 0, Qt::AlignVCenter);
     toolbar->setLayout(toolbarRow);
 
     tabWidget = new QTabWidget(content);
@@ -429,7 +432,7 @@ void NetworkPage::refreshInterfaces()
         ifaceBox->setCurrentIndex(restoreIndex);
         onInterfaceChanged(restoreIndex);
     } else {
-        appendMacLog(tr("未找到可用网卡（已排除 loopback）。"));
+        appendMacLog(tr("未找到可用物理网卡。"));
     }
     syncLinkToggleButton();
 }
