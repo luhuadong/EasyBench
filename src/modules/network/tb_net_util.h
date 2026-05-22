@@ -42,7 +42,7 @@ class PingRunner : public QObject
     Q_OBJECT
 public:
     explicit PingRunner(QObject *parent = nullptr);
-    void start(const QString &host, int count);
+    void start(const QString &host, int count, const QString &iface = QString());
     void stop();
 
 signals:

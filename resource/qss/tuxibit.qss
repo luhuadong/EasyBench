@@ -63,7 +63,7 @@ QToolButton#menuBtn:checked {
 QTabWidget#networkTabs::pane {
     border: 1px solid #D0D0D0;
     border-radius: 0 0 8px 8px;
-    background-color: #F0F0F0;
+    background-color: #FFFFFF;
     top: -1px;
 }
 
@@ -86,6 +86,36 @@ QTabWidget#networkTabs > QTabBar::tab:selected {
 
 QTabWidget#networkTabs > QTabBar::tab:disabled {
     color: #9E9E9E;
+}
+
+/* Tab 页内按钮保持主色（避免白底页面覆盖全局 QPushButton 样式） */
+QTabWidget#networkTabs QPushButton#functionBtn_small,
+QTabWidget#networkTabs QPushButton#functionBtn {
+    min-height: 32px;
+    max-height: 32px;
+    padding: 4px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #FFD54B;
+    color: #1E1E1E;
+    font: bold 15px;
+}
+
+QTabWidget#networkTabs QPushButton#functionBtn_small:hover:enabled,
+QTabWidget#networkTabs QPushButton#functionBtn:hover:enabled {
+    background-color: #FFE082;
+}
+
+QTabWidget#networkTabs QPushButton#functionBtn_small:pressed,
+QTabWidget#networkTabs QPushButton#functionBtn:pressed {
+    background-color: #E5B800;
+    color: #FFFFFF;
+}
+
+QTabWidget#networkTabs QPushButton#functionBtn_small:disabled,
+QTabWidget#networkTabs QPushButton#functionBtn:disabled {
+    background-color: #C8C8C8;
+    color: #6E6E6E;
 }
 
 QTextEdit#networkLogArea {
@@ -320,6 +350,11 @@ QCheckBox::indicator {
 QCheckBox::indicator:checked {
     border: 1px solid #E5B800;
     background-color: #FFD54B;
+    image: url(:/icons/checkmark.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    background-color: #FFE082;
 }
 
 QTextEdit {

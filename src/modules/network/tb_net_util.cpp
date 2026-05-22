@@ -531,12 +531,18 @@ PingRunner::PingRunner(QObject *parent)
             &PingRunner::onFinished);
 }
 
-void PingRunner::start(const QString &host, int count)
+void PingRunner::start(const QString &host, int count, const QString &iface)
 {
     stop();
-    m_process->start(QStringLiteral("ping"),
-                     QStringList() << QStringLiteral("-c") << QString::number(qMax(1, count))
-                                   << host);
+    QStringList args;
+    if (!iface.isEmpty()) {
+        args << QStringLiteral("-I") << iface;
+    }
+    if (count > 0) {
+        args << QStringLiteral("-c") << QString::number(count);
+    }
+    args << host;
+    m_process->start(QStringLiteral("ping"), args);
 }
 
 void PingRunner::stop()

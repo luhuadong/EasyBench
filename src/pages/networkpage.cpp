@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QRegExp>
 #include <QButtonGroup>
+#include <QCheckBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -107,12 +108,14 @@ void NetworkPage::buildUi()
     tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QWidget *statusTab = new QWidget(tabWidget);
-    statusMacLabel = new QLabel(statusTab);
-    statusIpLabel = new QLabel(statusTab);
-    statusGwLabel = new QLabel(statusTab);
-    statusDnsLabel = new QLabel(statusTab);
-    statusLinkLabel = new QLabel(statusTab);
-    statusBackendLabel = new QLabel(statusTab);
+
+    QGroupBox *ifaceInfoGroup = new QGroupBox(tr("接口状态"), statusTab);
+    statusMacLabel = new QLabel(ifaceInfoGroup);
+    statusIpLabel = new QLabel(ifaceInfoGroup);
+    statusGwLabel = new QLabel(ifaceInfoGroup);
+    statusDnsLabel = new QLabel(ifaceInfoGroup);
+    statusLinkLabel = new QLabel(ifaceInfoGroup);
+    statusBackendLabel = new QLabel(ifaceInfoGroup);
     const QList<QLabel *> statusLabels = {statusMacLabel, statusIpLabel, statusGwLabel,
                                           statusDnsLabel, statusLinkLabel, statusBackendLabel};
     for (QLabel *label : statusLabels) {
@@ -120,22 +123,73 @@ void NetworkPage::buildUi()
     }
 
     QVBoxLayout *statusLeft = new QVBoxLayout;
-    statusLeft->setSpacing(8);
+    statusLeft->setSpacing(6);
     statusLeft->addWidget(statusMacLabel);
     statusLeft->addWidget(statusIpLabel);
     statusLeft->addWidget(statusGwLabel);
     QVBoxLayout *statusRight = new QVBoxLayout;
-    statusRight->setSpacing(8);
+    statusRight->setSpacing(6);
     statusRight->addWidget(statusDnsLabel);
     statusRight->addWidget(statusLinkLabel);
     statusRight->addWidget(statusBackendLabel);
-    statusRight->addStretch();
-    statusLeft->addStretch();
+    QHBoxLayout *ifaceInfoCols = new QHBoxLayout(ifaceInfoGroup);
+    ifaceInfoCols->setContentsMargins(12, 16, 12, 12);
+    ifaceInfoCols->setSpacing(24);
+    ifaceInfoCols->addLayout(statusLeft, 1);
+    ifaceInfoCols->addLayout(statusRight, 1);
 
-    QHBoxLayout *statusCols = new QHBoxLayout(statusTab);
-    statusCols->setContentsMargins(16, 12, 16, 12);
-    statusCols->addLayout(statusLeft, 1);
-    statusCols->addLayout(statusRight, 1);
+    QGroupBox *pingGroup = new QGroupBox(tr("Ping 测试"), statusTab);
+    pingHostEdit = new QLineEdit(pingGroup);
+    pingHostEdit->setObjectName(QStringLiteral("inputLineEdit"));
+    pingHostEdit->setText(QStringLiteral("8.8.8.8"));
+    TbWidget::applyLineEditStyle(pingHostEdit);
+    pingPlayBtn = new QPushButton(tr("Ping"), pingGroup);
+    pingPlayBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    pingPlayBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    QWidget *pingHostRowWidget = new QWidget(pingGroup);
+    pingHostRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *pingHostRow = new QHBoxLayout(pingHostRowWidget);
+    pingHostRow->setContentsMargins(0, 0, 0, 0);
+    pingHostRow->setSpacing(8);
+    pingHostRow->setAlignment(Qt::AlignVCenter);
+    pingHostRow->addWidget(pingHostEdit, 1);
+    pingHostRow->addWidget(pingPlayBtn, 0, Qt::AlignVCenter);
+
+    pingCountSpin = new QSpinBox(pingGroup);
+    pingCountSpin->setRange(1, 20);
+    pingCountSpin->setValue(4);
+    TbWidget::applySpinBoxStyle(pingCountSpin);
+    pingInfiniteCheck = new QCheckBox(tr("无限次"), pingGroup);
+    QWidget *pingCountRowWidget = new QWidget(pingGroup);
+    pingCountRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *pingCountRow = new QHBoxLayout(pingCountRowWidget);
+    pingCountRow->setContentsMargins(0, 0, 0, 0);
+    pingCountRow->setSpacing(12);
+    pingCountRow->setAlignment(Qt::AlignVCenter);
+    pingCountRow->addWidget(pingCountSpin);
+    pingCountRow->addWidget(pingInfiniteCheck);
+    pingCountRow->addStretch();
+
+    QFormLayout *pingForm = new QFormLayout(pingGroup);
+    pingForm->setContentsMargins(12, 16, 12, 12);
+    pingForm->addRow(tr("目标"), pingHostRowWidget);
+    pingForm->addRow(tr("次数"), pingCountRowWidget);
+    TbWidget::applyFormLayoutStyle(pingForm);
+
+    pingLogArea = new QTextEdit(statusTab);
+    pingLogArea->setReadOnly(true);
+    pingLogArea->setObjectName(QStringLiteral("networkLogArea"));
+    pingLogArea->setMaximumHeight(150);
+    pingLogArea->setMinimumHeight(96);
+
+    QVBoxLayout *statusLayout = new QVBoxLayout(statusTab);
+    statusLayout->setContentsMargins(12, 12, 12, 12);
+    statusLayout->setSpacing(12);
+    statusLayout->addWidget(ifaceInfoGroup, 0);
+    statusLayout->addWidget(pingGroup, 0);
+    statusLayout->addWidget(pingLogArea, 0);
+    statusLayout->addStretch(1);
     tabWidget->addTab(statusTab, tr("状态"));
 
     QWidget *macTab = new QWidget(tabWidget);
@@ -229,47 +283,6 @@ void NetworkPage::buildUi()
     ipv4Layout->addWidget(ipv4LogArea, 1);
     tabWidget->addTab(ipv4Tab, tr("IPv4"));
 
-    QWidget *pingTab = new QWidget(tabWidget);
-    QGroupBox *pingGroup = new QGroupBox(tr("Ping 测试"), pingTab);
-    pingHostEdit = new QLineEdit(pingGroup);
-    pingHostEdit->setObjectName(QStringLiteral("inputLineEdit"));
-    pingHostEdit->setText(QStringLiteral("8.8.8.8"));
-    pingCountSpin = new QSpinBox(pingGroup);
-    pingCountSpin->setRange(1, 20);
-    pingCountSpin->setValue(4);
-    pingBtn = new QPushButton(tr("Ping"), pingGroup);
-    pingBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    pingStopBtn = new QPushButton(tr("停止"), pingGroup);
-    pingStopBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    pingStopBtn->setEnabled(false);
-    pingSummaryLabel = new QLabel(pingGroup);
-    pingSummaryLabel->setWordWrap(true);
-    QWidget *pingBtnRowWidget = new QWidget(pingGroup);
-    pingBtnRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    QHBoxLayout *pingBtnRow = new QHBoxLayout(pingBtnRowWidget);
-    pingBtnRow->setContentsMargins(0, 0, 0, 0);
-    pingBtnRow->setSpacing(8);
-    pingBtnRow->setAlignment(Qt::AlignVCenter);
-    pingBtnRow->addWidget(pingBtn);
-    pingBtnRow->addWidget(pingStopBtn);
-    pingBtnRow->addStretch();
-    QFormLayout *pingForm = new QFormLayout(pingGroup);
-    pingForm->setContentsMargins(12, 16, 12, 12);
-    pingForm->addRow(tr("目标"), pingHostEdit);
-    pingForm->addRow(tr("次数"), pingCountSpin);
-    pingForm->addRow(QString(), pingBtnRowWidget);
-    pingForm->addRow(tr("摘要"), pingSummaryLabel);
-    TbWidget::applyFormLayoutStyle(pingForm);
-
-    pingLogArea = new QTextEdit(pingTab);
-    pingLogArea->setReadOnly(true);
-    pingLogArea->setObjectName(QStringLiteral("networkLogArea"));
-    QVBoxLayout *pingLayout = new QVBoxLayout(pingTab);
-    pingLayout->setContentsMargins(8, 8, 8, 8);
-    pingLayout->addWidget(pingGroup);
-    pingLayout->addWidget(pingLogArea, 1);
-    tabWidget->addTab(pingTab, tr("连通性"));
-
     QWidget *i210Tab = new QWidget(tabWidget);
     buildI210Tab(i210Tab);
     i210TabIndex = tabWidget->addTab(i210Tab, tr("高级 I210"));
@@ -278,11 +291,17 @@ void NetworkPage::buildUi()
         tabWidget->setTabToolTip(i210TabIndex, tr("未检测到 Intel I210 网卡"));
     }
 
+    QWidget *tabContainer = new QWidget(content);
+    QHBoxLayout *tabContainerLayout = new QHBoxLayout(tabContainer);
+    tabContainerLayout->setContentsMargins(16, 0, 16, 8);
+    tabContainerLayout->setSpacing(0);
+    tabContainerLayout->addWidget(tabWidget);
+
     QVBoxLayout *pageLayout = new QVBoxLayout(content);
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(0);
     pageLayout->addWidget(toolbar);
-    pageLayout->addWidget(tabWidget, 1);
+    pageLayout->addWidget(tabContainer, 1);
 
     connect(refreshBtn, &QPushButton::clicked, this, &NetworkPage::refreshInterfaces);
     connect(ifaceBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
@@ -291,8 +310,12 @@ void NetworkPage::buildUi()
     connect(macSaveBtn, &QPushButton::clicked, this, &NetworkPage::saveMacPersistent);
     connect(ipApplyBtn, &QPushButton::clicked, this, &NetworkPage::applyIpv4Runtime);
     connect(ipSaveBtn, &QPushButton::clicked, this, &NetworkPage::saveIpv4Persistent);
-    connect(pingBtn, &QPushButton::clicked, this, &NetworkPage::startPing);
-    connect(pingStopBtn, &QPushButton::clicked, this, &NetworkPage::stopPing);
+    connect(pingPlayBtn, &QPushButton::clicked, this, &NetworkPage::onPingPlayBtnClicked);
+    connect(pingInfiniteCheck, &QCheckBox::toggled, this, [this](bool infinite) {
+        if (pingCountSpin) {
+            pingCountSpin->setEnabled(!infinite);
+        }
+    });
 
     applyPrivilegeUi();
 }
@@ -378,9 +401,36 @@ QString NetworkPage::defaultStatusHint() const
     return tr("已具备网络管理权限（root）。");
 }
 
+void NetworkPage::updatePingPlayButton()
+{
+    if (!pingPlayBtn) {
+        return;
+    }
+    pingPlayBtn->setText(pingRunning ? tr("停止") : tr("Ping"));
+}
+
+void NetworkPage::updatePageStatusBar(const QString &pingHint)
+{
+    if (!pingHint.isEmpty()) {
+        setStatusMessage(pingHint);
+        return;
+    }
+    if (pingRunning) {
+        const QString iface = currentInterfaceName();
+        const QString host = pingHostEdit ? pingHostEdit->text().trimmed() : QString();
+        if (pingInfiniteCheck && pingInfiniteCheck->isChecked()) {
+            setStatusMessage(tr("正在经 %1 持续 Ping %2 …").arg(iface, host));
+        } else {
+            setStatusMessage(tr("正在经 %1 Ping %2 …").arg(iface, host));
+        }
+        return;
+    }
+    setStatusMessage(defaultStatusHint());
+}
+
 void NetworkPage::applyPrivilegeUi()
 {
-    setStatusMessage(defaultStatusHint());
+    updatePageStatusBar();
     const bool canAdmin = TbNet::hasNetAdminPrivilege();
     if (macApplyBtn) {
         macApplyBtn->setEnabled(canAdmin);
@@ -433,6 +483,8 @@ void NetworkPage::refreshInterfaces()
         onInterfaceChanged(restoreIndex);
     } else {
         appendMacLog(tr("未找到可用物理网卡。"));
+        updateStatusLabels();
+        updatePageStatusBar();
     }
     syncLinkToggleButton();
 }
@@ -445,6 +497,7 @@ void NetworkPage::onInterfaceChanged(int index)
     const TbNet::InterfaceInfo info = TbNet::readInterfaceConfig(interfaces.at(index).name);
     interfaces[index] = info;
     updateStatusLabels();
+    updatePageStatusBar();
     fillConfigFields(info);
 }
 
@@ -452,6 +505,15 @@ void NetworkPage::updateStatusLabels()
 {
     const QString iface = currentInterfaceName();
     if (iface.isEmpty()) {
+        const QString dash = tr("—");
+        if (statusMacLabel) {
+            setInfoLine(statusMacLabel, tr("MAC"), dash);
+            setInfoLine(statusIpLabel, tr("IPv4"), dash);
+            setInfoLine(statusGwLabel, tr("网关"), dash);
+            setInfoLine(statusDnsLabel, tr("DNS"), dash);
+            setInfoLine(statusLinkLabel, tr("链路"), dash);
+            setInfoLine(statusBackendLabel, tr("配置后端"), dash);
+        }
         return;
     }
     const TbNet::InterfaceInfo info = TbNet::readInterfaceConfig(iface);
@@ -614,43 +676,60 @@ void NetworkPage::setInterfaceDown()
     syncLinkToggleButton();
 }
 
+void NetworkPage::onPingPlayBtnClicked()
+{
+    if (pingRunning) {
+        stopPing();
+    } else {
+        startPing();
+    }
+}
+
 void NetworkPage::startPing()
 {
+    const QString iface = currentInterfaceName();
+    if (iface.isEmpty()) {
+        QMessageBox::information(this, tr("Ping"), tr("请先选择网卡。"));
+        return;
+    }
     const QString host = pingHostEdit->text().trimmed();
     if (host.isEmpty()) {
         QMessageBox::information(this, tr("Ping"), tr("请输入目标地址。"));
         return;
     }
-    pingSummaryLabel->clear();
-    setStatusMessage(tr("正在 Ping %1 …").arg(host));
-    appendPingLog(tr("--- Ping %1 ---").arg(host));
-    pingBtn->setEnabled(false);
-    pingStopBtn->setEnabled(true);
-    pingRunner->start(host, pingCountSpin->value());
+    const int count = (pingInfiniteCheck && pingInfiniteCheck->isChecked())
+        ? 0
+        : pingCountSpin->value();
+    pingRunning = true;
+    updatePingPlayButton();
+    updatePageStatusBar();
+    appendPingLog(tr("--- 经 %1 Ping %2%3 ---")
+                      .arg(iface, host, count > 0 ? QString() : tr("（无限次）")));
+    pingRunner->start(host, count, iface);
 }
 
 void NetworkPage::stopPing()
 {
     pingRunner->stop();
-    pingBtn->setEnabled(true);
-    pingStopBtn->setEnabled(false);
+    pingRunning = false;
+    updatePingPlayButton();
+    updatePageStatusBar();
 }
 
 void NetworkPage::onPingLine(const QString &line)
 {
     appendPingLog(line);
     if (line.contains(QStringLiteral("packet loss")) || line.contains(QStringLiteral("丢包"))) {
-        pingSummaryLabel->setText(line);
+        updatePageStatusBar(line);
     }
 }
 
 void NetworkPage::onPingFinished(int exitCode)
 {
-    pingBtn->setEnabled(true);
-    pingStopBtn->setEnabled(false);
-    pingSummaryLabel->setText(tr("Ping 结束，退出码 %1").arg(exitCode));
+    pingRunning = false;
+    updatePingPlayButton();
     appendPingLog(tr("Ping 结束，退出码 %1").arg(exitCode));
-    setStatusMessage(defaultStatusHint());
+    updatePageStatusBar(tr("Ping 结束，退出码 %1").arg(exitCode));
 }
 
 QString NetworkPage::parseI210MacLine()

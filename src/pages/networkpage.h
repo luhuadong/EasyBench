@@ -5,6 +5,7 @@
 
 #include "modules/network/tb_net_util.h"
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFile>
 #include <QGroupBox>
@@ -36,6 +37,7 @@ private slots:
     void saveIpv4Persistent();
     void setInterfaceUp();
     void setInterfaceDown();
+    void onPingPlayBtnClicked();
     void startPing();
     void stopPing();
     void onPingLine(const QString &line);
@@ -58,6 +60,8 @@ private:
     bool confirmNetworkChange(const QString &title, const QString &detail);
     QString currentInterfaceName() const;
     void updateStatusLabels();
+    void updatePageStatusBar(const QString &pingHint = QString());
+    void updatePingPlayButton();
     void fillConfigFields(const TbNet::InterfaceInfo &info);
     bool checkPrivilegeForApply();
 
@@ -93,10 +97,10 @@ private:
 
     QLineEdit *pingHostEdit = nullptr;
     QSpinBox *pingCountSpin = nullptr;
-    QPushButton *pingBtn = nullptr;
-    QPushButton *pingStopBtn = nullptr;
-    QLabel *pingSummaryLabel = nullptr;
+    QCheckBox *pingInfiniteCheck = nullptr;
+    QPushButton *pingPlayBtn = nullptr;
     QTextEdit *pingLogArea = nullptr;
+    bool pingRunning = false;
 
     QLineEdit *i210MacLine = nullptr;
     QTextEdit *i210LogArea = nullptr;

@@ -25,5 +25,6 @@
         <file>icons/menu_storage_active.svg</file>
         <file>icons/menu_update.svg</file>
         <file>icons/menu_update_active.svg</file>
+        <file>icons/checkmark.svg</file>
     </qresource>
 </RCC>
