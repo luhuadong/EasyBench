@@ -5,7 +5,6 @@
 
 #include <QComboBox>
 #include <QGroupBox>
-#include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QSpinBox>
@@ -58,6 +57,8 @@ public:
     explicit StoragePage(TbOptions *options, QWidget *parent = nullptr);
     ~StoragePage();
 
+    QString defaultStatusHint() const override;
+
 private slots:
     void refreshTargets();
     void startTest();
@@ -81,7 +82,6 @@ private:
     QPushButton *stopBtn = nullptr;
     QProgressBar *progressBar = nullptr;
     QTextEdit *logArea = nullptr;
-    QLabel *statusLabel = nullptr;
 };
 
 #endif /* STORAGEPAGE_H */

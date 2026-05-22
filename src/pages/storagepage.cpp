@@ -258,7 +258,12 @@ StoragePage::StoragePage(TbOptions *options, QWidget *parent)
     setTitleLabelText(tr("存储测试"));
     buildUi();
     refreshTargets();
+    setStatusMessage(defaultStatusHint());
+}
 
+QString StoragePage::defaultStatusHint() const
+{
+    return tr("就绪");
 }
 
 StoragePage::~StoragePage()
@@ -331,14 +336,13 @@ void StoragePage::buildUi()
     progressBar->setRange(0, 100);
     logArea = new QTextEdit(logGroup);
     logArea->setReadOnly(true);
-    statusLabel = new QLabel(tr("就绪"), logGroup);
-    statusLabel->setWordWrap(true);
+    logArea->setObjectName(QStringLiteral("networkLogArea"));
 
     QVBoxLayout *logLayout = new QVBoxLayout(logGroup);
     logLayout->setContentsMargins(12, 16, 12, 12);
-    logLayout->addWidget(progressBar);
+    logLayout->setSpacing(8);
     logLayout->addWidget(logArea, 1);
-    logLayout->addWidget(statusLabel);
+    logLayout->addWidget(progressBar);
 
     QHBoxLayout *pageLayout = new QHBoxLayout(content);
     pageLayout->setContentsMargins(16, 12, 16, 12);
@@ -421,7 +425,7 @@ void StoragePage::startTest()
     logArea->clear();
     progressBar->setValue(0);
     setUiBusy(true);
-    statusLabel->setText(tr("测试进行中…"));
+    setStatusMessage(tr("测试进行中…"));
 
     worker = new StorageTestWorker(kind, target, sizeSpin->value(), loopsSpin->value(), this);
     TbThread::nameQThread(worker, "eb-storage");
@@ -435,7 +439,7 @@ void StoragePage::stopTest()
 {
     if (worker && worker->isRunning()) {
         worker->requestInterruption();
-        statusLabel->setText(tr("正在停止…"));
+        setStatusMessage(tr("正在停止…"));
     }
 }
 
@@ -447,12 +451,13 @@ void StoragePage::onLogLine(const QString &line)
 void StoragePage::onProgress(int percent)
 {
     progressBar->setValue(percent);
+    setStatusMessage(tr("测试进行中… %1%").arg(percent));
 }
 
 void StoragePage::onTestFinished(bool ok, const QString &summary)
 {
     setUiBusy(false);
-    statusLabel->setText(summary);
+    setStatusMessage(summary);
     appendLog(summary);
     if (worker) {
         worker->deleteLater();
