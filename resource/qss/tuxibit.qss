@@ -333,6 +333,10 @@ QComboBox QAbstractItemView::item:hover {
     color: #1E1E1E;
 }
 
+QComboBox#serialPortCombo QAbstractItemView {
+    min-height: 400px;
+}
+
 QCheckBox {
     background-color: transparent;
     color: #2B2B2B;

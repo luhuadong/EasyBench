@@ -31,7 +31,7 @@ protected:
     void run() override;
 
 private:
-    int serialFd = -1;
+    std::atomic<int> serialFd{-1};
     std::atomic<bool> discardIncoming{false};
 };
 

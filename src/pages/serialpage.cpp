@@ -8,11 +8,18 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QAbstractItemView>
+#include <QColor>
+#include <QListView>
 #include <QRegularExpression>
 #include <QScrollBar>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QVBoxLayout>
+
+#include <algorithm>
 
 #include <cerrno>
 #include <cstring>
@@ -72,6 +79,95 @@ constexpr qsizetype kRecvPendingMaxBytes = 64 * 1024;
 constexpr int kRecvFlushMaxBytesPerTick = 4096;
 constexpr int kRecvDisplayMaxChars = 48 * 1024;
 constexpr int kRecvDisplayMaxBlocks = 400;
+constexpr int kSerialPortPopupVisibleRows = 12;
+
+/** 0=USB 转串口, 1=CDC, 2=板载 RS232, 3=常见 SoC UART, 4=其它 */
+int ttyPortPriority(const QString &name)
+{
+    if (name.startsWith(QStringLiteral("ttyUSB"))) {
+        return 0;
+    }
+    if (name.startsWith(QStringLiteral("ttyACM"))) {
+        return 1;
+    }
+    if (name.startsWith(QStringLiteral("ttyS"))) {
+        return 2;
+    }
+    if (name.startsWith(QStringLiteral("ttyAMA"))
+        || name.startsWith(QStringLiteral("ttymxc"))
+        || name.startsWith(QStringLiteral("ttyO"))
+        || name.startsWith(QStringLiteral("ttyRP"))
+        || name.startsWith(QStringLiteral("ttyMSM"))
+        || name.startsWith(QStringLiteral("ttyWK"))
+        || name.startsWith(QStringLiteral("ttyLP"))
+        || name.startsWith(QStringLiteral("ttyIMX"))) {
+        return 3;
+    }
+    return 4;
+}
+
+bool isVirtualConsoleTty(const QString &name)
+{
+    static const QRegularExpression rx(QStringLiteral("^tty[0-9]+$"));
+    return rx.match(name).hasMatch();
+}
+
+bool isLegacyPtyMasterTty(const QString &name)
+{
+    if (name.length() < 5 || !name.startsWith(QStringLiteral("tty"))) {
+        return false;
+    }
+    const QChar prefix = name.at(3);
+    if ((prefix >= QLatin1Char('p') && prefix <= QLatin1Char('y'))
+        || (prefix >= QLatin1Char('P') && prefix <= QLatin1Char('Y'))) {
+        return name.at(4).isDigit();
+    }
+    return false;
+}
+
+bool isListableSerialTty(const QString &name)
+{
+    if (!name.startsWith(QStringLiteral("tty")) || name == QStringLiteral("tty")) {
+        return false;
+    }
+    if (isVirtualConsoleTty(name) || isLegacyPtyMasterTty(name)) {
+        return false;
+    }
+    if (name.startsWith(QStringLiteral("ttyprintk"))) {
+        return false;
+    }
+    return true;
+}
+
+void addComboGroupSeparator(QComboBox *box, const QString &title)
+{
+    box->addItem(title);
+    if (auto *model = qobject_cast<QStandardItemModel *>(box->model())) {
+        if (QStandardItem *item = model->item(box->count() - 1)) {
+            item->setFlags(Qt::NoItemFlags);
+            item->setData(QColor(Qt::gray), Qt::ForegroundRole);
+        }
+    }
+}
+
+void appendSortedPorts(QComboBox *box,
+                       const QString &groupTitle,
+                       QStringList ports,
+                       bool *anyGroupAdded)
+{
+    ports.removeDuplicates();
+    std::sort(ports.begin(), ports.end());
+    if (ports.isEmpty()) {
+        return;
+    }
+    if (*anyGroupAdded) {
+        addComboGroupSeparator(box, groupTitle);
+    }
+    for (const QString &path : ports) {
+        box->addItem(path);
+    }
+    *anyGroupAdded = true;
+}
 
 } // namespace
 
@@ -82,7 +178,7 @@ SerialRecvThread::SerialRecvThread(QObject *parent)
 
 void SerialRecvThread::setSerialPortFd(int fd)
 {
-    serialFd = fd;
+    serialFd.store(fd, std::memory_order_release);
 }
 
 void SerialRecvThread::setDiscardIncoming(bool discard)
@@ -98,7 +194,8 @@ void SerialRecvThread::run()
     char buf[kSerialReadChunk];
 
     while (!isInterruptionRequested()) {
-        if (serialFd < 0) {
+        const int fd = serialFd.load(std::memory_order_acquire);
+        if (fd < 0) {
             msleep(50);
             continue;
         }
@@ -106,7 +203,7 @@ void SerialRecvThread::run()
         batch.clear();
         bool gotData = false;
         while (!isInterruptionRequested()) {
-            const ssize_t ret = read(serialFd, buf, sizeof(buf));
+            const ssize_t ret = ::read(fd, buf, sizeof(buf));
             if (ret > 0) {
                 batch.append(buf, static_cast<int>(ret));
                 gotData = true;
@@ -115,10 +212,14 @@ void SerialRecvThread::run()
             if (ret == 0) {
                 break;
             }
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            if (errno == EINTR) {
+                continue;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EBADF) {
                 break;
             }
-            return;
+            msleep(10);
+            break;
         }
 
         if (!batch.isEmpty() && !discardIncoming.load(std::memory_order_acquire)) {
@@ -138,7 +239,8 @@ SerialPage::SerialPage(TbOptions *options, QWidget *parent)
 
     recvThread = new SerialRecvThread(this);
     TbThread::nameQThread(recvThread, "eb-serial");
-    connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::appendRecvChunk);
+    connect(recvThread, &SerialRecvThread::msgReceived, this, &SerialPage::appendRecvChunk,
+            Qt::QueuedConnection);
 
     recvFlushTimer = new QTimer(this);
     recvFlushTimer->setInterval(kRecvFlushIntervalMs);
@@ -151,11 +253,11 @@ SerialPage::SerialPage(TbOptions *options, QWidget *parent)
 SerialPage::~SerialPage()
 {
     recvFlushTimer->stop();
+    recvThread->setSerialPortFd(-1);
     if (serialFd >= 0) {
         ::close(serialFd);
         serialFd = -1;
     }
-    recvThread->setSerialPortFd(-1);
     if (recvThread->isRunning()) {
         recvThread->requestInterruption();
         recvThread->wait(2000);
@@ -218,6 +320,14 @@ void SerialPage::buildUi()
     portGroup = new QGroupBox(tr("串口设置"), content);
     portGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     serialPortBox = new QComboBox(portGroup);
+    serialPortBox->setObjectName(QStringLiteral("serialPortCombo"));
+    serialPortBox->setMaxVisibleItems(kSerialPortPopupVisibleRows);
+    if (QAbstractItemView *popupView = serialPortBox->view()) {
+        if (auto *listView = qobject_cast<QListView *>(popupView)) {
+            listView->setUniformItemSizes(true);
+        }
+        popupView->setMinimumHeight(kSerialPortPopupVisibleRows * TbWidget::kFormFieldHeight + 16);
+    }
     refreshPortBtn = new QPushButton(tr("刷新"), portGroup);
     refreshPortBtn->setObjectName(QStringLiteral("functionBtn_small"));
     refreshPortBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -329,39 +439,82 @@ void SerialPage::buildUi()
 
 void SerialPage::refreshPortList()
 {
-    const int previous = serialPortBox->currentIndex();
+    const QString previousPath = currentPortPath();
     serialPortBox->blockSignals(true);
     serialPortBox->clear();
 
-    QStringList ports;
+    QStringList groupUsb;
+    QStringList groupAcm;
+    QStringList groupBoard;
+    QStringList groupSoc;
+    QStringList groupOther;
+
+    auto classifyPort = [&](const QString &path) {
+        if (path.isEmpty() || !QFile::exists(path)) {
+            return;
+        }
+        const QString name = QFileInfo(path).fileName();
+        if (!isListableSerialTty(name)) {
+            return;
+        }
+        QStringList *target = &groupOther;
+        switch (ttyPortPriority(name)) {
+        case 0:
+            target = &groupUsb;
+            break;
+        case 1:
+            target = &groupAcm;
+            break;
+        case 2:
+            target = &groupBoard;
+            break;
+        case 3:
+            target = &groupSoc;
+            break;
+        default:
+            break;
+        }
+        if (!target->contains(path)) {
+            target->append(path);
+        }
+    };
+
     if (gSerialPortStr[0] != '\0') {
-        ports.append(QString::fromUtf8(gSerialPortStr));
+        classifyPort(QString::fromUtf8(gSerialPortStr));
     }
     const QFileInfoList entries =
         QDir(QStringLiteral("/dev")).entryInfoList(QDir::System | QDir::Files);
     for (const QFileInfo &info : entries) {
-        const QString name = info.fileName();
-        if (name.startsWith(QStringLiteral("tty"))) {
-            const QString path = QStringLiteral("/dev/") + name;
-            if (!ports.contains(path)) {
-                ports.append(path);
-            }
-        }
+        classifyPort(QStringLiteral("/dev/") + info.fileName());
     }
-    ports.sort();
-    for (const QString &port : ports) {
-        serialPortBox->addItem(port);
-    }
+
+    bool anyGroupAdded = false;
+    appendSortedPorts(serialPortBox, tr("USB 转串口 (ttyUSB)"), groupUsb, &anyGroupAdded);
+    appendSortedPorts(serialPortBox, tr("USB CDC (ttyACM)"), groupAcm, &anyGroupAdded);
+    appendSortedPorts(serialPortBox, tr("板载串口 (ttyS)"), groupBoard, &anyGroupAdded);
+    appendSortedPorts(serialPortBox, tr("嵌入式 UART"), groupSoc, &anyGroupAdded);
+    appendSortedPorts(serialPortBox, tr("其他 tty 设备"), groupOther, &anyGroupAdded);
+
     serialPortBox->blockSignals(false);
 
     if (serialPortBox->count() == 0) {
         setSerialStatus(tr("未检测到串口设备"));
         return;
     }
-    if (previous >= 0 && previous < serialPortBox->count()) {
-        serialPortBox->setCurrentIndex(previous);
+
+    int restoreIndex = -1;
+    if (!previousPath.isEmpty()) {
+        restoreIndex = serialPortBox->findText(previousPath);
+    }
+    if (restoreIndex >= 0) {
+        serialPortBox->setCurrentIndex(restoreIndex);
     } else {
-        serialPortBox->setCurrentIndex(0);
+        for (int i = 0; i < serialPortBox->count(); ++i) {
+            if (serialPortBox->itemText(i).startsWith(QStringLiteral("/"))) {
+                serialPortBox->setCurrentIndex(i);
+                break;
+            }
+        }
     }
     onPortChanged(serialPortBox->currentIndex());
 }
@@ -424,7 +577,7 @@ void SerialPage::applySerialPortStty()
         stopFlag = QStringLiteral("cstopb");
     }
 
-    const QString cmd = QStringLiteral("stty -F %1 speed %2 %3 %4 %5 -echo")
+    const QString cmd = QStringLiteral("stty -F %1 speed %2 raw %3 %4 %5")
                             .arg(path)
                             .arg(baud)
                             .arg(csFlag)
@@ -483,6 +636,9 @@ void SerialPage::openSerialPort()
         }
         recvThread->setDiscardIncoming(false);
         recvPauseCheck->setChecked(false);
+        if (!recvThread->isRunning()) {
+            recvThread->start();
+        }
         recvThread->setSerialPortFd(serialFd);
         recvPending.clear();
         recvFlushTimer->start();
@@ -494,11 +650,11 @@ void SerialPage::openSerialPort()
         flushRecvDisplay();
         recvThread->setDiscardIncoming(false);
         recvPauseCheck->setChecked(false);
+        recvThread->setSerialPortFd(-1);
         if (serialFd >= 0) {
             ::close(serialFd);
             serialFd = -1;
         }
-        recvThread->setSerialPortFd(-1);
         recvPending.clear();
         echoGroup->setEnabled(false);
         openBtn->setText(tr("打开"));
