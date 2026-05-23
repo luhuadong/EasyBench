@@ -19,9 +19,66 @@ extern "C" {
 
 namespace {
 
+constexpr qint64 kBytesPerUnit = 1024;
+
 void stretchGroupBox(QGroupBox *box)
 {
     box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+/** 按 1024 进制将字节数格式化为 B / KB / MB / GB / TB，自动选取合适单位。 */
+QString formatByteSize(qint64 bytes)
+{
+    if (bytes <= 0) {
+        return QStringLiteral("0 B");
+    }
+
+    static const QString kUnitSuffix[] = {
+        QStringLiteral("B"),
+        QStringLiteral("KB"),
+        QStringLiteral("MB"),
+        QStringLiteral("GB"),
+        QStringLiteral("TB"),
+    };
+
+    int unitIndex = 0;
+    double value = static_cast<double>(bytes);
+    while (unitIndex < 4 && value >= static_cast<double>(kBytesPerUnit)) {
+        value /= static_cast<double>(kBytesPerUnit);
+        ++unitIndex;
+    }
+
+    int precision = 0;
+    if (unitIndex == 0) {
+        precision = 0;
+    } else if (unitIndex == 1) {
+        precision = value < 100.0 ? 1 : 0;
+    } else if (value >= 100.0) {
+        precision = 1;
+    } else if (value >= 10.0) {
+        precision = 1;
+    } else {
+        precision = 2;
+    }
+
+    QString number = QString::number(value, 'f', precision);
+    if (unitIndex > 0) {
+        while (number.contains(QLatin1Char('.')) && number.endsWith(QLatin1Char('0'))) {
+            number.chop(1);
+        }
+        if (number.endsWith(QLatin1Char('.'))) {
+            number.chop(1);
+        }
+    }
+
+    return QStringLiteral("%1 %2").arg(number, kUnitSuffix[unitIndex]);
+}
+
+/** 将 megabytes（与 TbSysStats 一致）格式化为合适单位字符串。 */
+QString formatSizeFromMegabytes(quint64 megabytes)
+{
+    const qint64 bytes = static_cast<qint64>(megabytes) * kBytesPerUnit * kBytesPerUnit;
+    return formatByteSize(bytes);
 }
 
 } // namespace
@@ -199,15 +256,15 @@ void SystemPage::updateSysParam()
                              .arg(cpuInfo.totalCores)
                              .arg(cpuInfo.onlineCores));
 
-    memTotalLabel->setText(tr("总量：%1 MB").arg(memInfo.totalMb));
-    memUsedLabel->setText(tr("已用：%1 MB").arg(memInfo.usedMb));
-    memFreeLabel->setText(tr("可用：%1 MB").arg(memInfo.freeMb));
+    memTotalLabel->setText(tr("总量：%1").arg(formatSizeFromMegabytes(memInfo.totalMb)));
+    memUsedLabel->setText(tr("已用：%1").arg(formatSizeFromMegabytes(memInfo.usedMb)));
+    memFreeLabel->setText(tr("可用：%1").arg(formatSizeFromMegabytes(memInfo.freeMb)));
     memBar->setMaximum(static_cast<int>(memInfo.totalMb > 0 ? memInfo.totalMb : 100));
     memBar->setValue(static_cast<int>(memInfo.usedMb));
 
-    diskTotalLabel->setText(tr("根分区总量：%1 MB").arg(diskInfo.totalMb));
-    diskUsedLabel->setText(tr("已用：%1 MB").arg(diskInfo.usedMb));
-    diskFreeLabel->setText(tr("可用：%1 MB").arg(diskInfo.freeMb));
+    diskTotalLabel->setText(tr("根分区总量：%1").arg(formatSizeFromMegabytes(diskInfo.totalMb)));
+    diskUsedLabel->setText(tr("已用：%1").arg(formatSizeFromMegabytes(diskInfo.usedMb)));
+    diskFreeLabel->setText(tr("可用：%1").arg(formatSizeFromMegabytes(diskInfo.freeMb)));
     diskBar->setMaximum(static_cast<int>(diskInfo.totalMb > 0 ? diskInfo.totalMb : 100));
     diskBar->setValue(static_cast<int>(diskInfo.usedMb));
 
