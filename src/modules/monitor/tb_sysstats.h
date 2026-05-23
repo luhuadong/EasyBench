@@ -20,6 +20,8 @@ struct DiskInfo {
 struct CpuInfo {
     QString modelName;
     QString hardware;
+    QString displayCpuName;
+    QString displayGpuName;
     long totalCores = 0;
     long onlineCores = 0;
 };

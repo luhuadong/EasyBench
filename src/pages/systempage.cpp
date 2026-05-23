@@ -250,8 +250,10 @@ void SystemPage::updateSysParam()
     TbSysStats::readDiskInfo(QStringLiteral("/"), &diskInfo);
     TbSysStats::readArmTemperature(&armTemp);
 
-    cpuNameLabel->setText(tr("型号：%1").arg(cpuInfo.modelName));
-    cpuVendorLabel->setText(tr("平台：%1").arg(cpuInfo.hardware.isEmpty() ? tr("—") : cpuInfo.hardware));
+    cpuNameLabel->setText(tr("CPU：%1")
+                              .arg(cpuInfo.displayCpuName.isEmpty() ? tr("—") : cpuInfo.displayCpuName));
+    cpuVendorLabel->setText(tr("GPU：%1")
+                                .arg(cpuInfo.displayGpuName.isEmpty() ? tr("—") : cpuInfo.displayGpuName));
     cpuCoreLabel->setText(tr("核心：共 %1，在线 %2")
                              .arg(cpuInfo.totalCores)
                              .arg(cpuInfo.onlineCores));
