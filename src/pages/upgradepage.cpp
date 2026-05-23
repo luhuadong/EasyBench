@@ -5,6 +5,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -49,40 +50,58 @@ void UpgradePage::buildUi()
 {
     QWidget *content = contentArea();
 
-    selectBtn = new QPushButton(tr("选择包"), content);
-    selectBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    verifyBtn = new QPushButton(tr("校验"), content);
-    verifyBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    startBtn = new QPushButton(tr("开始升级"), content);
-    startBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    shutdownBtn = new QPushButton(tr("关机"), content);
-    shutdownBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    rebootBtn = new QPushButton(tr("重启"), content);
-    rebootBtn->setObjectName(QStringLiteral("functionBtn_small"));
-    connect(selectBtn, &QPushButton::clicked, this, &UpgradePage::selectPackage);
-    connect(verifyBtn, &QPushButton::clicked, this, &UpgradePage::verifyPackage);
-    connect(startBtn, &QPushButton::clicked, this, &UpgradePage::startUpgrade);
-    connect(shutdownBtn, &QPushButton::clicked, this, &UpgradePage::shutdownSystem);
-    connect(rebootBtn, &QPushButton::clicked, this, &UpgradePage::rebootSystem);
-
-    QHBoxLayout *actionRow = new QHBoxLayout;
-    actionRow->addWidget(selectBtn);
-    actionRow->addWidget(verifyBtn);
-    actionRow->addWidget(startBtn);
-    actionRow->addWidget(shutdownBtn);
-    actionRow->addWidget(rebootBtn);
-    actionRow->addStretch();
-
     QGroupBox *pkgGroup = new QGroupBox(tr("升级包"), content);
     packagePathEdit = new QLineEdit(pkgGroup);
     packagePathEdit->setObjectName(QStringLiteral("inputLineEdit"));
     packagePathEdit->setReadOnly(true);
     packagePathEdit->setPlaceholderText(tr("请选择 *.tar.gz 升级包"));
 
-    QFormLayout *pkgForm = new QFormLayout(pkgGroup);
+    selectBtn = new QPushButton(tr("选择包"), pkgGroup);
+    selectBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    verifyBtn = new QPushButton(tr("校验"), pkgGroup);
+    verifyBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    startBtn = new QPushButton(tr("开始升级"), pkgGroup);
+    startBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    connect(selectBtn, &QPushButton::clicked, this, &UpgradePage::selectPackage);
+    connect(verifyBtn, &QPushButton::clicked, this, &UpgradePage::verifyPackage);
+    connect(startBtn, &QPushButton::clicked, this, &UpgradePage::startUpgrade);
+
+    QWidget *pathRowWidget = new QWidget(pkgGroup);
+    pathRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *pathRow = new QHBoxLayout(pathRowWidget);
+    pathRow->setContentsMargins(0, 0, 0, 0);
+    pathRow->setSpacing(8);
+    pathRow->addWidget(packagePathEdit, 1);
+    pathRow->addWidget(selectBtn, 0, Qt::AlignVCenter);
+
+    QWidget *upgradeBtnRowWidget = new QWidget(pkgGroup);
+    upgradeBtnRowWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QHBoxLayout *upgradeBtnRow = new QHBoxLayout(upgradeBtnRowWidget);
+    upgradeBtnRow->setContentsMargins(0, 0, 0, 0);
+    upgradeBtnRow->setSpacing(8);
+    upgradeBtnRow->addWidget(verifyBtn);
+    upgradeBtnRow->addWidget(startBtn);
+    upgradeBtnRow->addStretch();
+
+    QFormLayout *pkgForm = new QFormLayout;
     pkgForm->setContentsMargins(12, 16, 12, 12);
-    pkgForm->addRow(tr("路径"), packagePathEdit);
+    pkgForm->addRow(tr("路径"), pathRowWidget);
+    pkgForm->addRow(QString(), upgradeBtnRowWidget);
     TbWidget::applyFormLayoutStyle(pkgForm);
+    pkgGroup->setLayout(pkgForm);
+
+    shutdownBtn = new QPushButton(tr("关机"), content);
+    shutdownBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    rebootBtn = new QPushButton(tr("重启"), content);
+    rebootBtn->setObjectName(QStringLiteral("functionBtn_small"));
+    connect(shutdownBtn, &QPushButton::clicked, this, &UpgradePage::shutdownSystem);
+    connect(rebootBtn, &QPushButton::clicked, this, &UpgradePage::rebootSystem);
+
+    QHBoxLayout *powerRow = new QHBoxLayout;
+    powerRow->setSpacing(8);
+    powerRow->addStretch();
+    powerRow->addWidget(shutdownBtn);
+    powerRow->addWidget(rebootBtn);
 
     QGroupBox *infoGroup = new QGroupBox(tr("包信息"), content);
     infoPathLabel = new QLabel(infoGroup);
@@ -118,10 +137,10 @@ void UpgradePage::buildUi()
     QVBoxLayout *pageLayout = new QVBoxLayout(content);
     pageLayout->setContentsMargins(16, 12, 16, 12);
     pageLayout->setSpacing(10);
-    pageLayout->addLayout(actionRow);
     pageLayout->addWidget(pkgGroup);
     pageLayout->addWidget(infoGroup);
     pageLayout->addWidget(logArea, 1);
+    pageLayout->addLayout(powerRow);
 
     setInfoLine(infoPathLabel, tr("文件"), tr("—"));
     setInfoLine(infoSizeLabel, tr("大小"), tr("—"));
