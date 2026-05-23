@@ -1,5 +1,9 @@
 # TuxiBit
 
+[![GitHubStars](https://img.shields.io/github/stars/luhuadong/TuxiBit?style=flat-square&logo=GitHub)](https://github.com/luhuadong/TuxiBit/stargazers)
+[![GitHub](https://img.shields.io/github/license/luhuadong/TuxiBit.svg)](https://github.com/luhuadong/TuxiBit/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/luhuadong/TuxiBit.svg)](https://github.com/luhuadong/TuxiBit/releases)
+
 ![](resource/TuxiBit_Banner.png)
 
 TuxiBit 是一个面向嵌入式 Linux 设备的轻量级出厂测试、硬件诊断和板级验证工具，支持图形界面、命令行执行、插件化测试项和测试报告导出。
