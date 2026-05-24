@@ -21,7 +21,7 @@ GrayscaleWidget::GrayscaleWidget(QSize size, QWidget *parent) :
         //grayscaleVector.append(label);
         //grayscaleList.append(label);
         grayscaleTab[i] = label;
-        mainLayout->addWidget(label);
+        mainLayout->addWidget(label, 1);
     }
 
     setLayout(mainLayout);

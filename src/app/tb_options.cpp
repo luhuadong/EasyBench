@@ -8,8 +8,41 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QGuiApplication>
+#include <QScreen>
 
 extern "C" char *getBacklightNodeName(void);
+
+namespace {
+
+QSize probePhysicalDisplaySize()
+{
+    struct fb_var_screeninfo vinfo;
+    const int fbfd = open("/dev/fb0", O_RDONLY);
+    if (fbfd >= 0) {
+        if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) == 0) {
+            close(fbfd);
+            if (vinfo.xres > 0 && vinfo.yres > 0) {
+                return QSize(static_cast<int>(vinfo.xres), static_cast<int>(vinfo.yres));
+            }
+        } else {
+            close(fbfd);
+        }
+    }
+
+    if (QGuiApplication::instance() != nullptr) {
+        if (QScreen *screen = QGuiApplication::primaryScreen()) {
+            const QSize size = screen->geometry().size();
+            if (size.isValid() && size.width() > 0 && size.height() > 0) {
+                return size;
+            }
+        }
+    }
+
+    return QSize(FIXED_WINDOWN_WIDTH, FIXED_WINDOWN_HEIGHT);
+}
+
+} // namespace
 
 TbOptions::TbOptions()
     : configOk(false)
@@ -42,14 +75,9 @@ TbOptions::TbOptions()
 
     loadVersionInfo(configRead);
 
-    struct fb_var_screeninfo vinfo;
-    if (0 == getScreenInfo(&vinfo)) {
-        lcdWidth = vinfo.xres;
-        lcdHeight = vinfo.yres;
-    } else {
-        lcdWidth = FIXED_WINDOWN_WIDTH;
-        lcdHeight = FIXED_WINDOWN_HEIGHT;
-    }
+    const QSize displaySize = probePhysicalDisplaySize();
+    lcdWidth = static_cast<uint>(displaySize.width());
+    lcdHeight = static_cast<uint>(displaySize.height());
 
     fixedWidth = FIXED_WINDOWN_WIDTH;
     fixedHeight = FIXED_WINDOWN_HEIGHT;
@@ -187,7 +215,7 @@ QSize TbOptions::fixedSize() const
 
 QSize TbOptions::lcdSize() const
 {
-    return QSize(lcdWidth, lcdHeight);
+    return probePhysicalDisplaySize();
 }
 
 QSize TbOptions::cameraViewSize() const

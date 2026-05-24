@@ -431,13 +431,14 @@ void LcdPage::lcdBacklightDown()
 
 void LcdPage::pixelCheckBtnClicked()
 {
+    const QSize displaySize = g_opt->lcdSize();
     colorBtn = new QPushButton;
     colorBtn->setObjectName(QStringLiteral("noneOutlineBtn"));
-    colorBtn->setFixedSize(g_opt->lcdSize());
-    colorBtn->setWindowFlags(Qt::FramelessWindowHint);
+    colorBtn->setFixedSize(displaySize);
+    colorBtn->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     colorBtn->setStyleSheet(QStringLiteral("background-color: #0000FF"));
     colorBtn->setCursor(Qt::BlankCursor);
-    colorBtn->show();
+    colorBtn->showFullScreen();
     connect(colorBtn, &QPushButton::pressed, this, &LcdPage::changeColor);
 }
 
@@ -445,7 +446,7 @@ void LcdPage::grayscaleTestBtnClicked()
 {
     GrayscaleWidget *grayscaleWidget = new GrayscaleWidget(g_opt->lcdSize());
     grayscaleWidget->setAttribute(Qt::WA_DeleteOnClose);
-    grayscaleWidget->show();
+    grayscaleWidget->showFullScreen();
 }
 
 void LcdPage::changeColor()
