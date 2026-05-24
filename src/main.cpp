@@ -6,13 +6,18 @@
 #include "tb_paths.h"
 #include "tb_thread_util.h"
 #include <QApplication>
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QFile>
 #include <QMessageBox>
+#include <QPixmap>
 #include <QPushButton>
+#include <QSplashScreen>
 #include "tb_qt_compat.h"
 #include <QDebug>
 #include <QFontDatabase>
 #include <QFont>
+#include <QThread>
 
 extern "C"
 {
@@ -44,6 +49,16 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     TbThread::setCurrentThreadName("eb-main");
     TbBranding::applyApplicationIdentity(a);
+
+    QElapsedTimer splashTimer;
+    splashTimer.start();
+    QSplashScreen *splash = nullptr;
+    const QPixmap splashPixmap(QStringLiteral(":/images/tuxibit-splash.png"));
+    if (!splashPixmap.isNull()) {
+        splash = new QSplashScreen(splashPixmap, Qt::WindowStaysOnTopHint);
+        splash->show();
+        a.processEvents();
+    }
 
     QFile qssFile(":/qss/tuxibit.qss");
     qssFile.open(QFile::ReadOnly);
@@ -80,11 +95,21 @@ int main(int argc, char *argv[])
     const TbStartupReport report = tb_check_runtime(g_opt);
 
     if (!report.ok()) {
+        if (splash) {
+            splash->close();
+            delete splash;
+            splash = nullptr;
+        }
         QMessageBox::critical(nullptr, QObject::tr("TuxiBit 启动失败"), report.summaryText());
         return 1;
     }
 
     if (!report.warnings.isEmpty()) {
+        if (splash) {
+            splash->close();
+            delete splash;
+            splash = nullptr;
+        }
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle(QObject::tr("TuxiBit"));
@@ -102,7 +127,18 @@ int main(int argc, char *argv[])
 #endif
     }
 
+    constexpr int kSplashMinMs = 1200;
+    while (splash && splashTimer.elapsed() < kSplashMinMs) {
+        a.processEvents(QEventLoop::AllEvents, 100);
+        QThread::msleep(50);
+    }
+
     MainWidget w(&g_opt);
+    if (splash) {
+        splash->finish(&w);
+        delete splash;
+        splash = nullptr;
+    }
     w.show();
 
     return a.exec();

@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/images">
         <file>logo.png</file>
+        <file>tuxibit-splash.png</file>
     </qresource>
     <qresource prefix="/">
         <file>icons/menu_lcd.svg</file>
