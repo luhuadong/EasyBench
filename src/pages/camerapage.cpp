@@ -164,7 +164,8 @@ void CameraPage::updatePreviewBannerSize()
     }
 
     const int margin = 8;
-    const int maxWidth = qMin(720, CONTENT_WIDTH - 48);
+    const int contentW = contentArea() ? contentArea()->width() : CONTENT_MIN_WIDTH;
+    const int maxWidth = qMin(720, contentW - 48);
     int availW = previewHost->width() - margin;
     int availH = previewHost->height() - margin;
     if (availW <= 0 || availH <= 0) {

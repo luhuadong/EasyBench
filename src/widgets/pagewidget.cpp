@@ -10,7 +10,7 @@ PageWidget::PageWidget(TbOptions *options, QWidget *parent)
 {
     g_opt = options;
 
-    setMinimumWidth(CONTENT_WIDTH);
+    setMinimumWidth(CONTENT_MIN_WIDTH);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     titleLabel = new QLabel(this);

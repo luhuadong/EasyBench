@@ -26,23 +26,27 @@
 
 #define LANGUAGE_CHINESE 1  /* All the text show as Chinese, please always enable */
 
-#define FIXED_WINDOWN    1  /* Fixed window size or not */
+/* 0 = 可调整大小（不小于 WINDOW_MIN_*）；1 = 固定为设计尺寸 */
+#define FIXED_WINDOWN    0
 #define WINDOW_DESKTOP
 /* #define WINDOW_EMBEDDED */
 
-#if FIXED_WINDOWN
-#define FIXED_WINDOWN_WIDTH 1024
+#define WINDOW_MIN_WIDTH 1024
 #define SIDEBAR_WIDTH 176
-#define CONTENT_WIDTH (FIXED_WINDOWN_WIDTH - SIDEBAR_WIDTH)
+#define CONTENT_MIN_WIDTH (WINDOW_MIN_WIDTH - SIDEBAR_WIDTH)
+#define CONTENT_WIDTH CONTENT_MIN_WIDTH
+
 #ifdef WINDOW_DESKTOP
-#define FIXED_WINDOWN_HEIGHT 720
+#define WINDOW_MIN_HEIGHT 720
 #else
-#define FIXED_WINDOWN_HEIGHT 768
+#define WINDOW_MIN_HEIGHT 768
 #endif
-#endif
+
+#define FIXED_WINDOWN_WIDTH WINDOW_MIN_WIDTH
+#define FIXED_WINDOWN_HEIGHT WINDOW_MIN_HEIGHT
 #define TITLE_HEIGHT 40
 #define STATUS_BAR_HEIGHT 32
-#define PAGE_BODY_HEIGHT FIXED_WINDOWN_HEIGHT
+#define PAGE_BODY_HEIGHT WINDOW_MIN_HEIGHT
 
 #define CONNECT_STM32    0  /* Connect to base board (STM32) via ethernet */
 

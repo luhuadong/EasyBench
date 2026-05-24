@@ -51,7 +51,9 @@ void MainWidget::initMainUI()
 #if FIXED_WINDOWN
     setFixedSize(g_opt->fixedSize().width(), g_opt->fixedSize().height());
 #else
-    setFixedSize(LCD_WIDTH, LCD_HEIGHT - TITLE_HEIGHT);
+    const QSize minSize = g_opt->fixedSize();
+    setMinimumSize(minSize);
+    resize(minSize);
 #endif
 
     QHBoxLayout *rootLayout = new QHBoxLayout(this);

@@ -5,9 +5,12 @@
 #include <QFile>
 #include <QFont>
 #include <QFontDatabase>
+#include <QVBoxLayout>
 #include <QDebug>
 
 #define TAB_ITEM_HEIGHT 48
+constexpr int kVersionLabelColumnWidth = 180;
+constexpr int kVersionTableMinWidth = 560;
 
 VersionPage::VersionPage(TbOptions *options, QWidget *parent) :
     PageWidget(options, parent)
@@ -15,10 +18,9 @@ VersionPage::VersionPage(TbOptions *options, QWidget *parent) :
     //setTitleLabelText(tr("Version Information"));
     setTitleLabelText(tr("设备版本信息"));
 
-    //-------------- table ----------------
-    tabView = new QTableView(this);
+    QWidget *content = contentArea();
 
-    tabView->setGeometry(80, 96 + 36 + 24, CONTENT_WIDTH - 160, 9 * TAB_ITEM_HEIGHT + 2);
+    tabView = new QTableView(content);
     tabModel = new QStandardItemModel;
     //itemCntLabel->setProperty("h", 6);
 
@@ -31,8 +33,9 @@ VersionPage::VersionPage(TbOptions *options, QWidget *parent) :
     tabView->setModel(tabModel);
     tabView->verticalHeader()->hide();   // 隐藏垂直表头
     tabView->horizontalHeader()->hide();
-    tabView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // 不显示垂直滚动条
-    tabView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   // 不显示水平滚动条
+    tabView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tabView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    tabView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     //tabView->horizontalHeader()->setSectionsClickable(false);    // 设置水平表头不可点击
     tabView->setSelectionBehavior(QAbstractItemView::SelectRows);    // 设置每次点击选中一整行
     tabView->setSelectionMode(QAbstractItemView::SingleSelection);   // 设置每次只能选中一行
@@ -43,17 +46,23 @@ VersionPage::VersionPage(TbOptions *options, QWidget *parent) :
     QFont font = tabView->horizontalHeader()->font();    // 设置水平表头字体加粗
     font.setBold(true);
     tabView->horizontalHeader()->setFont(font);
-    tabView->horizontalHeader()->setFixedHeight(34);
-    tabView->verticalHeader()->setDefaultSectionSize(TAB_ITEM_HEIGHT);   // 改变默认行高
-    //tabView->horizontalHeader()->setTextElideMode(Qt::ElideLeft);    // 超出显示区域时省略号在左边
-    tabView->setColumnWidth(0, 150); // 设置第一列宽度为150
-    //tabView->setColumnWidth(1, 400); // 设置第二列宽度为400
-    tabView->horizontalHeader()->setStretchLastSection(true);    // 设置最后一列充满表宽度
-
-    //-----------------------------
-
+    tabView->verticalHeader()->setDefaultSectionSize(TAB_ITEM_HEIGHT);
+    tabView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+    tabView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    tabView->setColumnWidth(0, kVersionLabelColumnWidth);
 
     getVersionData();
+
+    const int tableHeight =
+        tabModel->rowCount() * TAB_ITEM_HEIGHT + tabView->frameWidth() * 2;
+    tabView->setFixedHeight(tableHeight);
+    tabView->setMinimumWidth(kVersionTableMinWidth);
+
+    QVBoxLayout *pageLayout = new QVBoxLayout(content);
+    pageLayout->setContentsMargins(80, 12, 80, 12);
+    pageLayout->addStretch();
+    pageLayout->addWidget(tabView, 0);
+    pageLayout->addStretch();
 }
 
 void VersionPage::getVersionData()
