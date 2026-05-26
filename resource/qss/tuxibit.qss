@@ -196,7 +196,6 @@ QPushButton#functionBtn:disabled {
 
 QPushButton#functionBtn_small {
     min-height: 32px;
-    max-height: 32px;
     padding: 4px 16px;
     border: none;
     border-radius: 8px;
@@ -271,6 +270,7 @@ QLineEdit#inputLineEdit {
     background: #FFFFFF;
     selection-background-color: #FFD54B;
     font: bold 18px;
+    min-height: 32px;
 }
 
 QLineEdit:read-only {
@@ -287,7 +287,47 @@ QComboBox {
     background-color: #FFFFFF;
     font: 15px;
     min-height: 32px;
-    max-height: 32px;
+}
+
+QSpinBox {
+    color: #2B2B2B;
+    border: 1px solid #C0C0C0;
+    border-radius: 8px;
+    padding: 4px 12px;
+    padding-right: 32px;
+    background-color: #FFFFFF;
+    font: 15px;
+    min-height: 32px;
+}
+
+QSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 28px;
+    border: none;
+    border-left: 1px solid #C0C0C0;
+    border-top-right-radius: 8px;
+    background-color: #F0F0F0;
+}
+
+QSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 28px;
+    border: none;
+    border-left: 1px solid #C0C0C0;
+    border-bottom-right-radius: 8px;
+    background-color: #F0F0F0;
+}
+
+QSpinBox::up-arrow {
+    width: 10px;
+    height: 10px;
+}
+
+QSpinBox::down-arrow {
+    width: 10px;
+    height: 10px;
 }
 
 QComboBox::drop-down {

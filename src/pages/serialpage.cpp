@@ -367,7 +367,8 @@ void SerialPage::buildUi()
 
     auto addPortRow = [&](int row, const QString &labelText, QWidget *field) {
         field->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        portGrid->addWidget(TbWidget::createFormLabel(portGroup, labelText), row, 0);
+        const int rowH = TbWidget::styledControlHeight(field);
+        portGrid->addWidget(TbWidget::createFormLabel(portGroup, labelText, rowH), row, 0);
         portGrid->addWidget(field, row, 1);
     };
 

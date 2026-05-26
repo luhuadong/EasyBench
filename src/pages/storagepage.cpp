@@ -3,7 +3,6 @@
 #include "tb_thread_util.h"
 
 #include <QDir>
-#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QRegExp>
@@ -321,15 +320,12 @@ void StoragePage::buildUi()
     btnRow->addWidget(stopBtn);
     btnRow->addStretch();
 
-    QFormLayout *form = new QFormLayout;
-    form->setContentsMargins(12, 16, 12, 12);
-    form->addRow(tr("测试媒介"), mediaRowWidget);
-    form->addRow(tr("测试类型"), testTypeBox);
-    form->addRow(tr("数据量"), sizeSpin);
-    form->addRow(tr("循环次数"), loopsSpin);
-    form->addRow(QString(), btnRowWidget);
-    TbWidget::applyFormLayoutStyle(form);
-    cfgGroup->setLayout(form);
+    TbWidget::FormGridBuilder cfgGrid(cfgGroup);
+    cfgGrid.addLabeledRow(tr("测试媒介"), mediaRowWidget);
+    cfgGrid.addLabeledRow(tr("测试类型"), testTypeBox);
+    cfgGrid.addLabeledRow(tr("数据量"), sizeSpin);
+    cfgGrid.addLabeledRow(tr("循环次数"), loopsSpin);
+    cfgGrid.addFieldRow(btnRowWidget);
 
     QGroupBox *logGroup = new QGroupBox(tr("测试日志"), content);
     progressBar = new QProgressBar(logGroup);
@@ -344,9 +340,13 @@ void StoragePage::buildUi()
     logLayout->addWidget(logArea, 1);
     logLayout->addWidget(progressBar);
 
+    cfgGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
     QHBoxLayout *pageLayout = new QHBoxLayout(content);
     pageLayout->setContentsMargins(16, 12, 16, 12);
-    pageLayout->addWidget(cfgGroup, 0);
+    pageLayout->setSpacing(16);
+    pageLayout->setAlignment(Qt::AlignTop);
+    pageLayout->addWidget(cfgGroup, 0, Qt::AlignTop);
     pageLayout->addWidget(logGroup, 1);
 
     connect(refreshBtn, &QPushButton::clicked, this, &StoragePage::refreshTargets);

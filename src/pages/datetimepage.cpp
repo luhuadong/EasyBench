@@ -4,7 +4,6 @@
 #include <QTextCodec>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QFormLayout>
 #include <QRegExp>
 #include <QValidator>
 #include <QIntValidator>
@@ -40,18 +39,6 @@ DatetimePage::DatetimePage(TbOptions *options, QWidget *parent) :
     gatewayLineEdit->setInputMask(QString("000.000.000.000;0"));
     dnsLineEdit->setInputMask(QString("000.000.000.000"));
 
-    QFormLayout *leftLayout = new QFormLayout;
-    //leftLayout->setLabelAlignment(Qt::AlignRight);
-    //leftLayout->setContentsMargins(10, 20, 10, 300);
-    leftLayout->setMargin(20);
-    leftLayout->setSpacing(10);
-    leftLayout->addRow(tr("IP : "), ipLineEdit);
-    leftLayout->addRow(tr("Mask : "), maskLineEdit);
-    leftLayout->addRow(tr("Gateway : "), gatewayLineEdit);
-    leftLayout->addRow(tr("DNS : "), dnsLineEdit);
-    networkGroupBox->setLayout(leftLayout);
-
-
     datetimeGroupBox = new QGroupBox(tr("  Time-zone & Date-time  "), this);
     timezoneComboBox = new QComboBox(datetimeGroupBox);
     dateLineEdit = new InputLineEdit(datetimeGroupBox);
@@ -60,17 +47,16 @@ DatetimePage::DatetimePage(TbOptions *options, QWidget *parent) :
     dateLineEdit->setInputMask(QString("0000-00-00"));
     timeLineEdit->setInputMask(QString("00:00:00"));
 
-    QFormLayout *rightLayout = new QFormLayout;
-    //rightLayout->setContentsMargins(10, 20, 10, 300);
-    rightLayout->setMargin(20);
-    rightLayout->setSpacing(10);
-    rightLayout->addRow(tr("Time-zone : "), timezoneComboBox);
-    rightLayout->addRow(tr("Date : "), dateLineEdit);
-    rightLayout->addRow(tr("Time : "), timeLineEdit);
-    datetimeGroupBox->setLayout(rightLayout);
+    TbWidget::FormGridBuilder networkGrid(networkGroupBox);
+    networkGrid.addLabeledRow(tr("IP : "), ipLineEdit);
+    networkGrid.addLabeledRow(tr("Mask : "), maskLineEdit);
+    networkGrid.addLabeledRow(tr("Gateway : "), gatewayLineEdit);
+    networkGrid.addLabeledRow(tr("DNS : "), dnsLineEdit);
 
-    TbWidget::applyFormLayoutStyle(leftLayout);
-    TbWidget::applyFormLayoutStyle(rightLayout);
+    TbWidget::FormGridBuilder datetimeGrid(datetimeGroupBox);
+    datetimeGrid.addLabeledRow(tr("Time-zone : "), timezoneComboBox);
+    datetimeGrid.addLabeledRow(tr("Date : "), dateLineEdit);
+    datetimeGrid.addLabeledRow(tr("Time : "), timeLineEdit);
     TbWidget::applyComboBoxStyle(timezoneComboBox);
     TbWidget::applyLineEditStyle(ipLineEdit);
     TbWidget::applyLineEditStyle(maskLineEdit);

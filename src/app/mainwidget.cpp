@@ -150,7 +150,6 @@ void MainWidget::initMainUI()
     const int popupHeight = PAGE_BODY_HEIGHT - STATUS_BAR_HEIGHT - 48;
     TbWidget::applyComboBoxStyles(this, popupHeight);
     TbWidget::applyFormFieldStyles(this);
-    TbWidget::applyAllFormLayouts(this);
 }
 
 void MainWidget::bindPageStatus(PageWidget *page)

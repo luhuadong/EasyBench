@@ -2,7 +2,6 @@
 #include "widgets/tb_widget_util.h"
 
 #include <QFileDialog>
-#include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -83,12 +82,9 @@ void UpgradePage::buildUi()
     upgradeBtnRow->addWidget(startBtn);
     upgradeBtnRow->addStretch();
 
-    QFormLayout *pkgForm = new QFormLayout;
-    pkgForm->setContentsMargins(12, 16, 12, 12);
-    pkgForm->addRow(tr("路径"), pathRowWidget);
-    pkgForm->addRow(QString(), upgradeBtnRowWidget);
-    TbWidget::applyFormLayoutStyle(pkgForm);
-    pkgGroup->setLayout(pkgForm);
+    TbWidget::FormGridBuilder pkgGrid(pkgGroup);
+    pkgGrid.addLabeledRow(tr("路径"), pathRowWidget);
+    pkgGrid.addFieldRow(upgradeBtnRowWidget);
 
     shutdownBtn = new QPushButton(tr("关机"), content);
     shutdownBtn->setObjectName(QStringLiteral("functionBtn_small"));

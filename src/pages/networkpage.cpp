@@ -6,7 +6,6 @@
 #include <QRegExp>
 #include <QButtonGroup>
 #include <QCheckBox>
-#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QVBoxLayout>
@@ -97,7 +96,8 @@ void NetworkPage::buildUi()
     toolbarRow->setContentsMargins(16, 8, 16, 8);
     toolbarRow->setSpacing(8);
     toolbarRow->setAlignment(Qt::AlignVCenter);
-    toolbarRow->addWidget(TbWidget::createFormLabel(toolbar, tr("选择网卡")));
+    toolbarRow->addWidget(
+        TbWidget::createFormLabel(toolbar, tr("选择网卡"), TbWidget::styledControlHeight(ifaceBox)));
     toolbarRow->addWidget(ifaceBox, 1);
     toolbarRow->addWidget(refreshBtn, 0, Qt::AlignVCenter);
     toolbarRow->addWidget(linkToggleBtn, 0, Qt::AlignVCenter);
@@ -171,11 +171,9 @@ void NetworkPage::buildUi()
     pingCountRow->addWidget(pingInfiniteCheck);
     pingCountRow->addStretch();
 
-    QFormLayout *pingForm = new QFormLayout(pingGroup);
-    pingForm->setContentsMargins(12, 16, 12, 12);
-    pingForm->addRow(tr("目标"), pingHostRowWidget);
-    pingForm->addRow(tr("次数"), pingCountRowWidget);
-    TbWidget::applyFormLayoutStyle(pingForm);
+    TbWidget::FormGridBuilder pingGrid(pingGroup);
+    pingGrid.addLabeledRow(tr("目标"), pingHostRowWidget);
+    pingGrid.addLabeledRow(tr("次数"), pingCountRowWidget);
 
     pingLogArea = new QTextEdit(statusTab);
     pingLogArea->setReadOnly(true);
@@ -210,11 +208,9 @@ void NetworkPage::buildUi()
     macBtnRow->addWidget(macApplyBtn);
     macBtnRow->addWidget(macSaveBtn);
     macBtnRow->addStretch();
-    QFormLayout *macForm = new QFormLayout(macGroup);
-    macForm->setContentsMargins(12, 16, 12, 12);
-    macForm->addRow(tr("新 MAC"), macEdit);
-    macForm->addRow(QString(), macBtnRowWidget);
-    TbWidget::applyFormLayoutStyle(macForm);
+    TbWidget::FormGridBuilder macGrid(macGroup);
+    macGrid.addLabeledRow(tr("新 MAC"), macEdit);
+    macGrid.addFieldRow(macBtnRowWidget);
 
     macLogArea = new QTextEdit(macTab);
     macLogArea->setReadOnly(true);
@@ -262,17 +258,15 @@ void NetworkPage::buildUi()
     ipBtnRow->addWidget(ipSaveBtn);
     ipBtnRow->addStretch();
 
-    QFormLayout *ipForm = new QFormLayout(ipGroup);
-    ipForm->setContentsMargins(12, 16, 12, 12);
-    ipForm->addRow(QString(), dhcpRadio);
-    ipForm->addRow(QString(), staticRadio);
-    ipForm->addRow(tr("IP 地址"), ipEdit);
-    ipForm->addRow(tr("子网掩码"), maskEdit);
-    ipForm->addRow(tr("前缀长度"), prefixSpin);
-    ipForm->addRow(tr("默认网关"), gatewayEdit);
-    ipForm->addRow(tr("DNS"), dnsEdit);
-    ipForm->addRow(QString(), ipBtnRowWidget);
-    TbWidget::applyFormLayoutStyle(ipForm);
+    TbWidget::FormGridBuilder ipGrid(ipGroup);
+    ipGrid.addFieldRow(dhcpRadio);
+    ipGrid.addFieldRow(staticRadio);
+    ipGrid.addLabeledRow(tr("IP 地址"), ipEdit);
+    ipGrid.addLabeledRow(tr("子网掩码"), maskEdit);
+    ipGrid.addLabeledRow(tr("前缀长度"), prefixSpin);
+    ipGrid.addLabeledRow(tr("默认网关"), gatewayEdit);
+    ipGrid.addLabeledRow(tr("DNS"), dnsEdit);
+    ipGrid.addFieldRow(ipBtnRowWidget);
 
     ipv4LogArea = new QTextEdit(ipv4Tab);
     ipv4LogArea->setReadOnly(true);
@@ -351,11 +345,9 @@ void NetworkPage::buildI210Tab(QWidget *tabPage)
     i210BtnRow->addWidget(writeBtn);
     i210BtnRow->addStretch();
 
-    QFormLayout *i210Form = new QFormLayout(i210Group);
-    i210Form->setContentsMargins(12, 16, 12, 12);
-    i210Form->addRow(tr("MAC"), i210MacLine);
-    i210Form->addRow(QString(), i210BtnRowWidget);
-    TbWidget::applyFormLayoutStyle(i210Form);
+    TbWidget::FormGridBuilder i210Grid(i210Group);
+    i210Grid.addLabeledRow(tr("MAC"), i210MacLine);
+    i210Grid.addFieldRow(i210BtnRowWidget);
 
     i210LogArea = new QTextEdit(tabPage);
     i210LogArea->setReadOnly(true);
